@@ -5,18 +5,11 @@ import { Input } from "./input"
 
 export interface SearchInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-  onSearch?: (value: string) => void
   isExpanded?: boolean
 }
 
 const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ className, onSearch, isExpanded, ...props }, ref) => {
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter" && onSearch) {
-        onSearch(e.currentTarget.value)
-      }
-    }
-
+  ({ className, isExpanded, ...props }, ref) => {
     return (
       <div className={cn(
         "relative transition-all duration-300",
@@ -27,7 +20,6 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           type="search"
           className={cn("pl-9", className)}
           ref={ref}
-          onKeyDown={handleKeyDown}
           {...props}
         />
       </div>
