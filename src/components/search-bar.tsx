@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { SearchResultsDropdown } from "./search-results-dropdown";
@@ -21,13 +21,13 @@ export function SearchBar() {
         isExpanded={isSearchFocused}
         onFocus={() => setIsSearchFocused(true)}
         onBlur={(e) => {
-          if (!e.relatedTarget?.closest('[data-search-dropdown]')) {
+          if (!e.relatedTarget?.closest("[data-search-dropdown]")) {
             setIsSearchFocused(false);
           }
         }}
       />
       <SearchResultsDropdown
-        query={searchQuery} 
+        query={searchQuery}
         show={isSearchFocused}
         onMouseDown={() => {
           setIsSearchFocused(true);
@@ -35,4 +35,4 @@ export function SearchBar() {
       />
     </div>
   );
-} 
+}

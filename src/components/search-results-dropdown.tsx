@@ -1,5 +1,3 @@
-"use client";
-
 import { useApi } from "@/hooks/useApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";

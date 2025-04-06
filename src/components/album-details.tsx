@@ -1,3 +1,4 @@
+"use client"
 import { SpotifyAlbum } from "@/types/spotify";
 import Image from "next/image";
 import { useState } from "react";
