@@ -1,4 +1,4 @@
-import { SpotifyAlbum, SpotifySearchResults } from "@/types/spotify";
+import { NewReleasesResponse, SpotifyAlbum, SpotifySearchResults } from "@/types/spotify";
 import { useCallback } from "react";
 
 interface ApiError {
@@ -46,8 +46,27 @@ export function useApi() {
     []
   );
 
+  const getNewReleases = useCallback(
+    async (params?: { limit?: number; country?: string }): Promise<NewReleasesResponse> => {
+      const queryParams = new URLSearchParams();
+      if (params?.limit) queryParams.set("limit", params.limit.toString());
+      if (params?.country) queryParams.set("country", params.country);
+
+      const response = await fetch(`/api/new-releases?${queryParams}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error((data as ApiError).error || "Failed to fetch new releases");
+      }
+
+      return data as NewReleasesResponse;
+    },
+    []
+  );
+
   return {
     searchAlbums,
     getAlbum,
+    getNewReleases,
   };
 } 

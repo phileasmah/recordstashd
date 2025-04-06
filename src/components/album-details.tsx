@@ -1,12 +1,27 @@
 import { SpotifyAlbum } from "@/types/spotify";
 import Image from "next/image";
+import { useState } from "react";
+import { RatingInput } from "./rating-input";
+import { Button } from "./ui/button";
 import { Card } from "./ui/card";
+import { Textarea } from "./ui/textarea";
 
 interface AlbumDetailsProps {
   album: SpotifyAlbum;
 }
 
 export function AlbumDetails({ album }: AlbumDetailsProps) {
+  const [rating, setRating] = useState<number>(0);
+  const [review, setReview] = useState<string>("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmitReview = () => {
+    // This would typically send the review to a backend
+    setIsSubmitted(true);
+    // Reset after 3 seconds
+    setTimeout(() => setIsSubmitted(false), 3000);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-8">
@@ -21,7 +36,7 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
           />
         </Card>
         
-        <div className="space-y-4">
+        <div className="space-y-4 flex-grow">
           <div>
             <h1 className="text-4xl font-bold">{album.name}</h1>
             <p className="text-xl text-muted-foreground">
@@ -41,6 +56,39 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
               <div>{album.label || "Unknown"}</div>
             </div>
           </div>
+        </div>
+
+        {/* Review Section */}
+        <div className="w-80 space-y-4 border-l pl-8">
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Rate this Album</h2>
+            <RatingInput 
+              value={rating}
+              onChange={setRating}
+              className="mb-4"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="review" className="text-sm font-medium">
+              Your Review (Optional)
+            </label>
+            <Textarea
+              id="review"
+              placeholder="Write your thoughts about this album..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+
+          <Button
+            onClick={handleSubmitReview}
+            className="w-full"
+            disabled={rating === 0}
+          >
+            {isSubmitted ? "Review Submitted!" : "Submit Review"}
+          </Button>
         </div>
       </div>
 

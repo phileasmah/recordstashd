@@ -1,19 +1,5 @@
-import { getSpotifyToken } from "@/lib/spotify";
-import { NextRequest } from "next/server";
-
-async function fetchFromSpotify(endpoint: string, token: string) {
-  const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Spotify API request failed: ${response.statusText}`);
-  }
-
-  return response.json();
-}
+import { NextRequest, NextResponse } from "next/server";
+import { fetchFromSpotify, handleApiError } from "../utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,24 +8,18 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get("limit") || "5";
 
     if (!query) {
-      return Response.json(
+      return NextResponse.json(
         { error: "Search query is required" },
         { status: 400 }
       );
     }
 
-    const token = await getSpotifyToken();
     const searchResults = await fetchFromSpotify(
-      `/search?q=${encodeURIComponent(query)}&type=album&limit=${limit}`,
-      token
+      `/search?q=${encodeURIComponent(query)}&type=album&limit=${limit}`
     );
 
-    return Response.json(searchResults);
+    return NextResponse.json(searchResults);
   } catch (error) {
-    console.error("Search API error:", error);
-    return Response.json(
-      { error: "Failed to search albums" },
-      { status: 500 }
-    );
+    return handleApiError(error, "Failed to search albums");
   }
 } 
