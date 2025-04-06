@@ -3,7 +3,7 @@
 import { AlbumDetails } from "@/components/album-details";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSpotify } from "@/hooks/useSpotify";
+import { useApi } from "@/hooks/useApi";
 import { SpotifyAlbum } from "@/types/spotify";
 import { useSearchParams } from "next/navigation";
 import { Fragment, use, useEffect, useState } from "react";
@@ -16,36 +16,25 @@ interface AlbumPageProps {
 }
 
 export default function AlbumPage({ params }: AlbumPageProps) {
-  // Unwrap params using React.use()
   const { artistName, albumName } = use(params);
   const searchParams = useSearchParams();
   const albumId = searchParams.get("id");
   const [albumData, setAlbumData] = useState<SpotifyAlbum | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { getAlbum, searchAlbums } = useSpotify();
+  const { getAlbum } = useApi();
 
   useEffect(() => {
     const fetchAlbum = async () => {
       setIsLoading(true);
       setError(null);
+      
       try {
-        let data: SpotifyAlbum | null = null;
-        let targetAlbumId = albumId;
-
-        if (!targetAlbumId) {
-          // If we don't have an ID, search by artist and album name first
-          const searchQuery = `${artistName} ${albumName}`;
-          const searchResults = await searchAlbums(searchQuery, 1);
-          targetAlbumId = searchResults?.albums?.items?.[0]?.id;
-
-          if (!targetAlbumId) {
-            throw new Error("Album not found");
-          }
-        }
-
-        // Always fetch complete album data using getAlbum
-        data = await getAlbum(targetAlbumId);
+        const data = await getAlbum(
+          albumId
+            ? { id: albumId }
+            : { artist: artistName, album: albumName }
+        );
         setAlbumData(data);
       } catch (err: unknown) {
         console.error("Error fetching album:", err);
@@ -59,7 +48,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
     };
 
     fetchAlbum();
-  }, [albumId, artistName, albumName, getAlbum, searchAlbums]);
+  }, [albumId, artistName, albumName, getAlbum]);
 
   if (isLoading) {
     return (

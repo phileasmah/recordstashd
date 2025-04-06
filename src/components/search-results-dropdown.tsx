@@ -1,7 +1,7 @@
 "use client";
 
+import { useApi } from "@/hooks/useApi";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useSpotify } from "@/hooks/useSpotify";
 import { cn } from "@/lib/utils";
 import { SpotifySearchResults } from "@/types/spotify";
 import Image from "next/image";
@@ -25,23 +25,23 @@ export function SearchResultsDropdown({
 }: SearchResultsDropdownProps) {
   const [results, setResults] = useState<SpotifySearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { searchAlbums } = useSpotify();
+  const { searchAlbums } = useApi();
   const debouncedQuery = useDebounce(query, 300);
   const [lastSearchQuery, setLastSearchQuery] = useState("");
 
   useEffect(() => {
-    const search = async () => {
+    async function performSearch() {
       if (!debouncedQuery) {
         setResults(null);
         setLastSearchQuery("");
         return;
       }
-
+  
       // Check if the new query is just the previous query with added whitespace
       if (lastSearchQuery && debouncedQuery.trim() === lastSearchQuery.trim()) {
         return;
       }
-
+  
       setIsLoading(true);
       try {
         const data = await searchAlbums(debouncedQuery);
@@ -53,10 +53,10 @@ export function SearchResultsDropdown({
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
-    search();
-  }, [debouncedQuery, searchAlbums, lastSearchQuery]);
+    performSearch();
+  }, [debouncedQuery, lastSearchQuery, searchAlbums]);
 
   if (!debouncedQuery || !show) return null;
 

@@ -1,13 +1,14 @@
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../convex/_generated/api";
 
-let tokenCache = {
-  accessToken: '',
-  expiresAt: 0,
-};
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function getSpotifyToken() {
-  // Check if we have a valid cached token
-  if (tokenCache.accessToken && Date.now() < tokenCache.expiresAt) {
-    return tokenCache.accessToken;
+  // Try to get token from Convex
+  const storedToken = await convex.query(api.spotify.getStoredToken);
+  
+  if (storedToken?.accessToken) {
+    return storedToken.accessToken;
   }
 
   const clientId = process.env.SPOTIFY_CLIENT_ID;
@@ -32,11 +33,11 @@ export async function getSpotifyToken() {
 
   const data = await response.json();
   
-  // Cache the token with a 5-minute buffer before expiration
-  tokenCache = {
+  // Store the token in Convex
+  await convex.mutation(api.spotify.storeToken, {
     accessToken: data.access_token,
     expiresAt: Date.now() + (data.expires_in - 300) * 1000,
-  };
-
-  return tokenCache.accessToken;
+  });
+  
+  return data.access_token;
 } 
