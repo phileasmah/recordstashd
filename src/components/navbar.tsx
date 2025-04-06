@@ -2,19 +2,10 @@
 
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { useState } from "react";
-import { SearchResultsDropdown } from "./search-results-dropdown";
+import { SearchBar } from "./search-bar";
 import { Button } from "./ui/button";
-import { SearchInput } from "./ui/search-input";
 
 export function Navbar() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4">
@@ -39,27 +30,7 @@ export function Navbar() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <SearchInput
-                placeholder="Search albums..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                isExpanded={isSearchFocused}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={(e) => {
-                  if (!e.relatedTarget?.closest('[data-search-dropdown]')) {
-                    setIsSearchFocused(false);
-                  }
-                }}
-              />
-              <SearchResultsDropdown
-                query={searchQuery} 
-                show={isSearchFocused}
-                onMouseDown={() => {
-                  setIsSearchFocused(true);
-                }}
-              />
-            </div>
+            <SearchBar />
             <SignedIn>
               <UserButton />
             </SignedIn>
