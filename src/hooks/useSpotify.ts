@@ -59,10 +59,18 @@ export function useSpotify() {
     [fetchWithToken],
   );
 
+  const getAlbum = useCallback(
+    async (albumId: string) => {
+      return fetchWithToken(`/albums/${albumId}`);
+    },
+    [fetchWithToken],
+  );
+
   return {
     isLoading,
     error,
     fetchWithToken,
     searchAlbums,
+    getAlbum,
   };
 }

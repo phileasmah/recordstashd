@@ -11,6 +11,16 @@ export interface SpotifyArtist {
   genres: string[]
 }
 
+export interface SpotifyTrack {
+  id: string
+  name: string
+  duration_ms: number
+  artists: {
+    id: string
+    name: string
+  }[]
+}
+
 export interface SpotifyAlbum {
   id: string
   name: string
@@ -19,6 +29,12 @@ export interface SpotifyAlbum {
     id: string
     name: string
   }[]
+  release_date: string
+  total_tracks: number
+  label: string
+  tracks?: {
+    items: SpotifyTrack[]
+  }
 }
 
 export interface SpotifySearchResults {

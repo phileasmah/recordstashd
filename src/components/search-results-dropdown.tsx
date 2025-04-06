@@ -95,27 +95,38 @@ export function SearchResultsDropdown({
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted-foreground ml-2.5">Albums</h3>
             <div className="flex flex-col gap-1.5">
-              {results.albums.items.map((album) => (
-                <Link
-                  key={album.id}
-                  href={`/albums/${album.id}`}
-                  className="hover:bg-accent flex items-center gap-4 rounded-md p-2 transition-colors"
-                >
-                  <Image
-                    src={album.images?.[0]?.url || "/placeholder.png"}
-                    width={48}
-                    height={48}
-                    alt={album.name}
-                    className="h-12 w-12 rounded-md object-cover"
-                  />
-                  <div>
-                    <div className="font-medium">{album.name}</div>
-                    <div className="text-muted-foreground text-sm">
-                      {album.artists?.[0]?.name}
+              {results.albums.items.map((album) => {
+                // Basic slugification - replace spaces and special chars
+                const artistNameSlug = encodeURIComponent(
+                  album.artists?.[0]?.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'unknown-artist'
+                );
+                const albumNameSlug = encodeURIComponent(
+                  album.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'unknown-album'
+                );
+                const href = `/albums/${artistNameSlug}/${albumNameSlug}?id=${album.id}`;
+
+                return (
+                  <Link
+                    key={album.id}
+                    href={href}
+                    className="hover:bg-accent flex items-center gap-4 rounded-md p-2 transition-colors"
+                  >
+                    <Image
+                      src={album.images?.[0]?.url || "/placeholder.png"}
+                      width={48}
+                      height={48}
+                      alt={album.name}
+                      className="h-12 w-12 rounded-md object-cover"
+                    />
+                    <div>
+                      <div className="font-medium">{album.name}</div>
+                      <div className="text-muted-foreground text-sm">
+                        {album.artists?.[0]?.name}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         ) : (
