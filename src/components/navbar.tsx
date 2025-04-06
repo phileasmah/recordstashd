@@ -41,16 +41,23 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <SearchInput
-                placeholder="Search artists and albums..."
+                placeholder="Search albums..."
                 value={searchQuery}
                 onChange={handleSearchChange}
                 isExpanded={isSearchFocused}
                 onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
+                onBlur={(e) => {
+                  if (!e.relatedTarget?.closest('[data-search-dropdown]')) {
+                    setIsSearchFocused(false);
+                  }
+                }}
               />
               <SearchResultsDropdown
                 query={searchQuery} 
                 show={isSearchFocused}
+                onMouseDown={() => {
+                  setIsSearchFocused(true);
+                }}
               />
             </div>
             <SignedIn>
