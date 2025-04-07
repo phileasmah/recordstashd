@@ -1,7 +1,10 @@
 "use client"
 import { SpotifyAlbum } from "@/types/spotify";
+import { useMutation, useQuery } from "convex/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { api } from "../../convex/_generated/api";
 import { RatingInput } from "./rating-input";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -14,13 +17,61 @@ interface AlbumDetailsProps {
 export function AlbumDetails({ album }: AlbumDetailsProps) {
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  const handleSubmitReview = () => {
-    // This would typically send the review to a backend
-    setIsSubmitted(true);
-    // Reset after 3 seconds
-    setTimeout(() => setIsSubmitted(false), 3000);
+  const upsertReview = useMutation(api.reviews.upsertReview);
+  const existingReview = useQuery(api.reviews.getUserReview, {
+    albumName: album.name,
+    artistName: album.artists?.[0]?.name || "",
+  });
+
+  // Load existing review
+  useEffect(() => {
+    if (existingReview) {
+      setRating(existingReview.rating);
+      setReview(existingReview.review || "");
+    }
+  }, [existingReview]);
+
+  // Handle rating change
+  const handleRatingChange = (newRating: number) => {
+    const previousRating = rating;
+    setRating(newRating);
+    
+    upsertReview({
+      albumName: album.name,
+      artistName: album.artists?.[0]?.name || "",
+      rating: newRating,
+      review: review,
+    }).catch(error => {
+      console.error("Failed to save review:", error);
+      setRating(previousRating); // Revert to previous rating
+      toast.error("Failed to save rating. Please try again.");
+    });
+  };
+
+  // Handle review text change
+  const handleReviewChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setReview(e.target.value);
+  };
+
+  // Handle review submission
+  const handleSubmitReview = async () => {
+    setIsSubmittingReview(true);
+    try {
+      await upsertReview({
+        albumName: album.name,
+        artistName: album.artists?.[0]?.name || "",
+        rating,
+        review,
+      });
+      toast.success("Review saved successfully!");
+    } catch (error) {
+      console.error("Failed to save review:", error);
+      toast.error("Failed to save review. Please try again.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   return (
@@ -65,7 +116,7 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
             <h2 className="text-lg font-semibold mb-2">Rate this Album</h2>
             <RatingInput 
               value={rating}
-              onChange={setRating}
+              onChange={handleRatingChange}
               className="mb-4"
             />
           </div>
@@ -78,18 +129,17 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
               id="review"
               placeholder="Write your thoughts about this album..."
               value={review}
-              onChange={(e) => setReview(e.target.value)}
+              onChange={handleReviewChange}
               className="min-h-[100px]"
             />
+            <Button
+              onClick={handleSubmitReview}
+              className="w-full mt-2"
+              disabled={isSubmittingReview || !review.trim()}
+            >
+              {isSubmittingReview ? "Saving..." : "Save Review"}
+            </Button>
           </div>
-
-          <Button
-            onClick={handleSubmitReview}
-            className="w-full"
-            disabled={rating === 0}
-          >
-            {isSubmitted ? "Review Submitted!" : "Submit Review"}
-          </Button>
         </div>
       </div>
 

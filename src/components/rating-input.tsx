@@ -86,7 +86,7 @@ export function RatingInput({ value, onChange, size = 32, className = "" }: Rati
   return (
     <div className={className}>
       <div 
-        className="flex gap-1" 
+        className="flex gap-1"
         onMouseLeave={handleMouseLeave}
       >
         {[0, 1, 2, 3, 4].map((index) => (

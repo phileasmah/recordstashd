@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as reviews from "../reviews.js";
 import type * as spotify from "../spotify.js";
 
 /**
@@ -24,6 +25,7 @@ import type * as spotify from "../spotify.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  reviews: typeof reviews;
   spotify: typeof spotify;
 }>;
 export declare const api: FilterApi<

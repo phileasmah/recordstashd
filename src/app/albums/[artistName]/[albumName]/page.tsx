@@ -1,7 +1,5 @@
 import { AlbumDetails } from "@/components/album-details";
 import { getAlbum } from "@/lib/apiRequests";
-import { Suspense } from "react";
-import Loading from "./loading";
 
 interface AlbumPageProps {
   params: {
@@ -41,9 +39,5 @@ async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
 }
 
 export default function AlbumPage({ params, searchParams }: AlbumPageProps) {
-  return (
-    <Suspense fallback={<Loading />}>
-      <AlbumPageContent params={params} searchParams={searchParams} />
-    </Suspense>
-  );
+  return <AlbumPageContent params={params} searchParams={searchParams} />;
 }

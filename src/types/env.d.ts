@@ -11,5 +11,6 @@ declare namespace NodeJS {
     CLERK_SECRET_KEY: string
     SPOTIFY_CLIENT_ID: string
     SPOTIFY_CLIENT_SECRET: string
+    CLERK_JWT_ISSUER_DOMAIN: string
   }
 } 

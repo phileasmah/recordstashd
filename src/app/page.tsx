@@ -1,5 +1,5 @@
 import { NewReleases } from "@/components/home/new-releases/NewReleases";
-import { Loading } from "@/components/home/new-releases/loading";
+import { NewReleasesLoadingSkeleton } from "@/components/home/new-releases/NewReleasesLoadingSkeleton";
 import { RecentReviews } from "@/components/home/RecentReviews";
 import { Suspense } from "react";
 
@@ -8,7 +8,7 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8">
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">New Releases</h2>
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<NewReleasesLoadingSkeleton />}>
           <NewReleases />
         </Suspense>
       </section>
