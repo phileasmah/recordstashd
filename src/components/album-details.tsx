@@ -107,7 +107,7 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <CardTitle className="text-base">User Review</CardTitle>
+                      <CardTitle className="text-base">{review.username}</CardTitle>
                       <CardDescription>
                         {new Date(review.createdAt).toLocaleDateString()}
                       </CardDescription>

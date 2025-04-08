@@ -158,10 +158,28 @@ export const getRecentReviews = query({
     }
 
     // Get recent reviews
-    return await ctx.db
+    const reviews = await ctx.db
       .query("reviews")
       .withIndex("by_album", (q) => q.eq("albumId", album._id))
       .order("desc")
       .take(args.limit);
+
+    // Get user details for each review
+    const reviewsWithUserInfo = await Promise.all(
+      reviews.map(async (review) => {
+        const user = await ctx.db
+          .query("users")
+          .withIndex("byExternalId", (q) => q.eq("externalId", review.userId))
+          .unique();
+        
+        return {
+          ...review,
+          username: user?.username || 'Anonymous User',
+          imageUrl: user?.imageUrl
+        };
+      })
+    );
+
+    return reviewsWithUserInfo;
   },
 }); 

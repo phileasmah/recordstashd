@@ -1,11 +1,13 @@
 "use client";
 
+import { SignedIn, SignedOut, SignInButton, useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
 import { RatingInput } from "./rating-input";
 import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 
 interface AlbumReviewProps {
@@ -14,15 +16,16 @@ interface AlbumReviewProps {
 }
 
 export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
+  const { isSignedIn } = useAuth();
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const upsertReview = useMutation(api.reviews.upsertReview);
-  const existingReview = useQuery(api.reviews.getUserReview, {
-    albumName,
-    artistName,
-  });
+  const existingReview = useQuery(
+    api.reviews.getUserReview,
+    isSignedIn ? { albumName, artistName } : "skip"
+  );
 
   // Load existing review
   useEffect(() => {
@@ -75,29 +78,43 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
 
   return (
     <div>
-      <RatingInput
-        value={rating}
-        onChange={handleRatingChange}
-        className="mb-4"
-      />
-      <div className="space-y-2">
-        <label htmlFor="review" className="text-sm font-medium">
-          Your Review (Optional)
-        </label>
-        <Textarea
-          id="review"
-          placeholder="Write your thoughts about this album..."
-          value={review}
-          onChange={handleReviewChange}
+      <SignedIn>
+        <RatingInput
+          value={rating}
+          onChange={handleRatingChange}
+          className="mb-4"
         />
-        <Button
-          onClick={handleSubmitReview}
-          className="mt-2 w-full"
-          disabled={isSubmittingReview || !review.trim()}
-        >
-          {isSubmittingReview ? "Saving..." : "Save Review"}
-        </Button>
-      </div>
+        <div className="space-y-2">
+          <label htmlFor="review" className="text-sm font-medium">
+            Your Review (Optional)
+          </label>
+          <Textarea
+            id="review"
+            placeholder="Write your thoughts about this album..."
+            value={review}
+            onChange={handleReviewChange}
+          />
+          <Button
+            onClick={handleSubmitReview}
+            className="mt-2 w-full"
+            disabled={isSubmittingReview || !review.trim()}
+          >
+            {isSubmittingReview ? "Saving..." : "Save Review"}
+          </Button>
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground">Sign in to rate and review this album</p>
+              <SignInButton>
+                <Button variant="default">Sign In</Button>
+              </SignInButton>
+            </div>
+          </CardContent>
+        </Card>
+      </SignedOut>
     </div>
   );
 }
