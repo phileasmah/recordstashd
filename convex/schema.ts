@@ -10,7 +10,6 @@ export default defineSchema({
   albums: defineTable({
     name: v.string(),
     artist: v.string(),
-
   }).index("by_name_artist", ["name", "artist"]),
 
   reviews: defineTable({
@@ -23,4 +22,11 @@ export default defineSchema({
     .index("by_album", ["albumId", "createdAt"])
     .index("by_user_album", ["userId", "albumId"])
     .index("by_user", ["userId", "createdAt"]),
-}); 
+
+  users: defineTable({
+    username: v.string(),
+    imageUrl: v.optional(v.string()),
+    // this the Clerk ID, stored in the subject JWT field
+    externalId: v.string(),
+  }).index("byExternalId", ["externalId"]),
+});

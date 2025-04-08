@@ -13,8 +13,10 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as http from "../http.js";
 import type * as reviews from "../reviews.js";
 import type * as spotify from "../spotify.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -25,8 +27,10 @@ import type * as spotify from "../spotify.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  http: typeof http;
   reviews: typeof reviews;
   spotify: typeof spotify;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
