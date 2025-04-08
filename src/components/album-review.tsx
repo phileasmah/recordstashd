@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
@@ -36,13 +36,13 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const handleRatingChange = (newRating: number) => {
     const previousRating = rating;
     setRating(newRating);
-    
+
     upsertReview({
       albumName,
       artistName,
       rating: newRating,
       review,
-    }).catch(error => {
+    }).catch((error) => {
       console.error("Failed to save review:", error);
       setRating(previousRating); // Revert to previous rating
       toast.error("Failed to save rating. Please try again.");
@@ -74,16 +74,12 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   };
 
   return (
-    <div className="w-80 space-y-4 md:border-l md:pl-8 pl-0">
-      <div>
-        <h2 className="text-lg font-semibold mb-2">Rate this Album</h2>
-        <RatingInput 
-          value={rating}
-          onChange={handleRatingChange}
-          className="mb-4"
-        />
-      </div>
-
+    <div>
+      <RatingInput
+        value={rating}
+        onChange={handleRatingChange}
+        className="mb-4"
+      />
       <div className="space-y-2">
         <label htmlFor="review" className="text-sm font-medium">
           Your Review (Optional)
@@ -93,11 +89,10 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
           placeholder="Write your thoughts about this album..."
           value={review}
           onChange={handleReviewChange}
-          className="min-h-[100px]"
         />
         <Button
           onClick={handleSubmitReview}
-          className="w-full mt-2"
+          className="mt-2 w-full"
           disabled={isSubmittingReview || !review.trim()}
         >
           {isSubmittingReview ? "Saving..." : "Save Review"}
@@ -105,4 +100,4 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
       </div>
     </div>
   );
-} 
+}
