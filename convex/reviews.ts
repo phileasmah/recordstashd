@@ -7,7 +7,7 @@ export const upsertReview = mutation({
   args: {
     albumName: v.string(),
     artistName: v.string(),
-    rating: v.number(),
+    rating: v.optional(v.number()),
     review: v.optional(v.string()),
   },
   async handler(ctx, args) {
@@ -45,19 +45,49 @@ export const upsertReview = mutation({
 
     if (existingReview) {
       // Update existing review
-      return await ctx.db.patch(existingReview._id, {
-        rating: args.rating,
-        review: args.review,
-      });
+      const updateFields: { rating?: number; review?: string } = {};
+      
+      if (args.rating !== undefined) {
+        updateFields.rating = args.rating;
+      }
+      
+      if (args.review !== undefined) {
+        updateFields.review = args.review.trim() || undefined;
+      }
+
+      // Assume there is always a rating or review
+      return await ctx.db.patch(existingReview._id, updateFields);
     } else {
+      // For new reviews, require at least one field (rating or review)
+      if (args.rating === undefined && args.review === undefined) {
+        throw new Error("At least one of rating or review must be provided when creating a new review");
+      }
+
       // Create new review
-      return await ctx.db.insert("reviews", {
+      const newReview: {
+        albumId: Id<"albums">;
+        userId: string;
+        rating?: number;
+        review?: string;
+        createdAt: number;
+      } = {
         albumId,
         userId,
-        rating: args.rating,
-        review: args.review,
         createdAt: Date.now(),
-      });
+      };
+
+      if (args.rating !== undefined) {
+        newReview.rating = args.rating;
+      }
+
+      if (args.review !== undefined) {
+        const trimmedReview = args.review.trim();
+        if (trimmedReview) {
+          newReview.review = trimmedReview;
+        }
+      }
+
+      return await ctx.db.insert("reviews", newReview);
     }
   },
 });
@@ -157,10 +187,11 @@ export const getRecentReviews = query({
       return []; // Album doesn't exist
     }
 
-    // Get recent reviews
+    // Get recent reviews that have review text
     const reviews = await ctx.db
       .query("reviews")
       .withIndex("by_album", (q) => q.eq("albumId", album._id))
+      .filter(q => q.neq(q.field("review"), undefined))
       .order("desc")
       .take(args.limit);
 
@@ -175,7 +206,7 @@ export const getRecentReviews = query({
         return {
           ...review,
           username: user?.username || 'Anonymous User',
-          imageUrl: user?.imageUrl
+          userImageUrl: user?.imageUrl
         };
       })
     );

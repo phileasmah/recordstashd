@@ -30,7 +30,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   // Load existing review
   useEffect(() => {
     if (existingReview) {
-      setRating(existingReview.rating);
+      setRating(existingReview.rating || 0);
       setReview(existingReview.review || "");
     }
   }, [existingReview]);
@@ -44,7 +44,6 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
       albumName,
       artistName,
       rating: newRating,
-      review,
     }).catch((error) => {
       console.error("Failed to save review:", error);
       setRating(previousRating); // Revert to previous rating

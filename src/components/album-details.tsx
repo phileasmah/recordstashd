@@ -1,6 +1,7 @@
 "use client";
 
 import { SpotifyAlbum } from "@/types/spotify";
+import { AvatarImage } from "@radix-ui/react-avatar";
 import { useQuery } from "convex/react";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
@@ -102,8 +103,9 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                 <CardHeader>
                   <div className="flex items-center gap-4">
                     <Avatar>
+                      <AvatarImage src={review.userImageUrl} />
                       <AvatarFallback>
-                        {review.userId.slice(0, 2).toUpperCase()}
+                        {review.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>

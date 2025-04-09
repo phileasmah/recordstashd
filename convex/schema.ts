@@ -15,7 +15,7 @@ export default defineSchema({
   reviews: defineTable({
     albumId: v.id("albums"),
     userId: v.string(), // Clerk user ID
-    rating: v.number(), // e.g., 1-5 stars
+    rating: v.optional(v.number()), // e.g., 1-5 stars
     review: v.optional(v.string()),
     createdAt: v.number(), // timestamp for sorting by recency
   })
