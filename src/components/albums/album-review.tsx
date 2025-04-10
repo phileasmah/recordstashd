@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
-import { MagicCard } from "../magicui/magic-card";
+import { ShineBorder } from "../magicui/shine-border";
 import { RatingInput } from "../rating-input";
 import { Button } from "../ui/button";
 import {
@@ -83,10 +83,12 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   };
 
   return (
-    <MagicCard>
-      <Card className="h-full">
-        <CardHeader>
-          <CardTitle>Write a Review</CardTitle>
+    <Card className="relative h-full">
+      <SignedOut>
+        <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
+      </SignedOut>
+      <CardHeader>
+        <CardTitle>Write a Review</CardTitle>
         <CardDescription>Share your thoughts about this album</CardDescription>
       </CardHeader>
       <CardContent className="h-full">
@@ -116,7 +118,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
           </div>
         </SignedIn>
         <SignedOut>
-          <div className="-mt-6 flex h-full flex-col items-center justify-center gap-3 space-y-4 text-center">
+          <div className="-mt-6 flex h-full flex-col items-center justify-center gap-3 space-y-4 text-center min-h-32">
             <p className="text-muted-foreground my-0">
               Sign in to rate and review this album
             </p>
@@ -125,8 +127,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
             </SignInButton>
           </div>
         </SignedOut>
-        </CardContent>
-      </Card>
-    </MagicCard>
+      </CardContent>
+    </Card>
   );
 }
