@@ -4,10 +4,9 @@ import { SpotifyAlbum } from "@/types/spotify";
 import Image from "next/image";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "../ui/card";
 import { AlbumReview } from "./album-review";
 import { AlbumTracks } from "./album-tracks";
@@ -54,20 +53,12 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
         </Card>
 
         {/* Review Input Section */}
-        <Card className="lg:w-1/3">
-          <CardHeader>
-            <CardTitle>Write a Review</CardTitle>
-            <CardDescription>
-              Share your thoughts about this album
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AlbumReview
-              albumName={album.name}
-              artistName={album.artists?.[0]?.name || ""}
-            />
-          </CardContent>
-        </Card>
+        <div className="lg:w-1/3">
+          <AlbumReview
+            albumName={album.name}
+            artistName={album.artists?.[0]?.name || ""}
+          />
+        </div>
       </div>
 
       {/* Tracks and Reviews Section */}
