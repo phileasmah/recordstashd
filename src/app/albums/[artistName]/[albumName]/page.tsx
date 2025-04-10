@@ -1,4 +1,4 @@
-import { AlbumDetails } from "@/components/album-details";
+import { AlbumDetails } from "@/components/albums/album-details";
 import { getAlbum } from "@/lib/apiRequests";
 
 interface AlbumPageProps {

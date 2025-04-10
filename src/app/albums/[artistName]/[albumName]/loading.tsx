@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Fragment } from "react";
 
 export default function Loading() {
@@ -47,40 +46,15 @@ export default function Loading() {
           </Card>
         </div>
 
-        {/* Tabs Section */}
-        <Tabs defaultValue="reviews" className="w-full">
-          <TabsList>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            <TabsTrigger value="tracks">Tracks</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="reviews" className="mt-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center gap-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-5 w-32" />
-                        <Skeleton className="h-4 w-24" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-6 w-16" />
-                      <Skeleton className="h-16 w-full" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="tracks" className="mt-6">
-            <Card>
-              <CardContent className="pt-6">
+        {/* Tracks and Reviews Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Tracks Section */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-7 w-24" />
+            </CardHeader>
+            <div className="h-[400px]">
+              <CardContent>
                 <div className="space-y-2">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="hover:bg-accent flex items-center gap-4 rounded-md p-2 transition-colors">
@@ -96,9 +70,39 @@ export default function Loading() {
                   ))}
                 </div>
               </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            </div>
+          </Card>
+
+          {/* Reviews Section */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-7 w-32" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <Card key={i}>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <div className="space-y-1">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-12 w-full" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

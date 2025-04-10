@@ -4,11 +4,11 @@ import { SignedIn, SignedOut, SignInButton, useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { api } from "../../convex/_generated/api";
-import { RatingInput } from "./rating-input";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Textarea } from "./ui/textarea";
+import { api } from "../../../convex/_generated/api";
+import { RatingInput } from "../rating-input";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Textarea } from "../ui/textarea";
 
 interface AlbumReviewProps {
   albumName: string;
