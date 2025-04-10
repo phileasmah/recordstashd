@@ -2,18 +2,18 @@ import { AlbumDetails } from "@/components/albums/album-details";
 import { getAlbum } from "@/lib/apiRequests";
 
 interface AlbumPageProps {
-  params: {
+  params: Promise<{
     artistName: string;
     albumName: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     id?: string;
-  };
+  }>;
 }
 
 async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
-  const { artistName, albumName } = params;
-  const { id } = searchParams;
+  const { artistName, albumName } = await params;
+  const { id } = await searchParams;
 
   try {
     const albumData = await getAlbum(
@@ -38,6 +38,8 @@ async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
   }
 }
 
-export default function AlbumPage({ params, searchParams }: AlbumPageProps) {
+export default async function AlbumPage(props: AlbumPageProps) {
+  const searchParams = props.searchParams;
+  const params = props.params;
   return <AlbumPageContent params={params} searchParams={searchParams} />;
 }
