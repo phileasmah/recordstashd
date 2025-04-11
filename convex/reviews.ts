@@ -45,7 +45,11 @@ export const upsertReview = mutation({
 
     if (existingReview) {
       // Update existing review
-      const updateFields: { rating?: number; review?: string } = {};
+      const updateFields: {
+        rating?: number;
+        review?: string;
+        lastUpdatedTime: number;
+      } = { lastUpdatedTime: Date.now() };
 
       if (args.rating !== undefined) {
         updateFields.rating = args.rating;
@@ -71,11 +75,11 @@ export const upsertReview = mutation({
         userId: string;
         rating?: number;
         review?: string;
-        createdAt: number;
+        lastUpdatedTime: number;
       } = {
         albumId,
         userId,
-        createdAt: Date.now(),
+        lastUpdatedTime: Date.now(),
       };
 
       if (args.rating !== undefined) {

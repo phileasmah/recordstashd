@@ -1,6 +1,7 @@
 import { AvatarImage } from "@radix-ui/react-avatar";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { MagicCard } from "../magicui/magic-card";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import {
@@ -25,13 +26,13 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
 
   if (!recentReviews || recentReviews.length === 0) {
     return (
-      <Card className="flex items-center justify-center py-0 min-h-[200px]">
+      <MagicCard className="flex min-h-[200px] items-center justify-center py-0 rounded-xl">
         <CardContent className="text-center">
           <p className="text-muted-foreground">
             No reviews yet. Be the first to review this album!
           </p>
         </CardContent>
-      </Card>
+      </MagicCard>
     );
   }
 
@@ -39,12 +40,14 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
     <Card>
       <CardHeader>
         <CardTitle>Recent Reviews</CardTitle>
-        <CardDescription>What others are saying about this album</CardDescription>
+        <CardDescription>
+          What others are saying about this album
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="divide-y divide-border">
+        <div className="divide-border divide-y">
           {recentReviews.map((review, index) => (
-            <div key={index} className={`${index > 0 ? 'pt-4' : ''} pb-4`}>
+            <div key={index} className={`${index > 0 ? "pt-4" : ""} pb-4`}>
               <div className="flex items-start gap-4">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={review.userImageUrl} />
@@ -57,17 +60,15 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium">{review.username}</p>
-                        <Badge variant="secondary">
-                          {review.rating} ★
-                        </Badge>
+                        <Badge variant="secondary">{review.rating} ★</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(review.createdAt).toLocaleDateString()}
+                      <p className="text-muted-foreground text-xs">
+                        {new Date(review.lastUpdatedTime).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   {review.review && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {review.review}
                     </p>
                   )}
@@ -79,4 +80,4 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
       </CardContent>
     </Card>
   );
-} 
+}

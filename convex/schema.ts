@@ -17,11 +17,11 @@ export default defineSchema({
     userId: v.string(), // Clerk user ID
     rating: v.optional(v.number()), // e.g., 1-5 stars
     review: v.optional(v.string()),
-    createdAt: v.number(), // timestamp for sorting by recency
+    lastUpdatedTime: v.number(), // timestamp for sorting by recency
   })
-    .index("by_album", ["albumId", "createdAt"])
+    .index("by_album", ["albumId", "lastUpdatedTime"])
     .index("by_user_album", ["userId", "albumId"])
-    .index("by_user", ["userId", "createdAt"]),
+    .index("by_user", ["userId", "lastUpdatedTime"]),
 
   users: defineTable({
     username: v.string(),
