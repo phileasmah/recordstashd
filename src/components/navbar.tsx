@@ -12,7 +12,7 @@ export function Navbar() {
             <Link href="/" className="text-xl font-bold">
               GigReview
             </Link>
-            <div className="hidden md:flex items-center gap-4">
+            {/* <div className="hidden md:flex items-center gap-4">
               <Link href="/" className="text-sm font-medium hover:text-primary">
                 Home
               </Link>
@@ -25,7 +25,7 @@ export function Navbar() {
               <Link href="/albums" className="text-sm font-medium hover:text-primary">
                 Albums
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center gap-4">
             <SearchBar />

@@ -20,8 +20,8 @@ export const upsertReview = mutation({
     // First, find or create the album
     const album = await ctx.db
       .query("albums")
-      .withIndex("by_name_artist", (q) => 
-        q.eq("name", args.albumName).eq("artist", args.artistName)
+      .withIndex("by_name_artist", (q) =>
+        q.eq("name", args.albumName).eq("artist", args.artistName),
       )
       .first();
 
@@ -38,19 +38,19 @@ export const upsertReview = mutation({
     // Check if user already has a review for this album
     const existingReview = await ctx.db
       .query("reviews")
-      .withIndex("by_user_album", (q) => 
-        q.eq("userId", userId).eq("albumId", albumId)
+      .withIndex("by_user_album", (q) =>
+        q.eq("userId", userId).eq("albumId", albumId),
       )
       .first();
 
     if (existingReview) {
       // Update existing review
       const updateFields: { rating?: number; review?: string } = {};
-      
+
       if (args.rating !== undefined) {
         updateFields.rating = args.rating;
       }
-      
+
       if (args.review !== undefined) {
         updateFields.review = args.review.trim() || undefined;
       }
@@ -60,7 +60,9 @@ export const upsertReview = mutation({
     } else {
       // For new reviews, require at least one field (rating or review)
       if (args.rating === undefined && args.review === undefined) {
-        throw new Error("At least one of rating or review must be provided when creating a new review");
+        throw new Error(
+          "At least one of rating or review must be provided when creating a new review",
+        );
       }
 
       // Create new review
@@ -108,8 +110,8 @@ export const deleteReview = mutation({
     // Find the album
     const album = await ctx.db
       .query("albums")
-      .withIndex("by_name_artist", (q) => 
-        q.eq("name", args.albumName).eq("artist", args.artistName)
+      .withIndex("by_name_artist", (q) =>
+        q.eq("name", args.albumName).eq("artist", args.artistName),
       )
       .first();
 
@@ -120,8 +122,8 @@ export const deleteReview = mutation({
     // Find and delete the user's review
     const review = await ctx.db
       .query("reviews")
-      .withIndex("by_user_album", (q) => 
-        q.eq("userId", userId).eq("albumId", album._id)
+      .withIndex("by_user_album", (q) =>
+        q.eq("userId", userId).eq("albumId", album._id),
       )
       .first();
 
@@ -148,8 +150,8 @@ export const getUserReview = query({
     // Find the album
     const album = await ctx.db
       .query("albums")
-      .withIndex("by_name_artist", (q) => 
-        q.eq("name", args.albumName).eq("artist", args.artistName)
+      .withIndex("by_name_artist", (q) =>
+        q.eq("name", args.albumName).eq("artist", args.artistName),
       )
       .first();
 
@@ -160,8 +162,8 @@ export const getUserReview = query({
     // Get the user's review
     return await ctx.db
       .query("reviews")
-      .withIndex("by_user_album", (q) => 
-        q.eq("userId", userId).eq("albumId", album._id)
+      .withIndex("by_user_album", (q) =>
+        q.eq("userId", userId).eq("albumId", album._id),
       )
       .first();
   },
@@ -178,8 +180,8 @@ export const getRecentReviews = query({
     // Find the album
     const album = await ctx.db
       .query("albums")
-      .withIndex("by_name_artist", (q) => 
-        q.eq("name", args.albumName).eq("artist", args.artistName)
+      .withIndex("by_name_artist", (q) =>
+        q.eq("name", args.albumName).eq("artist", args.artistName),
       )
       .first();
 
@@ -191,7 +193,7 @@ export const getRecentReviews = query({
     const reviews = await ctx.db
       .query("reviews")
       .withIndex("by_album", (q) => q.eq("albumId", album._id))
-      .filter(q => q.neq(q.field("review"), undefined))
+      .filter((q) => q.neq(q.field("review"), undefined))
       .order("desc")
       .take(args.limit);
 
@@ -202,15 +204,15 @@ export const getRecentReviews = query({
           .query("users")
           .withIndex("byExternalId", (q) => q.eq("externalId", review.userId))
           .unique();
-        
+
         return {
           ...review,
-          username: user?.username || 'Anonymous User',
-          userImageUrl: user?.imageUrl
+          username: user?.username || "Anonymous User",
+          userImageUrl: user?.imageUrl,
         };
-      })
+      }),
     );
 
     return reviewsWithUserInfo;
   },
-}); 
+});
