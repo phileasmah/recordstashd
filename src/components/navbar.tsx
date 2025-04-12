@@ -1,4 +1,7 @@
+"use client";
+
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { UserIcon } from "lucide-react";
 import Link from "next/link";
 import { SearchBar } from "./search-bar";
 import { Button } from "./ui/button";
@@ -30,7 +33,17 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             <SearchBar />
             <SignedIn>
-              <UserButton />
+              <UserButton>
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="View profile"
+                    labelIcon={<UserIcon className="w-4 h-4" />}
+                    href="/album"
+                  />
+                  <UserButton.Action label="manageAccount" />
+                  <UserButton.Action label="signOut" />
+                </UserButton.MenuItems>
+              </UserButton>
             </SignedIn>
             <SignedOut>
               <SignInButton>
@@ -44,4 +57,4 @@ export function Navbar() {
       </div>
     </nav>
   );
-} 
+}

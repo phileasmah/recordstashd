@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { SearchResultsDropdown } from "./search-results-dropdown";
 import { SearchInput } from "./ui/search-input";

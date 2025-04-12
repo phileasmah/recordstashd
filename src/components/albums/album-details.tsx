@@ -1,7 +1,11 @@
 "use client";
 
 import { SpotifyAlbum } from "@/types/spotify";
+import { useQuery } from "convex/react";
+import { Star } from "lucide-react";
 import Image from "next/image";
+import { api } from "../../../convex/_generated/api";
+import { Badge } from "../ui/badge";
 import {
   Card,
   CardDescription,
@@ -17,6 +21,13 @@ interface AlbumDetailsProps {
 }
 
 export function AlbumDetails({ album }: AlbumDetailsProps) {
+  const ratingStats = useQuery(api.reviewAggregates.getAlbumAverageRating, {
+    albumName: album.name,
+    artistName: album.artists?.[0]?.name || "",
+  });
+  const averageRating = ratingStats?.average;
+  const reviewCount = ratingStats?.count;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-8 lg:flex-row">
@@ -33,9 +44,17 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
           <CardHeader className="flex-grow px-8 py-6">
             <div className="space-y-6">
               <div className="space-y-2">
-                <CardTitle className="text-3xl font-bold">
-                  {album.name}
-                </CardTitle>
+                <div className="flex items-end gap-3">
+                  <CardTitle className="text-3xl font-bold">
+                    {album.name}
+                  </CardTitle>
+                  {averageRating !== undefined && averageRating !== null && (
+                    <Badge variant="secondary" className="flex gap-1">
+                      <Star className="h-3.5 w-3.5" />
+                      {averageRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription className="text-xl">
                   {album.artists?.map((artist) => artist.name).join(", ")}
                 </CardDescription>
@@ -47,6 +66,11 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                 <div>{album.total_tracks || "Unknown"}</div>
                 <div className="text-muted-foreground">Label:</div>
                 <div>{album.label || "Unknown"}</div>
+                <div className="text-muted-foreground">Average Rating:</div>
+                <div>{averageRating !== undefined && averageRating !== null ? 
+                  `${averageRating.toFixed(1)} / 5 (based on ${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})` : 
+                  "No ratings yet"}
+                </div>
               </div>
             </div>
           </CardHeader>

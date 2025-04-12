@@ -1,6 +1,67 @@
+import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { Doc, Id } from "./_generated/dataModel";
+import { MutationCtx, QueryCtx, mutation, query } from "./_generated/server";
+import {
+  aggregateReviewsByAlbum,
+  aggregateReviewsByUsers,
+} from "./reviewAggregates";
+
+// Helper function to find or create an album
+async function findOrCreateAlbum(
+  ctx: MutationCtx,
+  albumName: string,
+  artistName: string,
+) {
+  const album = await ctx.db
+    .query("albums")
+    .withIndex("by_name_artist", (q) =>
+      q.eq("name", albumName).eq("artist", artistName),
+    )
+    .first();
+
+  if (!album) {
+    const albumId = await ctx.db.insert("albums", {
+      name: albumName,
+      artist: artistName,
+    });
+    return albumId;
+  }
+  return album._id;
+}
+
+// Helper function to find a review by user and album
+async function findReviewByUserAndAlbum(
+  ctx: QueryCtx,
+  userId: string,
+  albumId: Id<"albums">,
+) {
+  return await ctx.db
+    .query("reviews")
+    .withIndex("by_user_album", (q) =>
+      q.eq("userId", userId).eq("albumId", albumId),
+    )
+    .first();
+}
+
+// Helper function to update review aggregates
+async function updateReviewAggregates(
+  ctx: MutationCtx,
+  oldDoc: Doc<"reviews"> | null,
+  newDoc: Doc<"reviews"> | null,
+  operation: "insert" | "update" | "delete",
+) {
+  if (operation === "insert" && newDoc) {
+    await aggregateReviewsByAlbum.insert(ctx, newDoc);
+    await aggregateReviewsByUsers.insert(ctx, newDoc);
+  } else if (operation === "update" && oldDoc && newDoc) {
+    await aggregateReviewsByAlbum.replace(ctx, oldDoc, newDoc);
+    await aggregateReviewsByUsers.replace(ctx, oldDoc, newDoc);
+  } else if (operation === "delete" && oldDoc) {
+    await aggregateReviewsByAlbum.delete(ctx, oldDoc);
+    await aggregateReviewsByUsers.delete(ctx, oldDoc);
+  }
+}
 
 // Create or update a review for an album
 export const upsertReview = mutation({
@@ -18,38 +79,21 @@ export const upsertReview = mutation({
     const userId = identity.subject;
 
     // First, find or create the album
-    const album = await ctx.db
-      .query("albums")
-      .withIndex("by_name_artist", (q) =>
-        q.eq("name", args.albumName).eq("artist", args.artistName),
-      )
-      .first();
-
-    let albumId: Id<"albums">;
-    if (!album) {
-      albumId = await ctx.db.insert("albums", {
-        name: args.albumName,
-        artist: args.artistName,
-      });
-    } else {
-      albumId = album._id;
-    }
+    const albumId = await findOrCreateAlbum(
+      ctx,
+      args.albumName,
+      args.artistName,
+    );
 
     // Check if user already has a review for this album
-    const existingReview = await ctx.db
-      .query("reviews")
-      .withIndex("by_user_album", (q) =>
-        q.eq("userId", userId).eq("albumId", albumId),
-      )
-      .first();
+    const existingReview = await findReviewByUserAndAlbum(ctx, userId, albumId);
 
     if (existingReview) {
       // Update existing review
-      const updateFields: {
-        rating?: number;
-        review?: string;
-        lastUpdatedTime: number;
-      } = { lastUpdatedTime: Date.now() };
+      const updateFields: Partial<WithoutSystemFields<Doc<"reviews">>> = {
+        lastUpdatedTime: Date.now(),
+        hasReview: existingReview.hasReview,
+      };
 
       if (args.rating !== undefined) {
         updateFields.rating = args.rating;
@@ -57,10 +101,19 @@ export const upsertReview = mutation({
 
       if (args.review !== undefined) {
         updateFields.review = args.review.trim() || undefined;
+        updateFields.hasReview = true
+          ? updateFields.review !== undefined
+          : false;
       }
 
-      // Assume there is always a rating or review
-      return await ctx.db.patch(existingReview._id, updateFields);
+      // Update the review
+      await ctx.db.patch(existingReview._id, updateFields);
+
+      // Update the aggregate
+      const oldDoc = existingReview;
+      const newDoc = { ...oldDoc, ...updateFields };
+      await updateReviewAggregates(ctx, oldDoc, newDoc, "update");
+      return newDoc;
     } else {
       // For new reviews, require at least one field (rating or review)
       if (args.rating === undefined && args.review === undefined) {
@@ -70,30 +123,22 @@ export const upsertReview = mutation({
       }
 
       // Create new review
-      const newReview: {
-        albumId: Id<"albums">;
-        userId: string;
-        rating?: number;
-        review?: string;
-        lastUpdatedTime: number;
-      } = {
+      const newReview: WithoutSystemFields<Doc<"reviews">> = {
         albumId,
         userId,
         lastUpdatedTime: Date.now(),
+        hasReview: args.review !== undefined,
+        rating: args.rating,
+        review: args.review?.trim(),
       };
 
-      if (args.rating !== undefined) {
-        newReview.rating = args.rating;
-      }
+      // Insert the review
+      const insertedReview = await ctx.db.insert("reviews", newReview);
 
-      if (args.review !== undefined) {
-        const trimmedReview = args.review.trim();
-        if (trimmedReview) {
-          newReview.review = trimmedReview;
-        }
-      }
-
-      return await ctx.db.insert("reviews", newReview);
+      // Update the aggregate
+      const doc = await ctx.db.get(insertedReview);
+      await updateReviewAggregates(ctx, null, doc!, "insert");
+      return doc;
     }
   },
 });
@@ -112,29 +157,21 @@ export const deleteReview = mutation({
     const userId = identity.subject;
 
     // Find the album
-    const album = await ctx.db
-      .query("albums")
-      .withIndex("by_name_artist", (q) =>
-        q.eq("name", args.albumName).eq("artist", args.artistName),
-      )
-      .first();
-
-    if (!album) {
-      return null; // Album doesn't exist, so no review to delete
-    }
+    const albumId = await findOrCreateAlbum(
+      ctx,
+      args.albumName,
+      args.artistName,
+    );
 
     // Find and delete the user's review
-    const review = await ctx.db
-      .query("reviews")
-      .withIndex("by_user_album", (q) =>
-        q.eq("userId", userId).eq("albumId", album._id),
-      )
-      .first();
+    const review = await findReviewByUserAndAlbum(ctx, userId, albumId);
 
     if (review) {
+      // Delete from the aggregate first
+      await updateReviewAggregates(ctx, review, null, "delete");
+      // Then delete from the database
       await ctx.db.delete(review._id);
     }
-    return review;
   },
 });
 
@@ -164,15 +201,11 @@ export const getUserReview = query({
     }
 
     // Get the user's review
-    return await ctx.db
-      .query("reviews")
-      .withIndex("by_user_album", (q) =>
-        q.eq("userId", userId).eq("albumId", album._id),
-      )
-      .first();
+    return await findReviewByUserAndAlbum(ctx, userId, album._id);
   },
 });
 
+// TODO: Make this take an albumId instead of albumName and artistName
 // Get recent reviews for an album
 export const getRecentReviews = query({
   args: {
@@ -196,8 +229,9 @@ export const getRecentReviews = query({
     // Get recent reviews that have review text
     const reviews = await ctx.db
       .query("reviews")
-      .withIndex("by_album", (q) => q.eq("albumId", album._id))
-      .filter((q) => q.neq(q.field("review"), undefined))
+      .withIndex("by_album_hasReview", (q) =>
+        q.eq("albumId", album._id).eq("hasReview", true),
+      )
       .order("desc")
       .take(args.limit);
 
