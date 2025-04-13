@@ -27,7 +27,7 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
       <MagicCard className="flex min-h-[200px] items-center justify-center rounded-xl py-0">
         <CardContent className="text-center">
           <p className="text-muted-foreground">
-            No reviews yet. Be the first to review this album!
+            No reviews yet. Be the first to write a review for this album!
           </p>
         </CardContent>
       </MagicCard>

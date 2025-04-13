@@ -4,9 +4,14 @@ import { NumberTicker } from "@/components/magicui/number-ticker";
 import { AlbumReviewCardContent } from "@/components/ui/album-review-card-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "convex/react";
 import Link from "next/link";
 import { api } from "../../../convex/_generated/api";
@@ -55,7 +60,11 @@ export default function ProfilePageContent({
                 </h1>
                 {isOwnProfile && (
                   <Link href="/settings">
-                    <Button variant="outline" size="sm" className="h-8">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 cursor-pointer"
+                    >
                       Edit Profile
                     </Button>
                   </Link>
@@ -87,48 +96,31 @@ export default function ProfilePageContent({
         </div>
       </div>
 
-      <Tabs defaultValue="reviews" className="w-full">
-        <TabsList>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          <TabsTrigger value="liked">Liked Reviews</TabsTrigger>
-        </TabsList>
-        <TabsContent value="reviews">
-          <Card>
-            <CardHeader>
-              <CardTitle>Reviews</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[600px]">
-                <div className="space-y-1">
-                  {userReviews.map((review, index) => (
-                    <AlbumReviewCardContent
-                      key={review._id}
-                      review={{
-                        ...review,
-                        username: userProfile.username,
-                      }}
-                      index={index}
-                      showDivider={index !== userReviews.length - 1}
-                    />
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="liked">
-          <Card>
-            <CardHeader>
-              <CardTitle>Liked Reviews</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-muted-foreground py-8 text-center">
-                Coming soon...
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <CardHeader>
+          <CardTitle>Reviews</CardTitle>
+          <CardDescription>
+            Recent activity
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[600px]">
+            <div className="space-y-1">
+              {userReviews.map((review, index) => (
+                <AlbumReviewCardContent
+                  key={review._id}
+                  review={{
+                    ...review,
+                    username: userProfile.username,
+                  }}
+                  index={index}
+                  showDivider={index !== userReviews.length - 1}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 }

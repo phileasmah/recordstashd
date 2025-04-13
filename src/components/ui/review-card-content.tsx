@@ -1,5 +1,6 @@
 import { FunctionReturnType } from "convex/server";
 import Image from "next/image";
+import Link from "next/link";
 import { api } from "../../../convex/_generated/api";
 import { Avatar, AvatarFallback } from "./avatar";
 import { Badge } from "./badge";
@@ -47,7 +48,12 @@ export function ReviewCardContent({
                 <span className="text-muted-foreground text-sm">
                   Reviewed by
                 </span>
-                <p className="text-sm font-medium">{review.username}</p>
+                <Link
+                  href={`/${review.username}`}
+                  className="text-sm font-medium hover:underline"
+                >
+                  {review.username}
+                </Link>
                 <span className="text-muted-foreground text-sm">•</span>
                 <p className="text-muted-foreground text-sm">
                   {new Date(review.lastUpdatedTime).toLocaleDateString()}

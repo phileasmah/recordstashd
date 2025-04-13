@@ -1,7 +1,16 @@
+import { SpotifySearchResults } from "@/types/spotify";
 import { WithoutSystemFields } from "convex/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
+import { api, internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
-import { MutationCtx, QueryCtx, mutation, query } from "./_generated/server";
+import {
+  MutationCtx,
+  QueryCtx,
+  internalAction,
+  internalMutation,
+  mutation,
+  query,
+} from "./_generated/server";
 import {
   aggregateReviewsByAlbum,
   aggregateReviewsByUsers,
@@ -21,6 +30,10 @@ async function findOrCreateAlbum(
     .first();
 
   if (!album) {
+    ctx.scheduler.runAfter(0, internal.reviews.getSpotifyImageUrlAndSave, {
+      albumName,
+      artistName,
+    });
     const albumId = await ctx.db.insert("albums", {
       name: albumName,
       artist: artistName,
@@ -265,16 +278,69 @@ export const getAllUserReviews = query({
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .order("desc")
       .take(10);
-    
-    const reviewsWithAlbumInfo = await Promise.all(reviews.map(async (review) => {
-      const album = await ctx.db.get(review.albumId);
-      return {
-        ...review,
-        albumName: album?.name,
-        artistName: album?.artist,
-      };
-    }));
+
+    const reviewsWithAlbumInfo = await Promise.all(
+      reviews.map(async (review) => {
+        const album = await ctx.db.get(review.albumId);
+        return {
+          ...review,
+          albumName: album?.name,
+          artistName: album?.artist,
+        };
+      }),
+    );
 
     return reviewsWithAlbumInfo;
+  },
+});
+
+export const getSpotifyImageUrlAndSave = internalAction({
+  args: { albumName: v.string(), artistName: v.string() },
+  handler: async (ctx, args) => {
+    const spotifyToken = await ctx.runQuery(api.spotify.getStoredToken);
+    const searchQuery = `${args.artistName} ${args.albumName}`;
+    const response = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=album&limit=1`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${spotifyToken!.accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    const searchResults = (await response.json()) as SpotifySearchResults;
+    if (!searchResults.albums?.items?.[0]) {
+      throw new ConvexError("Image not found");
+    }
+
+    await ctx.scheduler.runAfter(0, internal.reviews.saveSpotifyAlbumUrl, {
+      albumName: args.albumName,
+      artistName: args.artistName,
+      spotifyAlbumUrl: searchResults.albums.items[0].images[0].url,
+    });
+  },
+});
+
+export const saveSpotifyAlbumUrl = internalMutation({
+  args: {
+    albumName: v.string(),
+    artistName: v.string(),
+    spotifyAlbumUrl: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const album = await ctx.db
+      .query("albums")
+      .withIndex("by_name_artist", (q) =>
+        q.eq("name", args.albumName).eq("artist", args.artistName),
+      )
+      .first();
+
+    if (!album) {
+      throw new ConvexError("Album not found");
+    }
+
+    await ctx.db.patch(album._id, { spotifyAlbumUrl: args.spotifyAlbumUrl });
   },
 });

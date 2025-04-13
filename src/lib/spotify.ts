@@ -34,7 +34,7 @@ export async function getSpotifyToken() {
   const data = await response.json();
   
   // Store the token in Convex
-  await convex.mutation(api.spotify.storeToken, {
+  convex.mutation(api.spotify.storeToken, {
     accessToken: data.access_token,
     expiresAt: Date.now() + (data.expires_in - 300) * 1000,
   });
