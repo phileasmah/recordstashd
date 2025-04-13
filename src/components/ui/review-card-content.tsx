@@ -27,6 +27,7 @@ export function ReviewCardContent({
                 src={review.userImageUrl}
                 alt={`${review.username}'s avatar`}
                 fill
+                sizes="100%"
                 className="rounded-full object-cover"
               />
             </div>

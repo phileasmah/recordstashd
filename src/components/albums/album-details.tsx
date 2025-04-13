@@ -38,6 +38,8 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
               src={album.images?.[0]?.url || "/placeholder.png"}
               alt={album.name}
               fill
+              sizes="100%"
+              priority
               className="rounded-lg object-cover"
             />
           </div>
