@@ -63,18 +63,37 @@ export const getAlbumAverageRating = query({
   },
 });
 
-export const getUserReviewCount = query({
+export const getUserStats = query({
   args: {
     userId: v.string(),
   },
   async handler(ctx, args) {
-    const bounds = {
-      namespace: args.userId,
-      bounds: {
-        lower: { key: 0.1, inclusive: false },
-      },
-    };
-    const count = await aggregateReviewsByUsers.count(ctx, bounds);
-    return count;
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayTimestamp = firstDayOfMonth.getTime();
+
+    // Get first day of next month (upper bound)
+    const firstDayOfNextMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1,
+    );
+    const nextMonthTimestamp = firstDayOfNextMonth.getTime();
+
+    const [count, thisMonthCount] = await Promise.all([
+      aggregateReviewsByUsers.count(ctx, {
+        namespace: args.userId,
+        bounds: {},
+      }),
+      aggregateReviewsByUsers.count(ctx, {
+        namespace: args.userId,
+        bounds: {
+          lower: { key: firstDayTimestamp, inclusive: true },
+          upper: { key: nextMonthTimestamp, inclusive: false },
+        },
+      }),
+    ]);
+
+    return { totalReviews: count, thisMonthReviews: thisMonthCount };
   },
 });

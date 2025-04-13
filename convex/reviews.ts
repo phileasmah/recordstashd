@@ -254,3 +254,27 @@ export const getRecentReviews = query({
     return reviewsWithUserInfo;
   },
 });
+
+export const getAllUserReviews = query({
+  args: {
+    userId: v.string(),
+  },
+  async handler(ctx, args) {
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .take(10);
+    
+    const reviewsWithAlbumInfo = await Promise.all(reviews.map(async (review) => {
+      const album = await ctx.db.get(review.albumId);
+      return {
+        ...review,
+        albumName: album?.name,
+        artistName: album?.artist,
+      };
+    }));
+
+    return reviewsWithAlbumInfo;
+  },
+});

@@ -1,12 +1,15 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
 import { SearchBar } from "./search-bar";
 import { Button } from "./ui/button";
 
 export function Navbar() {
+  const { user } = useUser()
+
+
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4">
@@ -38,7 +41,7 @@ export function Navbar() {
                   <UserButton.Link
                     label="View profile"
                     labelIcon={<UserIcon className="w-4 h-4" />}
-                    href="/album"
+                    href={`/${user?.username}`}
                   />
                   <UserButton.Action label="manageAccount" />
                   <UserButton.Action label="signOut" />

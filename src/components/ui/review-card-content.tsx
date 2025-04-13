@@ -16,7 +16,9 @@ export function ReviewCardContent({
   showDivider = true,
 }: ReviewCardContentProps) {
   return (
-    <div className={`${index > 0 && showDivider ? "pt-4" : ""} pb-4`}>
+    <div
+      className={`${index > 0 ? "pt-4" : ""} pb-4 ${showDivider ? "border-b" : ""}`}
+    >
       <div className="flex items-start gap-4">
         <Avatar className="mt-1 h-8 w-8">
           {review.userImageUrl ? (
@@ -59,4 +61,4 @@ export function ReviewCardContent({
       </div>
     </div>
   );
-} 
+}

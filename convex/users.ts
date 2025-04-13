@@ -58,6 +58,16 @@ export async function getCurrentUser(ctx: QueryCtx) {
   return await userByExternalId(ctx, identity.subject);
 }
 
+export const getUserByUsername = query({
+  args: { username: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("byUsername", (q) => q.eq("username", args.username))
+      .unique();
+  },
+});
+
 async function userByExternalId(ctx: QueryCtx, externalId: string) {
   return await ctx.db
     .query("users")

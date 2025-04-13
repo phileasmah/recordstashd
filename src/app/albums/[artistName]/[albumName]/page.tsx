@@ -11,7 +11,7 @@ interface AlbumPageProps {
   }>;
 }
 
-async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
+export default async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
   const { artistName, albumName } = await params;
   const { id } = await searchParams;
 
@@ -38,8 +38,8 @@ async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
   }
 }
 
-export default async function AlbumPage(props: AlbumPageProps) {
-  const searchParams = props.searchParams;
-  const params = props.params;
-  return <AlbumPageContent params={params} searchParams={searchParams} />;
-}
+// export default async function AlbumPage(props: AlbumPageProps) {
+//   const searchParams = props.searchParams;
+//   const params = props.params;
+//   return <AlbumPageContent params={params} searchParams={searchParams} />;
+// }

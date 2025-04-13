@@ -32,5 +32,7 @@ export default defineSchema({
     lastName: v.optional(v.string()),
     // this the Clerk ID, stored in the subject JWT field
     externalId: v.string(),
-  }).index("byExternalId", ["externalId"]),
+  })
+    .index("byExternalId", ["externalId"])
+    .index("byUsername", ["username"]),
 });
