@@ -286,6 +286,7 @@ export const getAllUserReviews = query({
           ...review,
           albumName: album?.name,
           artistName: album?.artist,
+          spotifyAlbumUrl: album?.spotifyAlbumUrl,
         };
       }),
     );
@@ -298,7 +299,7 @@ export const getSpotifyImageUrlAndSave = internalAction({
   args: { albumName: v.string(), artistName: v.string() },
   handler: async (ctx, args) => {
     const spotifyToken = await ctx.runQuery(api.spotify.getStoredToken);
-    const searchQuery = `${args.artistName} ${args.albumName}`;
+    const searchQuery = `album:${args.albumName} artist:${args.artistName}`;
     const response = await fetch(
       `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=album&limit=1`,
       {

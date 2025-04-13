@@ -38,7 +38,7 @@ export default function ProfilePageContent({
   if (!userReviews) {
     return <ProfileLoading />;
   }
-
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col gap-8 md:flex-row">
@@ -106,17 +106,23 @@ export default function ProfilePageContent({
         <CardContent>
           <ScrollArea className="h-[600px]">
             <div className="space-y-1">
-              {userReviews.map((review, index) => (
-                <AlbumReviewCardContent
-                  key={review._id}
-                  review={{
-                    ...review,
-                    username: userProfile.username,
-                  }}
-                  index={index}
-                  showDivider={index !== userReviews.length - 1}
-                />
-              ))}
+              {userReviews.length === 0 ? (
+                <p className="text-muted-foreground text-center p-10">
+                  No reviews yet
+                </p>
+              ) : (
+                userReviews.map((review, index) => (
+                  <AlbumReviewCardContent
+                    key={review._id}
+                    review={{
+                      ...review,
+                      username: userProfile.username,
+                    }}
+                    index={index}
+                    showDivider={index !== userReviews.length - 1}
+                  />
+                ))
+              )}
             </div>
           </ScrollArea>
         </CardContent>

@@ -1,4 +1,5 @@
 import { FunctionReturnType } from "convex/server";
+import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../convex/_generated/api";
 import { Badge } from "./badge";
@@ -20,9 +21,18 @@ export function AlbumReviewCardContent({
     ? `/albums/${encodeURIComponent(review.artistName)}/${encodeURIComponent(review.albumName)}`
     : "#";
 
-  return (
+    return (
     <div className={`${index > 0 ? "pt-4" : ""} pb-4 ${showDivider ? "border-b" : ""}`}>
       <div className="flex items-start gap-4">
+        <div className="relative h-20 w-20 flex-shrink-0">
+          <Image
+            src={review.spotifyAlbumUrl || "/placeholder.png"}
+            alt={review.albumName || "Album cover"}
+            fill
+            sizes="100%"
+            className="rounded-md object-cover"
+          />
+        </div>
         <div className="flex-1 space-y-2">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
