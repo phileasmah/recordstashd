@@ -1,7 +1,6 @@
 "use client";
 
 import { NumberTicker } from "@/components/magicui/number-ticker";
-import { AlbumReviewCardContent } from "@/components/ui/album-review-card-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,9 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AlbumReviewCardContent } from "@/components/ui/review-cards/album-review-card-content";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "convex/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { Doc } from "../../../convex/_generated/dataModel";
 import ProfileLoading from "./loading";
@@ -23,10 +24,13 @@ interface ProfilePageContentProps {
   userProfile: Doc<"users">;
 }
 
+// TODO: Use preload from convex for reactivity when changing user info
 export default function ProfilePageContent({
   isOwnProfile,
   userProfile,
 }: ProfilePageContentProps) {
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
   const userReviews = useQuery(api.reviews.getAllUserReviews, {
     userId: userProfile.externalId,
   });
@@ -35,10 +39,20 @@ export default function ProfilePageContent({
     userId: userProfile.externalId,
   });
 
+  useEffect(() => {
+    if (userProfile.firstName || userProfile.lastName) {
+      setDisplayName(
+        `${userProfile.firstName ? userProfile.firstName : ""} ${userProfile.lastName ? userProfile.lastName : ""}`.trim(),
+      );
+    } else {
+      setDisplayName(userProfile.username);
+    }
+  }, [userProfile]);
+
   if (!userReviews) {
     return <ProfileLoading />;
   }
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col gap-8 md:flex-row">
@@ -55,9 +69,7 @@ export default function ProfilePageContent({
           <div className="flex flex-grow flex-col items-center gap-4 md:flex-row md:items-start">
             <div className="flex flex-col items-center md:items-start">
               <div className="flex items-center gap-4">
-                <h1 className="text-3xl font-bold">
-                  {userProfile.firstName || userProfile.username}
-                </h1>
+                <h1 className="text-3xl font-bold">{displayName}</h1>
                 {isOwnProfile && (
                   <Link href="/settings">
                     <Button
@@ -99,15 +111,13 @@ export default function ProfilePageContent({
       <Card>
         <CardHeader>
           <CardTitle>Reviews</CardTitle>
-          <CardDescription>
-            Recent activity
-          </CardDescription>
+          <CardDescription>Recent activity</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[600px]">
             <div className="space-y-1">
               {userReviews.length === 0 ? (
-                <p className="text-muted-foreground text-center p-10">
+                <p className="text-muted-foreground p-10 text-center">
                   No reviews yet
                 </p>
               ) : (
@@ -117,6 +127,7 @@ export default function ProfilePageContent({
                     review={{
                       ...review,
                       username: userProfile.username,
+                      userDisplayName: displayName,
                     }}
                     index={index}
                     showDivider={index !== userReviews.length - 1}

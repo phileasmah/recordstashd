@@ -256,10 +256,21 @@ export const getRecentReviews = query({
           .withIndex("byExternalId", (q) => q.eq("externalId", review.userId))
           .unique();
 
+        if (!user) {
+          return {
+            ...review,
+            username: "Anonymous User",
+            userDisplayName: null,
+            userImageUrl: null,
+          };
+        }
+
         return {
           ...review,
-          username: user?.username || "Anonymous User",
-          userImageUrl: user?.imageUrl,
+          username: user.username || "Anonymous User",
+          userDisplayName:
+            `${user.firstName ? user.firstName : ""} ${user.lastName ? user.lastName : ""}`.trim(),
+          userImageUrl: user.imageUrl,
         };
       }),
     );

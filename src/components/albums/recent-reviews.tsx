@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { ReviewCardContent } from "../ui/review-card-content";
+import { ReviewCardContent } from "../ui/review-cards/review-card-content";
 
 interface RecentReviewsProps {
   albumName: string;
