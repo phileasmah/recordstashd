@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Badge } from "../badge";
+import { LikeButton } from "./like-button";
 
 interface AlbumReviewCardContentProps {
   review: FunctionReturnType<typeof api.reviews.getAllUserReviews>[number] & {
@@ -28,7 +29,11 @@ export function AlbumReviewCardContent({
       className={`${index > 0 ? "pt-4" : ""} pb-4 ${showDivider ? "border-b" : ""}`}
     >
       <div className="flex items-start gap-4">
-        <div className="relative h-20 w-20 flex-shrink-0">
+        <div
+          className={`relative ${
+            review.review ? "h-22 w-22" : "h-14 w-14"
+          } flex-shrink-0`}
+        >
           <Image
             src={review.spotifyAlbumUrl || "/placeholder.png"}
             alt={review.albumName || "Album cover"}
@@ -62,6 +67,12 @@ export function AlbumReviewCardContent({
               <span className="text-muted-foreground text-sm">
                 {new Date(review.lastUpdatedTime).toLocaleDateString()}
               </span>
+              <LikeButton
+                reviewId={review._id}
+                initialLikedState={review.likedByUser}
+                initialLikeCount={review.likeCount}
+                className="-ml-0.5"
+              />
             </div>
           </div>
           {review.review && (

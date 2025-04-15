@@ -15,6 +15,7 @@ import {
   aggregateReviewsByAlbum,
   aggregateReviewsByUsers,
 } from "./reviewAggregates";
+import { checkReviewLikedByUser, reviewLikeCount } from "./reviewLikes";
 
 // Helper function to find or create an album
 async function findOrCreateAlbum(
@@ -227,6 +228,8 @@ export const getRecentReviews = query({
     limit: v.number(),
   },
   async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    const userId = identity?.subject;
     // Find the album
     const album = await ctx.db
       .query("albums")
@@ -251,10 +254,19 @@ export const getRecentReviews = query({
     // Get user details for each review
     const reviewsWithUserInfo = await Promise.all(
       reviews.map(async (review) => {
-        const user = await ctx.db
-          .query("users")
-          .withIndex("by_externalId", (q) => q.eq("externalId", review.userId))
-          .unique();
+        const [user, likeCount, likedByUser] = await Promise.all([
+          ctx.db
+            .query("users")
+            .withIndex("by_externalId", (q) =>
+              q.eq("externalId", review.userId),
+            )
+            .unique(),
+          reviewLikeCount.count(ctx, {
+            namespace: review._id,
+            bounds: {},
+          }),
+          checkReviewLikedByUser(ctx, userId, review._id),
+        ]);
 
         if (!user) {
           return {
@@ -262,6 +274,8 @@ export const getRecentReviews = query({
             username: "Anonymous User",
             userDisplayName: null,
             userImageUrl: null,
+            likeCount,
+            likedByUser,
           };
         }
 
@@ -271,6 +285,8 @@ export const getRecentReviews = query({
           userDisplayName:
             `${user.firstName ? user.firstName : ""} ${user.lastName ? user.lastName : ""}`.trim(),
           userImageUrl: user.imageUrl,
+          likeCount,
+          likedByUser,
         };
       }),
     );
@@ -284,6 +300,9 @@ export const getAllUserReviews = query({
     userId: v.string(),
   },
   async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    const currentUserId = identity?.subject;
+
     const reviews = await ctx.db
       .query("reviews")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
@@ -292,12 +311,21 @@ export const getAllUserReviews = query({
 
     const reviewsWithAlbumInfo = await Promise.all(
       reviews.map(async (review) => {
-        const album = await ctx.db.get(review.albumId);
+        const [album, likeCount, likedByUser] = await Promise.all([
+          ctx.db.get(review.albumId),
+          reviewLikeCount.count(ctx, {
+            namespace: review._id,
+            bounds: {},
+          }),
+          checkReviewLikedByUser(ctx, currentUserId, review._id),
+        ]);
         return {
           ...review,
           albumName: album?.name,
           artistName: album?.artist,
           spotifyAlbumUrl: album?.spotifyAlbumUrl,
+          likeCount,
+          likedByUser,
         };
       }),
     );

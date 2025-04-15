@@ -4,6 +4,7 @@ import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Avatar, AvatarFallback } from "../avatar";
 import { Badge } from "../badge";
+import { LikeButton } from "./like-button";
 
 interface ReviewCardContentProps {
   review: FunctionReturnType<typeof api.reviews.getRecentReviews>[number];
@@ -60,6 +61,11 @@ export function ReviewCardContent({
                 <p className="text-muted-foreground text-sm">
                   {new Date(review.lastUpdatedTime).toLocaleDateString()}
                 </p>
+                <LikeButton
+                  reviewId={review._id}
+                  initialLikedState={review.likedByUser}
+                  initialLikeCount={review.likeCount}
+                />
               </div>
             </div>
           </div>
