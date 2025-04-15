@@ -63,7 +63,7 @@ export const getUserByUsername = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("users")
-      .withIndex("byUsername", (q) => q.eq("username", args.username))
+      .withIndex("by_username", (q) => q.eq("username", args.username))
       .unique();
   },
 });
@@ -71,6 +71,6 @@ export const getUserByUsername = query({
 async function userByExternalId(ctx: QueryCtx, externalId: string) {
   return await ctx.db
     .query("users")
-    .withIndex("byExternalId", (q) => q.eq("externalId", externalId))
+    .withIndex("by_externalId", (q) => q.eq("externalId", externalId))
     .unique();
 }

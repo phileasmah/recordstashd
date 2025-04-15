@@ -34,6 +34,22 @@ export default defineSchema({
     // this the Clerk ID, stored in the subject JWT field
     externalId: v.string(),
   })
-    .index("byExternalId", ["externalId"])
-    .index("byUsername", ["username"]),
+    .index("by_externalId", ["externalId"])
+    .index("by_username", ["username"]),
+
+  follows: defineTable({
+    followerId: v.string(),
+    followingId: v.string(),
+  })
+    .index("by_follower_following", ["followerId", "followingId"])
+    .index("by_follower", ["followerId"])
+    .index("by_following", ["followingId"]),
+  
+  reviewLikes: defineTable({
+    userId: v.string(),
+    reviewId: v.id("reviews"),
+  })
+    .index("by_user_review", ["userId", "reviewId"])
+    .index("by_user", ["userId"])
+    .index("by_review", ["reviewId"]),
 });

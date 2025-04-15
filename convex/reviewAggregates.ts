@@ -21,7 +21,7 @@ export const aggregateReviewsByUsers = new TableAggregate<{
   Key: number;
   DataModel: DataModel;
   TableName: "reviews";
-}>(components.aggregateReviewsByAlbum, {
+}>(components.aggregateReviewsByUsers, {
   namespace: (doc) => doc.userId,
   sortKey: (doc) => doc._creationTime ?? 0,
   sumValue: (doc) => doc.rating ?? 0,

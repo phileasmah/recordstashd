@@ -253,7 +253,7 @@ export const getRecentReviews = query({
       reviews.map(async (review) => {
         const user = await ctx.db
           .query("users")
-          .withIndex("byExternalId", (q) => q.eq("externalId", review.userId))
+          .withIndex("by_externalId", (q) => q.eq("externalId", review.userId))
           .unique();
 
         if (!user) {
