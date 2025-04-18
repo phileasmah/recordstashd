@@ -60,9 +60,9 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const [cardState, setCardState] = useState<CardState>({ state: "default" });
   const [direction, setDirection] = useState(0);
 
-  const upsertReview = useMutation(api.reviews.upsertReview);
+  const upsertReview = useMutation(api.reviewsWrite.upsertReview);
   const existingReview = useQuery(
-    api.reviews.getUserReview,
+    api.reviewsRead.getUserReview,
     isSignedIn ? { albumName, artistName } : "skip",
   );
 

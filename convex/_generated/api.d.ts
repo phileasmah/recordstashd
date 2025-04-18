@@ -12,7 +12,8 @@ import type * as follows from "../follows.js";
 import type * as http from "../http.js";
 import type * as reviewAggregates from "../reviewAggregates.js";
 import type * as reviewLikes from "../reviewLikes.js";
-import type * as reviews from "../reviews.js";
+import type * as reviewsRead from "../reviewsRead.js";
+import type * as reviewsWrite from "../reviewsWrite.js";
 import type * as spotify from "../spotify.js";
 import type * as users from "../users.js";
 
@@ -35,7 +36,8 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   reviewAggregates: typeof reviewAggregates;
   reviewLikes: typeof reviewLikes;
-  reviews: typeof reviews;
+  reviewsRead: typeof reviewsRead;
+  reviewsWrite: typeof reviewsWrite;
   spotify: typeof spotify;
   users: typeof users;
 }>;

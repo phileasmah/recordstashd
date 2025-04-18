@@ -31,7 +31,7 @@ export default function ProfilePageContent({
 }: ProfilePageContentProps) {
   const [displayName, setDisplayName] = useState<string | null>(null);
 
-  const userReviews = useQuery(api.reviews.getAllUserReviews, {
+  const userReviews = useQuery(api.reviewsRead.getAllUserReviews, {
     userId: userProfile.externalId,
   });
 

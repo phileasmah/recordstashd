@@ -21,7 +21,6 @@ export default defineSchema({
     hasReview: v.boolean(),
     lastUpdatedTime: v.number(), // timestamp for sorting by recency
   })
-    .index("by_album", ["albumId", "lastUpdatedTime"])
     .index("by_user_album", ["userId", "albumId"])
     .index("by_user", ["userId", "lastUpdatedTime"])
     .index("by_album_hasReview", ["albumId", "hasReview"]),
@@ -50,6 +49,5 @@ export default defineSchema({
     reviewId: v.id("reviews"),
   })
     .index("by_user_review", ["userId", "reviewId"])
-    .index("by_user", ["userId"])
     .index("by_review", ["reviewId"]),
 });

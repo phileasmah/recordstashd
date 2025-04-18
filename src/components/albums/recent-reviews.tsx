@@ -16,7 +16,7 @@ interface RecentReviewsProps {
 }
 
 export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
-  const recentReviews = useQuery(api.reviews.getRecentReviews, {
+  const recentReviews = useQuery(api.reviewsRead.getRecentReviews, {
     albumName,
     artistName,
     limit: 5,

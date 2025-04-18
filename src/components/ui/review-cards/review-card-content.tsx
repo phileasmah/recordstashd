@@ -7,7 +7,7 @@ import { Badge } from "../badge";
 import { LikeButton } from "./like-button";
 
 interface ReviewCardContentProps {
-  review: FunctionReturnType<typeof api.reviews.getRecentReviews>[number];
+  review: FunctionReturnType<typeof api.reviewsRead.getRecentReviews>[number];
   index?: number;
   showDivider?: boolean;
 }

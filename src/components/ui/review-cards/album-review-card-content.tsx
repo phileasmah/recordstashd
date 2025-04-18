@@ -6,7 +6,7 @@ import { Badge } from "../badge";
 import { LikeButton } from "./like-button";
 
 interface AlbumReviewCardContentProps {
-  review: FunctionReturnType<typeof api.reviews.getAllUserReviews>[number] & {
+  review: FunctionReturnType<typeof api.reviewsRead.getAllUserReviews>[number] & {
     username: string;
     userDisplayName: string | null;
   };
