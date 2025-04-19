@@ -1,7 +1,10 @@
+import { stream } from "convex-helpers/server/stream";
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { query } from "./_generated/server";
-import { findReviewByUserAndAlbum } from "./reviewsWrite";
 import { checkReviewLikedByUser, reviewLikeCount } from "./reviewLikes";
+import { findReviewByUserAndAlbum } from "./reviewsWrite";
+import schema from "./schema";
 
 // Get a user's review for a specific album
 export const getUserReview = query({
@@ -32,7 +35,6 @@ export const getUserReview = query({
     return await findReviewByUserAndAlbum(ctx, userId, album._id);
   },
 });
-
 
 // TODO: Make this take an albumId instead of albumName and artistName
 // Get recent reviews for an album
@@ -146,5 +148,58 @@ export const getAllUserReviews = query({
     );
 
     return reviewsWithAlbumInfo;
+  },
+});
+
+export const getLatestPostsFromFollowing = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    const userId = identity.subject;
+
+    const followingStream = stream(ctx.db, schema)
+      .query("follows")
+      .withIndex("by_follower", (q) => q.eq("followerId", userId))
+      .order("desc")  ;
+
+    const followingUsersStream = followingStream.flatMap(
+      async (followingUser) =>
+        stream(ctx.db, schema)
+          .query("users")
+          .withIndex("by_externalId", (q) =>
+            q.eq("externalId", followingUser.followingId),
+          )
+          .order("desc"),
+      ["externalId"],
+    );
+
+    const reviewsStream = followingUsersStream.flatMap(
+      async (followingUser) =>
+        stream(ctx.db, schema)
+          .query("reviews")
+          .withIndex("by_user", (q) => q.eq("userId", followingUser.externalId))
+          .order("desc")
+          .map(async (review) => {
+            const album = await ctx.db.get(review.albumId);
+            return {
+              ...review,
+              username: followingUser.username || "Anonymous User",
+              userDisplayName:
+                `${followingUser.firstName ? followingUser.firstName : ""} ${followingUser.lastName ? followingUser.lastName : ""}`.trim(),
+              userImageUrl: followingUser.imageUrl,
+              albumName: album?.name,
+              artistName: album?.artist,
+              spotifyAlbumUrl: album?.spotifyAlbumUrl,
+            };
+          }),
+      ["userId", "lastUpdatedTime"],
+    );
+
+    return reviewsStream.paginate(args.paginationOpts);
   },
 });

@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Fragment } from "react";
 
 export default function Loading() {
   return (
@@ -8,64 +7,82 @@ export default function Loading() {
       <div className="space-y-6">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Album Info Section */}
-          <Card className="flex-grow lg:w-2/3 py-0 flex-col md:flex-row">
-            <div className="relative aspect-square w-full md:w-80">
+          <Card className="flex w-full flex-col py-0 md:flex-row lg:w-2/3">
+            <div className="relative aspect-square w-full md:w-80 flex-shrink-0">
               <Skeleton className="h-full w-full rounded-lg" />
             </div>
-            <CardHeader className="flex-grow py-6 px-8">
+            <CardHeader className="flex-grow px-4 py-6 md:px-8">
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <Skeleton className="h-10 w-3/4" />
-                  <Skeleton className="h-6 w-1/2" />
+                  <div className="flex flex-wrap items-end gap-3">
+                    <CardTitle className="text-3xl font-bold">
+                      <Skeleton className="h-10 w-48" />
+                    </CardTitle>
+                    <Skeleton className="h-6 w-24 rounded" />
+                  </div>
+                  <CardDescription className="text-xl">
+                    <Skeleton className="h-6 w-32" />
+                  </CardDescription>
                 </div>
-                <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <Fragment key={i}>
-                      <Skeleton className="h-5 w-24" />
-                      <Skeleton className="h-5 w-32" />
-                    </Fragment>
-                  ))}
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-base pr-8">
+                  <div className="text-muted-foreground">Release Date:</div>
+                  <Skeleton className="h-5 w-24" />
+                  <div className="text-muted-foreground">Total Tracks:</div>
+                  <Skeleton className="h-5 w-16" />
+                  <div className="text-muted-foreground">Label:</div>
+                  <Skeleton className="h-5 w-32" />
+                  <div className="text-muted-foreground">Average Rating:</div>
+                  <Skeleton className="h-5 w-32" />
                 </div>
               </div>
             </CardHeader>
           </Card>
 
           {/* Review Input Section */}
-          <Card className="lg:w-1/3">
+          <Card className="w-full lg:w-1/3">
             <CardHeader>
-              <Skeleton className="h-7 w-32 mb-2" />
-              <Skeleton className="h-5 w-48" />
+              <CardTitle>
+                <Skeleton className="h-7 w-32 mb-2" />
+              </CardTitle>
+              <CardDescription>
+                <Skeleton className="h-5 w-48" />
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </div>
+            <CardContent className="mt-4 flex flex-col gap-4">
+              <Skeleton className="h-8 w-40" /> {/* Rating input */}
+              <Skeleton className="h-10 w-full" /> {/* Button */}
             </CardContent>
           </Card>
         </div>
 
         {/* Tracks and Reviews Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Tracks Section */}
-          <Card>
+          <Card className="gap-4">
             <CardHeader>
-              <Skeleton className="h-7 w-24" />
+              <CardTitle>
+                <Skeleton className="h-7 w-24" />
+              </CardTitle>
+              <CardDescription>
+                <Skeleton className="h-5 w-32" />
+              </CardDescription>
             </CardHeader>
             <div className="h-[400px]">
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="hover:bg-accent flex items-center gap-4 rounded-md p-2 transition-colors">
-                      <div className="w-8 text-center">
-                        <Skeleton className="h-6 w-6 mx-auto" />
+                    <div
+                      key={i}
+                      className="hover:bg-accent flex items-center gap-4 rounded-md py-2.5 transition-colors px-4"
+                    >
+                      <div className="text-muted-foreground text-center">
+                        <Skeleton className="h-5 w-5 mx-auto" />
                       </div>
                       <div className="flex-grow">
-                        <Skeleton className="h-5 w-48" />
-                        <Skeleton className="h-4 w-32 mt-1" />
+                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="h-4 w-24 mt-1" />
                       </div>
-                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-5 w-12" />
                     </div>
                   ))}
                 </div>
@@ -76,28 +93,30 @@ export default function Loading() {
           {/* Reviews Section */}
           <Card>
             <CardHeader>
-              <Skeleton className="h-7 w-32" />
+              <CardTitle>
+                <Skeleton className="h-7 w-32" />
+              </CardTitle>
+              <CardDescription>
+                <Skeleton className="h-5 w-48" />
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="divide-border divide-y">
                 {[1, 2].map((i) => (
-                  <Card key={i}>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-4">
-                        <Skeleton className="h-8 w-8 rounded-full" />
-                        <div className="space-y-1">
-                          <Skeleton className="h-4 w-32" />
-                          <Skeleton className="h-3 w-24" />
-                        </div>
+                  <div key={i} className="flex items-start gap-4 py-4">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Skeleton className="h-5 w-12" /> {/* Badge */}
+                        <Skeleton className="h-4 w-20" /> {/* Reviewed by */}
+                        <Skeleton className="h-4 w-16" /> {/* Username */}
+                        <Skeleton className="h-4 w-10" /> {/* Dot/date */}
+                        <Skeleton className="h-4 w-16" /> {/* Date */}
+                        <Skeleton className="h-4 w-8" /> {/* Like button */}
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-16" />
-                        <Skeleton className="h-12 w-full" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                      <Skeleton className="h-4 w-40" /> {/* Review text */}
+                    </div>
+                  </div>
                 ))}
               </div>
             </CardContent>

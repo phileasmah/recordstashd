@@ -1,8 +1,8 @@
 // convex/follows.ts
 import { TableAggregate } from "@convex-dev/aggregate";
 import {
-    customCtx,
-    customMutation,
+  customCtx,
+  customMutation,
 } from "convex-helpers/server/customFunctions";
 import { Triggers } from "convex-helpers/server/triggers";
 import { v } from "convex/values";
@@ -116,5 +116,26 @@ export const getFollowingCount = query({
       namespace: args.userId,
       bounds: {},
     });
+  },
+});
+
+// Check if current user is following a user
+export const isFollowing = query({
+  args: { followingId: v.string() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return false;
+    }
+    const followerId = identity.subject;
+
+    const existing = await ctx.db
+      .query("follows")
+      .withIndex("by_follower_following", (q) =>
+        q.eq("followerId", followerId).eq("followingId", args.followingId),
+      )
+      .first();
+
+    return !!existing;
   },
 });

@@ -1,3 +1,4 @@
+import { PaginatedQueryItem } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,10 +7,12 @@ import { Badge } from "../badge";
 import { LikeButton } from "./like-button";
 
 interface AlbumReviewCardContentProps {
-  review: FunctionReturnType<typeof api.reviewsRead.getAllUserReviews>[number] & {
-    username: string;
-    userDisplayName: string | null;
-  };
+  review:
+    | (FunctionReturnType<typeof api.reviewsRead.getAllUserReviews>[number] & {
+        username: string;
+        userDisplayName: string | null;
+      })
+    | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>;
   index?: number;
   showDivider?: boolean;
 }
@@ -59,20 +62,39 @@ export function AlbumReviewCardContent({
               )}
               <span className="text-muted-foreground text-sm">
                 Reviewed by{" "}
-                {review.userDisplayName
-                  ? review.userDisplayName
-                  : review.username}
+                {"likedByUser" in review ? (
+                  <span className="text-sm font-medium">
+                    {review.userDisplayName
+                      ? review.userDisplayName
+                      : review.username}
+                  </span>
+                ) : (
+                  <Link
+                    href={`/${review.username}`}
+                    className="text-primary text-sm font-medium hover:underline"
+                  >
+                    {review.userDisplayName
+                      ? review.userDisplayName
+                      : review.username}
+                  </Link>
+                )}
               </span>
               <span className="text-muted-foreground text-sm">•</span>
               <span className="text-muted-foreground text-sm">
-                {new Date(review.lastUpdatedTime).toLocaleDateString()}
+                {new Date(review.lastUpdatedTime).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
               </span>
-              <LikeButton
-                reviewId={review._id}
-                initialLikedState={review.likedByUser}
-                initialLikeCount={review.likeCount}
-                className="-ml-0.5"
-              />
+              {"likedByUser" in review && (
+                <LikeButton
+                  reviewId={review._id}
+                  initialLikedState={review.likedByUser}
+                  initialLikeCount={review.likeCount}
+                  className="-ml-0.5"
+                />
+              )}
             </div>
           </div>
           {review.review && (

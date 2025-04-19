@@ -59,7 +59,14 @@ export function ReviewCardContent({
                 </Link>
                 <span className="text-muted-foreground text-sm">•</span>
                 <p className="text-muted-foreground text-sm">
-                  {new Date(review.lastUpdatedTime).toLocaleDateString()}
+                  {new Date(review.lastUpdatedTime).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    },
+                  )}
                 </p>
                 <LikeButton
                   reviewId={review._id}

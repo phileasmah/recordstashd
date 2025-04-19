@@ -26,6 +26,7 @@ export default async function UserPage({ params }: ProfilePageProps) {
     <ProfilePageContent
       userProfile={userProfile}
       isOwnProfile={isOwnProfile}
+      isSignedIn={!!currentUserDetails}
     />
   );
 }
