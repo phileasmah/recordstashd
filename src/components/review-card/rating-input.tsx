@@ -1,4 +1,5 @@
-import { Star } from "lucide-react";
+import { Star, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
 interface StarProps {
@@ -60,6 +61,7 @@ export function RatingInput({
   className = "",
 }: RatingInputProps) {
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [isComponentHovered, setIsComponentHovered] = useState(false);
 
   const handleStarClick = (starIndex: number, isRightHalf: boolean) => {
     const baseValue = starIndex + 1;
@@ -77,6 +79,11 @@ export function RatingInput({
     setHoverRating(0);
   };
 
+  const handleClearRating = () => {
+    onChange(0);
+    setHoverRating(0);
+  };
+
   const getStarFilled = (index: number): number => {
     const currentRating = hoverRating || value;
     const starPosition = index + 1;
@@ -87,19 +94,46 @@ export function RatingInput({
   };
 
   return (
-    <div className={className}>
-      <div className="flex gap-1" onMouseLeave={handleMouseLeave}>
-        {[0, 1, 2, 3, 4].map((index) => (
-          <div key={index} className="w-9">
-            <StarRating
-              filled={getStarFilled(index)}
-              onLeftClick={() => handleStarClick(index, false)}
-              onRightClick={() => handleStarClick(index, true)}
-              onMouseEnter={(isRight) => handleStarHover(index, isRight)}
-              size={size}
-            />
-          </div>
-        ))}
+    <div 
+      className={className}
+      onMouseEnter={() => setIsComponentHovered(true)}
+      onMouseLeave={() => {
+        setIsComponentHovered(false);
+        handleMouseLeave();
+      }}
+    >
+      <div className="flex items-center gap-1">
+        <div className="flex gap-1">
+          {[0, 1, 2, 3, 4].map((index) => (
+            <div key={index} className="w-9">
+              <StarRating
+                filled={getStarFilled(index)}
+                onLeftClick={() => handleStarClick(index, false)}
+                onRightClick={() => handleStarClick(index, true)}
+                onMouseEnter={(isRight) => handleStarHover(index, isRight)}
+                size={size}
+              />
+            </div>
+          ))}
+        </div>
+        <AnimatePresence>
+          {value > 0 && isComponentHovered && (
+            <motion.button
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ 
+                duration: 0.3,
+                ease: [0.2, 0, 0, 1]
+              }}
+              onClick={handleClearRating}
+              className="ml-1 rounded-full p-1 text-gray-400 hover:bg-muted hover:text-muted-foreground transition-colors duration-300"
+              aria-label="Clear rating"
+            >
+              <X size={size * 0.52} />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

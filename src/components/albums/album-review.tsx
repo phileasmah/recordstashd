@@ -1,13 +1,25 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { RatingInput } from "../review-card/rating-input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -59,6 +71,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [cardState, setCardState] = useState<CardState>({ state: "default" });
   const [direction, setDirection] = useState(0);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const upsertReview = useMutation(api.reviewsWrite.upsertReview);
   const existingReview = useQuery(
@@ -115,6 +128,24 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
     }
   };
 
+  // Handle review deletion
+  const handleDeleteReview = async () => {
+    try {
+      await upsertReview({
+        albumName,
+        artistName,
+        rating,
+        review: "",
+      });
+      setReview("");
+      toast.success("Review deleted successfully!");
+      setCardState({ state: "default" });
+    } catch (error) {
+      console.error("Failed to delete review:", error);
+      toast.error("Failed to delete review. Please try again.");
+    }
+  };
+
   const renderCard = () => {
     switch (cardState.state) {
       case "writing_review":
@@ -139,7 +170,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                 </motion.div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-1 flex-col gap-1">
                   <motion.div>
                     <CardTitle>
                       {review ? "Edit Your Review" : "Write Your Review"}
@@ -149,6 +180,49 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                     <CardDescription>Share your thoughts</CardDescription>
                   </motion.div>
                 </div>
+                {review && (
+                  <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "my-auto group relative h-8 overflow-hidden rounded-full",
+                          "hover:bg-destructive/90 hover:text-destructive-foreground",
+                          isDeleteDialogOpen && "bg-destructive/90 text-destructive-foreground"
+                        )}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Trash2 className="h-4 w-4 shrink-0" />
+                          <span className={cn(
+                            "-mt-0.5 overflow-hidden text-sm whitespace-nowrap transition-all duration-250",
+                            "w-0 group-hover:w-[85px]",
+                            isDeleteDialogOpen && "w-[85px]"
+                          )}>
+                            Delete review
+                          </span>
+                        </span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Review</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this review? This
+                          action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteReview}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
                 <motion.div className="flex-1">
