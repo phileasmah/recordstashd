@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Badge } from "../badge";
+import { ExpandableReviewText } from "./expandable-review-text";
 import { LikeButton } from "./like-button";
 
 interface AlbumReviewCardContentProps {
@@ -97,9 +98,7 @@ export function AlbumReviewCardContent({
               )}
             </div>
           </div>
-          {review.review && (
-            <p className="text-muted-foreground text-sm">{review.review}</p>
-          )}
+          {review.review && <ExpandableReviewText text={review.review} />}
         </div>
       </div>
     </div>

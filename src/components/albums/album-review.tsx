@@ -73,7 +73,9 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const [direction, setDirection] = useState(0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const upsertReview = useMutation(api.reviewsWrite.upsertReview);
+  const createReview = useMutation(api.reviewsWrite.createReview);
+  const updateReview = useMutation(api.reviewsWrite.updateReview);
+  const deleteReview = useMutation(api.reviewsWrite.deleteReview);
   const existingReview = useQuery(
     api.reviewsRead.getUserReview,
     isSignedIn ? { albumName, artistName } : "skip",
@@ -88,19 +90,34 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   }, [existingReview]);
 
   // Handle rating change
-  const handleRatingChange = (newRating: number) => {
+  const handleRatingChange = async (newRating: number) => {
     const previousRating = rating;
     setRating(newRating);
 
-    upsertReview({
-      albumName,
-      artistName,
-      rating: newRating,
-    }).catch((error) => {
+    try {
+      if (existingReview) {
+        if (newRating === 0 && review === "") {
+          await deleteReview({
+            reviewId: existingReview._id,
+          });
+        } else {
+          await updateReview({
+            reviewId: existingReview._id,
+            rating: newRating,
+          });
+        }
+      } else {
+        await createReview({
+          albumName,
+          artistName,
+          rating: newRating,
+        });
+      }
+    } catch (error) {
       console.error("Failed to save review:", error);
       setRating(previousRating); // Revert to previous rating
       toast.error("Failed to save rating. Please try again.");
-    });
+    }
   };
 
   // Handle review text change
@@ -112,12 +129,24 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const handleSubmitReview = async () => {
     setIsSubmittingReview(true);
     try {
-      await upsertReview({
-        albumName,
-        artistName,
-        rating,
-        review,
-      });
+      if (existingReview) {
+        if (rating === 0 && review === "") {
+          await deleteReview({
+            reviewId: existingReview._id,
+          });
+        } else {
+          await updateReview({
+            reviewId: existingReview._id,
+            review,
+          });
+        }
+      } else {
+        await createReview({
+          albumName,
+          artistName,
+          review,
+        });
+      }
       toast.success("Review saved successfully!");
       setCardState({ state: "default" });
     } catch (error) {
@@ -130,14 +159,16 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
 
   // Handle review deletion
   const handleDeleteReview = async () => {
+    if (!existingReview) {
+      console.error("No review to delete");
+      return;
+    }
+
     try {
-      await upsertReview({
-        albumName,
-        artistName,
-        rating,
+      await updateReview({
+        reviewId: existingReview._id,
         review: "",
       });
-      setReview("");
       toast.success("Review deleted successfully!");
       setCardState({ state: "default" });
     } catch (error) {

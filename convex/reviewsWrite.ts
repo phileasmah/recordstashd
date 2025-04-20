@@ -75,8 +75,8 @@ async function updateReviewAggregates(
   }
 }
 
-// Create or update a review for an album
-export const upsertReview = mutation({
+// Create a new review for an album
+export const createReview = mutation({
   args: {
     albumName: v.string(),
     artistName: v.string(),
@@ -101,65 +101,42 @@ export const upsertReview = mutation({
     const existingReview = await findReviewByUserAndAlbum(ctx, userId, albumId);
 
     if (existingReview) {
-      // Update existing review
-      const updateFields: Partial<WithoutSystemFields<Doc<"reviews">>> = {
-        lastUpdatedTime: Date.now(),
-        hasReview: existingReview.hasReview,
-      };
-
-      if (args.rating !== undefined) {
-        updateFields.rating = args.rating;
-      }
-
-      if (args.review !== undefined) {
-        updateFields.review = args.review.trim() || undefined;
-        updateFields.hasReview = true
-          ? updateFields.review !== undefined
-          : false;
-      }
-
-      // Update the review
-      await ctx.db.patch(existingReview._id, updateFields);
-
-      // Update the aggregate
-      const oldDoc = existingReview;
-      const newDoc = { ...oldDoc, ...updateFields };
-      await updateReviewAggregates(ctx, oldDoc, newDoc, "update");
-      return newDoc;
-    } else {
-      // For new reviews, require at least one field (rating or review)
-      if (args.rating === undefined && args.review === undefined) {
-        throw new Error(
-          "At least one of rating or review must be provided when creating a new review",
-        );
-      }
-
-      // Create new review
-      const newReview: WithoutSystemFields<Doc<"reviews">> = {
-        albumId,
-        userId,
-        lastUpdatedTime: Date.now(),
-        hasReview: args.review !== undefined,
-        rating: args.rating,
-        review: args.review?.trim(),
-      };
-
-      // Insert the review
-      const insertedReview = await ctx.db.insert("reviews", newReview);
-
-      // Update the aggregate
-      const doc = await ctx.db.get(insertedReview);
-      await updateReviewAggregates(ctx, null, doc!, "insert");
-      return doc;
+      throw new Error("Review already exists for this album. Use updateReview to modify it.");
     }
+
+    // For new reviews, require at least one field (rating or review)
+    if (args.rating === undefined && args.review === undefined) {
+      throw new Error(
+        "At least one of rating or review must be provided when creating a new review",
+      );
+    }
+
+    // Create new review
+    const newReview: WithoutSystemFields<Doc<"reviews">> = {
+      albumId,
+      userId,
+      lastUpdatedTime: Date.now(),
+      hasReview: args.review !== undefined,
+      rating: args.rating,
+      review: args.review?.trim(),
+    };
+
+    // Insert the review
+    const insertedReview = await ctx.db.insert("reviews", newReview);
+
+    // Update the aggregate
+    const doc = await ctx.db.get(insertedReview);
+    await updateReviewAggregates(ctx, null, doc!, "insert");
+    return doc;
   },
 });
 
-// Delete a review
-export const deleteReview = mutation({
+// Update an existing review
+export const updateReview = mutation({
   args: {
-    albumName: v.string(),
-    artistName: v.string(),
+    reviewId: v.id("reviews"),
+    rating: v.optional(v.number()),
+    review: v.optional(v.string()),
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
@@ -168,22 +145,69 @@ export const deleteReview = mutation({
     }
     const userId = identity.subject;
 
-    // Find the album
-    const albumId = await findOrCreateAlbum(
-      ctx,
-      args.albumName,
-      args.artistName,
-    );
-
-    // Find and delete the user's review
-    const review = await findReviewByUserAndAlbum(ctx, userId, albumId);
-
-    if (review) {
-      // Delete from the aggregate first
-      await updateReviewAggregates(ctx, review, null, "delete");
-      // Then delete from the database
-      await ctx.db.delete(review._id);
+    // Get the existing review
+    const existingReview = await ctx.db.get(args.reviewId);
+    if (!existingReview) {
+      throw new Error("Review not found");
     }
+
+    // Verify the user owns this review
+    if (existingReview.userId !== userId) {
+      throw new Error("Not authorized to update this review");
+    }
+
+    // Prepare update fields
+    const updateFields: Partial<WithoutSystemFields<Doc<"reviews">>> = {
+      lastUpdatedTime: Date.now(),
+      hasReview: existingReview.hasReview,
+    };
+
+    if (args.rating !== undefined) {
+      updateFields.rating = args.rating;
+    }
+
+    if (args.review !== undefined) {
+      updateFields.review = args.review.trim() || undefined;
+      updateFields.hasReview = updateFields.review !== undefined;
+    }
+
+    // Update the review
+    await ctx.db.patch(args.reviewId, updateFields);
+
+    // Update the aggregate
+    const newDoc = { ...existingReview, ...updateFields };
+    await updateReviewAggregates(ctx, existingReview, newDoc, "update");
+    return newDoc;
+  },
+});
+
+// Delete a review
+export const deleteReview = mutation({
+  args: {
+    reviewId: v.id("reviews"),
+  },
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    const userId = identity.subject;
+
+    // Find the review
+    const review = await ctx.db.get(args.reviewId);
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    // Verify the user owns this review
+    if (review.userId !== userId) {
+      throw new Error("Not authorized to delete this review");
+    }
+
+    // Delete from the aggregate first
+    await updateReviewAggregates(ctx, review, null, "delete");
+    // Then delete from the database
+    await ctx.db.delete(args.reviewId);
   },
 });
 

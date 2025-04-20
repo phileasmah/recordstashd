@@ -12,7 +12,7 @@ export const aggregateReviewsByAlbum = new TableAggregate<{
   TableName: "reviews";
 }>(components.aggregateReviewsByAlbum, {
   namespace: (doc) => doc.albumId,
-  sortKey: (doc) => doc.lastUpdatedTime,
+  sortKey: (doc) => doc.rating ?? 0,
   sumValue: (doc) => doc.rating ?? 0,
 });
 
@@ -51,7 +51,7 @@ export const getAlbumAverageRating = query({
     const bounds = {
       namespace: album._id,
       bounds: {
-        lower: { key: 0.1, inclusive: false },
+        lower: { key: 0.1, inclusive: true },
       },
     };
     const count = await aggregateReviewsByAlbum.count(ctx, bounds);
