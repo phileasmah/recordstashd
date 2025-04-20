@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { ReviewCardContent } from "../ui/review-cards/review-card-content";
+import RecentReviewCardSkeleton from "../ui/skeletons/recent-review-card-skeleton";
 
 interface RecentReviewsProps {
   albumName: string;
@@ -22,7 +23,11 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
     limit: 5,
   });
 
-  if (!recentReviews || recentReviews.length === 0) {
+  if (recentReviews === undefined) {
+    return <RecentReviewCardSkeleton />;
+  }
+
+  if (recentReviews && recentReviews.length === 0) {
     return (
       <MagicCard className="flex min-h-[200px] items-center justify-center rounded-xl py-0">
         <CardContent className="text-center">

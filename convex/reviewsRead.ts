@@ -1,6 +1,6 @@
 import { stream } from "convex-helpers/server/stream";
 import { paginationOptsValidator } from "convex/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { query } from "./_generated/server";
 import { checkReviewLikedByUser, reviewLikeCount } from "./reviewLikes";
 import { findReviewByUserAndAlbum } from "./reviewsWrite";
@@ -158,7 +158,7 @@ export const getLatestPostsFromFollowing = query({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Not authenticated");
+      throw new ConvexError("Not authenticated");
     }
     const userId = identity.subject;
 

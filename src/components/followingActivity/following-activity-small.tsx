@@ -3,6 +3,7 @@ import { usePaginatedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { AlbumReviewCardContent } from "../ui/review-cards/album-review-card-content";
 import { ScrollArea } from "../ui/scroll-area";
+import { AlbumReviewCardSkeleton } from "../ui/skeletons/album-review-card-skeleton";
 
 export default function FollowingActivitySmall() {
   const { results: reviews, isLoading } = usePaginatedQuery(
@@ -15,10 +16,18 @@ export default function FollowingActivitySmall() {
     <ScrollArea className="max-h-[600px]">
       <div className="space-y-1">
         {isLoading ? (
-          <div>Loading...</div>
+          <>
+            {[...Array(3)].map((_, i) => (
+              <AlbumReviewCardSkeleton
+                key={i}
+                showDivider={i !== 2}
+                index={i}
+              />
+            ))}
+          </>
         ) : reviews.length === 0 ? (
           <p className="text-muted-foreground p-10 text-center">
-            No reviews yet
+            Follow some users to see their reviews here
           </p>
         ) : (
           reviews.map((review, index) => (

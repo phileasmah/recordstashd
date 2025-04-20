@@ -141,12 +141,12 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                 </motion.div>
                 <div className="flex flex-col gap-1">
                   <motion.div>
-                    <CardTitle>Write Your Review</CardTitle>
+                    <CardTitle>
+                      {review ? "Edit Your Review" : "Write Your Review"}
+                    </CardTitle>
                   </motion.div>
                   <motion.div>
-                    <CardDescription>
-                      What others are saying about this album
-                    </CardDescription>
+                    <CardDescription>Share your thoughts</CardDescription>
                   </motion.div>
                 </div>
               </CardHeader>
@@ -206,7 +206,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                     variant="outline"
                     className="w-full"
                   >
-                    <span>Write Your Review</span>
+                    <span>{review ? "Edit Review" : "Write Your Review"}</span>
                   </Button>
                 </motion.div>
               </CardContent>
