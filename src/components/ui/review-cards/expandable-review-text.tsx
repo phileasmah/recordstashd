@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../button";
 import { ScrollArea } from "../scroll-area";
 
@@ -8,14 +8,22 @@ interface ExpandableReviewTextProps {
 
 export function ExpandableReviewText({ text }: ExpandableReviewTextProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [needsScroll, setNeedsScroll] = useState(false);
+  const contentRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (isExpanded && contentRef.current) {
+      setNeedsScroll(contentRef.current.scrollHeight > 224); // 14rem (224px)
+    }
+  }, [isExpanded, text]);
 
   return (
     <div className="space-y-2">
       <div
-        className={`${isExpanded ? "max-h-48" : "max-h-16"} overflow-hidden transition-[max-height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]`}
+        className={`${isExpanded ? "max-h-56" : "max-h-16"} overflow-hidden transition-[max-height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]`}
       >
-        {isExpanded ? (
-          <ScrollArea className="h-48">
+        {isExpanded && needsScroll ? (
+          <ScrollArea className="h-56">
             <p className="text-muted-foreground pr-4 text-sm whitespace-pre-line">
               {text}
             </p>

@@ -3,7 +3,7 @@ import { FunctionReturnType } from "convex/server";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
-import { Badge } from "../badge";
+import { RatingBadge } from "../rating-badge";
 import { ExpandableReviewText } from "./expandable-review-text";
 import { LikeButton } from "./like-button";
 
@@ -59,7 +59,7 @@ export function AlbumReviewCardContent({
             </div>
             <div className="flex items-center gap-2">
               {review.rating !== undefined && review.rating !== 0 && (
-                <Badge variant="secondary">{review.rating} ★</Badge>
+                <RatingBadge rating={review.rating} />
               )}
               <span className="text-muted-foreground text-sm">
                 Reviewed by{" "}

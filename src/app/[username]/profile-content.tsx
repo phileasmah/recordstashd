@@ -99,7 +99,14 @@ export default function ProfilePageContent({
               <p className="text-muted-foreground">@{userProfile.username}</p>
               <p className="text-muted-foreground mt-1 text-sm">
                 Joined{" "}
-                {new Date(userProfile._creationTime).toLocaleDateString()}
+                {new Date(userProfile._creationTime).toLocaleDateString(
+                  "en-GB",
+                  {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  },
+                )}
               </p>
             </div>
             <div className="my-auto flex gap-8 md:ml-auto">

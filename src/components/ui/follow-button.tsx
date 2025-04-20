@@ -52,7 +52,7 @@ export function FollowButton({
       variant={followState ? "outline" : "default"}
       size="sm"
       className={cn(
-        "flex items-center gap-2",
+        "flex items-center gap-2 cursor-pointer",
         className
       )}
       onClick={handleClick}

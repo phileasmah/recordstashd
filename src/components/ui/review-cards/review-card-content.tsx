@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Avatar, AvatarFallback } from "../avatar";
-import { Badge } from "../badge";
+import { RatingBadge } from "../rating-badge";
 import { ExpandableReviewText } from "./expandable-review-text";
 import { LikeButton } from "./like-button";
 
@@ -45,19 +45,19 @@ export function ReviewCardContent({
             <div>
               <div className="flex items-center gap-2">
                 {review.rating !== undefined && review.rating !== 0 && (
-                  <Badge variant="secondary">{review.rating} ★</Badge>
+                  <RatingBadge rating={review.rating} />
                 )}
                 <span className="text-muted-foreground text-sm">
-                  Reviewed by
+                  Reviewed by{" "}
+                  <Link
+                    href={`/${review.username}`}
+                    className="text-primary text-sm font-medium hover:underline"
+                  >
+                    {review.userDisplayName
+                      ? review.userDisplayName
+                      : review.username}
+                  </Link>
                 </span>
-                <Link
-                  href={`/${review.username}`}
-                  className="text-sm font-medium hover:underline"
-                >
-                  {review.userDisplayName
-                    ? review.userDisplayName
-                    : review.username}
-                </Link>
                 <span className="text-muted-foreground text-sm">•</span>
                 <p className="text-muted-foreground text-sm">
                   {new Date(review.lastUpdatedTime).toLocaleDateString(

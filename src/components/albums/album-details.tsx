@@ -2,16 +2,10 @@
 
 import { SpotifyAlbum } from "@/types/spotify";
 import { useQuery } from "convex/react";
-import { Star } from "lucide-react";
 import Image from "next/image";
 import { api } from "../../../convex/_generated/api";
-import { Badge } from "../ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "../ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { RatingBadge } from "../ui/rating-badge";
 import { AlbumReview } from "./album-review";
 import { AlbumTracks } from "./album-tracks";
 import { RecentReviews } from "./recent-reviews";
@@ -51,10 +45,10 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                     {album.name}
                   </CardTitle>
                   {averageRating !== undefined && averageRating !== null && (
-                    <Badge variant="secondary" className="flex gap-1">
-                      <Star className="h-3.5 w-3.5" />
-                      {averageRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
-                    </Badge>
+                    <RatingBadge
+                      rating={averageRating}
+                      hoverText={`${reviewCount} ${reviewCount === 1 ? "review" : "reviews"}`}
+                    />
                   )}
                 </div>
                 <CardDescription className="text-xl">
@@ -69,9 +63,10 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                 <div className="text-muted-foreground">Label:</div>
                 <div>{album.label || "Unknown"}</div>
                 <div className="text-muted-foreground">Average Rating:</div>
-                <div>{averageRating !== undefined && averageRating !== null ? 
-                  `${averageRating.toFixed(1)} / 5 (based on ${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})` : 
-                  "No ratings yet"}
+                <div>
+                  {averageRating !== undefined && averageRating !== null
+                    ? `${averageRating.toFixed(1)} / 5 (based on ${reviewCount} ${reviewCount === 1 ? "review" : "reviews"})`
+                    : "No ratings yet"}
                 </div>
               </div>
             </div>
