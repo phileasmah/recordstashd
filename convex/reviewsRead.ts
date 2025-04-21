@@ -5,6 +5,7 @@ import { query } from "./_generated/server";
 import { checkReviewLikedByUser, reviewLikeCount } from "./reviewLikes";
 import { findReviewByUserAndAlbum } from "./reviewsWrite";
 import schema from "./schema";
+import { getUserDisplayName } from "./users";
 
 // Get a user's review for a specific album
 export const getUserReview = query({
@@ -99,8 +100,7 @@ export const getRecentReviews = query({
         return {
           ...review,
           username: user.username || "Anonymous User",
-          userDisplayName:
-            `${user.firstName ? user.firstName : ""} ${user.lastName ? user.lastName : ""}`.trim(),
+          userDisplayName: getUserDisplayName(user),
           userImageUrl: user.imageUrl,
           likeCount,
           likedByUser,
@@ -189,8 +189,7 @@ export const getLatestPostsFromFollowing = query({
             return {
               ...review,
               username: followingUser.username || "Anonymous User",
-              userDisplayName:
-                `${followingUser.firstName ? followingUser.firstName : ""} ${followingUser.lastName ? followingUser.lastName : ""}`.trim(),
+              userDisplayName: getUserDisplayName(followingUser),
               userImageUrl: followingUser.imageUrl,
               albumName: album?.name,
               artistName: album?.artist,

@@ -5,10 +5,12 @@ import {
   customMutation,
 } from "convex-helpers/server/customFunctions";
 import { Triggers } from "convex-helpers/server/triggers";
-import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
+import { ConvexError, v } from "convex/values";
 import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { query, mutation as rawMutation } from "./_generated/server";
+import { getUserDisplayName } from "./users";
 
 // Set up triggers to keep aggregates in sync
 const triggers = new Triggers<DataModel>();
@@ -44,21 +46,21 @@ const mutation = customMutation(rawMutation, customCtx(triggers.wrapDB));
 
 // Follow a user
 export const followUser = mutation({
-  args: { followingId: v.string() },
+  args: { userId: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Not authenticated");
     }
     const followerId = identity.subject;
-    if (followerId === args.followingId)
+    if (followerId === args.userId)
       throw new Error("Cannot follow yourself");
 
     // Check if already following
     const existing = await ctx.db
       .query("follows")
       .withIndex("by_follower_following", (q) =>
-        q.eq("followerId", followerId).eq("followingId", args.followingId),
+        q.eq("followerId", followerId).eq("followingId", args.userId),
       )
       .first();
 
@@ -67,14 +69,14 @@ export const followUser = mutation({
     // Create new follow relationship
     return await ctx.db.insert("follows", {
       followerId,
-      followingId: args.followingId,
+      followingId: args.userId,
     });
   },
 });
 
 // Unfollow a user
 export const unfollowUser = mutation({
-  args: { followingId: v.string() },
+  args: { userId: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -85,7 +87,7 @@ export const unfollowUser = mutation({
     const existing = await ctx.db
       .query("follows")
       .withIndex("by_follower_following", (q) =>
-        q.eq("followerId", followerId).eq("followingId", args.followingId),
+        q.eq("followerId", followerId).eq("followingId", args.userId),
       )
       .first();
 
@@ -137,5 +139,85 @@ export const isFollowing = query({
       .first();
 
     return !!existing;
+  },
+});
+
+// Get all followers for a user
+export const getFollowers = query({
+  args: { paginationOpts: paginationOptsValidator, userId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = args.userId;
+
+    const followers = await ctx.db
+      .query("follows")
+      .withIndex("by_following", (q) => q.eq("followingId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    const pagePromises = followers.page.map((follower) =>
+      ctx.db
+        .query("users")
+        .withIndex("by_externalId", (q) =>
+          q.eq("externalId", follower.followerId),
+        )
+        .first()
+        .then((user) => {
+          if (!user) {
+            throw new ConvexError("User not found");
+          }
+          return {
+            ...follower,
+            user,
+            userDisplayName: getUserDisplayName(user),
+          };
+        }),
+    );
+
+    const followersWithUserInfo = await Promise.all(pagePromises);
+
+    return {
+      ...followers,
+      page: followersWithUserInfo,
+    };
+  },
+});
+
+// Get all following for a user
+export const getFollowing = query({
+  args: { paginationOpts: paginationOptsValidator, userId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = args.userId;
+
+    const following = await ctx.db
+      .query("follows")
+      .withIndex("by_follower", (q) => q.eq("followerId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    const pagePromises = following.page.map((followingItem) =>
+      ctx.db
+        .query("users")
+        .withIndex("by_externalId", (q) =>
+          q.eq("externalId", followingItem.followingId),
+        )
+        .first()
+        .then((user) => {
+          if (!user) {
+            throw new ConvexError("User not found");
+          }
+          return {
+            ...followingItem,
+            user,
+            userDisplayName: getUserDisplayName(user),
+          };
+        }),
+    );
+
+    const followingWithUserInfo = await Promise.all(pagePromises);
+
+    return {
+      ...following,
+      page: followingWithUserInfo,
+    };
   },
 });

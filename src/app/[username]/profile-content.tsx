@@ -10,18 +10,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FollowButton } from "@/components/ui/follow-button";
+import { FollowDialog } from "@/components/ui/follow-dialog";
 import { AlbumReviewCardContent } from "@/components/ui/review-cards/album-review-card-content";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
+import { FunctionReturnType } from "convex/server";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
-import { Doc } from "../../../convex/_generated/dataModel";
 import ProfileLoading from "./loading";
 
 interface ProfilePageContentProps {
   isOwnProfile: boolean;
-  userProfile: Doc<"users">;
+  userProfile: NonNullable<FunctionReturnType<typeof api.users.getUserByUsername>>;
   isSignedIn: boolean;
 }
 
@@ -31,8 +31,6 @@ export default function ProfilePageContent({
   userProfile,
   isSignedIn,
 }: ProfilePageContentProps) {
-  const [displayName, setDisplayName] = useState<string | null>(null);
-
   const userReviews = useQuery(api.reviewsRead.getAllUserReviews, {
     userId: userProfile.externalId,
   });
@@ -49,15 +47,17 @@ export default function ProfilePageContent({
     userId: userProfile.externalId,
   });
 
-  useEffect(() => {
-    if (userProfile.firstName || userProfile.lastName) {
-      setDisplayName(
-        `${userProfile.firstName ? userProfile.firstName : ""} ${userProfile.lastName ? userProfile.lastName : ""}`.trim(),
-      );
-    } else {
-      setDisplayName(userProfile.username);
-    }
-  }, [userProfile]);
+  const paginatedFollowers = usePaginatedQuery(
+    api.follows.getFollowers,
+    { userId: userProfile.externalId },
+    { initialNumItems: 10 },
+  );
+
+  const paginatedFollowing = usePaginatedQuery(
+    api.follows.getFollowing,
+    { userId: userProfile.externalId },
+    { initialNumItems: 10 },
+  );
 
   if (!userReviews) {
     return <ProfileLoading />;
@@ -79,13 +79,13 @@ export default function ProfilePageContent({
           <div className="flex flex-grow flex-col items-center gap-4 md:flex-row md:items-start">
             <div className="flex flex-col items-center md:items-start">
               <div className="flex items-center gap-4">
-                <h1 className="text-3xl font-bold">{displayName}</h1>
+                <h1 className="text-3xl font-bold">{userProfile.userDisplayName}</h1>
                 {isOwnProfile ? (
                   <Link href="/settings">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 cursor-pointer"
+                      className="h-8"
                     >
                       Edit Profile
                     </Button>
@@ -122,18 +122,16 @@ export default function ProfilePageContent({
                 </span>
                 <p className="text-muted-foreground text-sm">This Month</p>
               </div>
-              <div className="flex flex-col gap-1.5 text-center">
-                <span className="text-accent-foreground text-3xl font-bold tracking-tighter whitespace-pre-wrap">
-                  {followerCount ?? 0}
-                </span>
-                <p className="text-muted-foreground text-sm">Followers</p>
-              </div>
-              <div className="flex flex-col gap-1.5 text-center">
-                <span className="text-accent-foreground text-3xl font-bold tracking-tighter whitespace-pre-wrap">
-                  {followingCount ?? 0}
-                </span>
-                <p className="text-muted-foreground text-sm">Following</p>
-              </div>
+              <FollowDialog
+                type="followers"
+                count={followerCount ?? 0}
+                {...paginatedFollowers}
+              />
+              <FollowDialog
+                type="following"
+                count={followingCount ?? 0}
+                {...paginatedFollowing}
+              />
             </div>
           </div>
         </div>
@@ -158,7 +156,7 @@ export default function ProfilePageContent({
                     review={{
                       ...review,
                       username: userProfile.username,
-                      userDisplayName: displayName,
+                      userDisplayName: userProfile.userDisplayName,
                     }}
                     index={index}
                     showDivider={index !== userReviews.length - 1}

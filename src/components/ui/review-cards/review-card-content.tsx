@@ -53,9 +53,7 @@ export function ReviewCardContent({
                     href={`/${review.username}`}
                     className="text-primary text-sm font-medium hover:underline"
                   >
-                    {review.userDisplayName
-                      ? review.userDisplayName
-                      : review.username}
+                    {review.userDisplayName}
                   </Link>
                 </span>
                 <span className="text-muted-foreground text-sm">•</span>

@@ -35,9 +35,9 @@ export function FollowButton({
     setIsLoading(true);
     try {
       if (followState) {
-        await unfollowUser({ followingId });
+        await unfollowUser({ userId: followingId });
       } else {
-        await followUser({ followingId });
+        await followUser({ userId: followingId });
       }
       setFollowState(!followState);
     } catch (error) {
@@ -52,7 +52,7 @@ export function FollowButton({
       variant={followState ? "outline" : "default"}
       size="sm"
       className={cn(
-        "flex items-center gap-2 cursor-pointer",
+        "flex items-center gap-2",
         className
       )}
       onClick={handleClick}

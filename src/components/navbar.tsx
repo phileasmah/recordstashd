@@ -55,7 +55,7 @@ export function Navbar() {
             </SignedIn>
             <SignedOut>
               <SignInButton>
-                <Button variant="outline" className="cursor-pointer">
+                <Button variant="outline">
                   Sign In
                 </Button>
               </SignInButton>

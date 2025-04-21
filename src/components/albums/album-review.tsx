@@ -93,10 +93,10 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const handleRatingChange = async (newRating: number) => {
     const previousRating = rating;
     setRating(newRating);
-
+    
     try {
       if (existingReview) {
-        if (newRating === 0 && review === "") {
+        if (!newRating && !review) {
           await deleteReview({
             reviewId: existingReview._id,
           });
@@ -165,10 +165,16 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
     }
 
     try {
-      await updateReview({
-        reviewId: existingReview._id,
-        review: "",
-      });
+      if (!rating) {
+        await deleteReview({
+          reviewId: existingReview._id,
+        });
+      } else {
+        await updateReview({
+          reviewId: existingReview._id,
+          review: "",
+        });
+      }
       toast.success("Review deleted successfully!");
       setCardState({ state: "default" });
     } catch (error) {

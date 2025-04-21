@@ -65,18 +65,14 @@ export function AlbumReviewCardContent({
                 Reviewed by{" "}
                 {"likedByUser" in review ? (
                   <span className="text-sm font-medium">
-                    {review.userDisplayName
-                      ? review.userDisplayName
-                      : review.username}
+                    {review.userDisplayName}
                   </span>
                 ) : (
                   <Link
                     href={`/${review.username}`}
                     className="text-primary text-sm font-medium hover:underline"
                   >
-                    {review.userDisplayName
-                      ? review.userDisplayName
-                      : review.username}
+                    {review.userDisplayName}
                   </Link>
                 )}
               </span>

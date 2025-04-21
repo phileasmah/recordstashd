@@ -29,7 +29,7 @@ async function findOrCreateAlbum(
     .first();
 
   if (!album) {
-    ctx.scheduler.runAfter(0, internal.reviewsWrite.getSpotifyImageUrlAndSave, {
+    await ctx.scheduler.runAfter(0, internal.reviewsWrite.getSpotifyImageUrlAndSave, {
       albumName,
       artistName,
     });

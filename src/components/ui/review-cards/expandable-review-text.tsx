@@ -37,7 +37,7 @@ export function ExpandableReviewText({ text }: ExpandableReviewTextProps) {
       {text.split("\n").length > 3 && (
         <Button
           variant="ghost"
-          className="text-primary h-auto cursor-pointer p-0 text-xs hover:bg-transparent hover:underline"
+          className="text-primary h-auto p-0 text-xs hover:bg-transparent hover:underline"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? "Show less" : "Show more"}

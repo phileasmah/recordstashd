@@ -1,13 +1,76 @@
 import { UserJSON } from "@clerk/nextjs/server";
+import {
+  customCtx,
+  customMutation,
+} from "convex-helpers/server/customFunctions";
+import { Triggers } from "convex-helpers/server/triggers";
 import { v, Validator } from "convex/values";
-import { internalMutation, query, QueryCtx } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { DataModel, Doc } from "./_generated/dataModel";
+import {
+  query,
+  internalMutation as rawInternalMutation,
+} from "./_generated/server";
+import { followerCount, followingCount } from "./follows";
+import {
+  aggregateReviewsByAlbum,
+  aggregateReviewsByUsers,
+} from "./reviewAggregates";
 
-export const current = query({
-  args: {},
-  handler: async (ctx) => {
-    return await getCurrentUser(ctx);
-  },
+const triggers = new Triggers<DataModel>();
+//TODO batch this
+triggers.register("users", async (ctx, change) => {
+  if (change.operation === "delete") {
+    const [allFollows, allFollowing, allReviews] = await Promise.all([
+      ctx.db
+        .query("follows")
+        .withIndex("by_follower", (q) =>
+          q.eq("followerId", change.oldDoc.externalId),
+        )
+        .collect(),
+      ctx.db
+        .query("follows")
+        .withIndex("by_following", (q) =>
+          q.eq("followingId", change.oldDoc.externalId),
+        )
+        .collect(),
+      ctx.db
+        .query("reviews")
+        .withIndex("by_user", (q) => q.eq("userId", change.oldDoc.externalId))
+        .collect(),
+    ]);
+
+    await Promise.all([
+      ...allFollows.map((follow) => ctx.db.delete(follow._id)),
+      ...allFollowing.map((follow) => ctx.db.delete(follow._id)),
+      ...allReviews.map((review) => ctx.db.delete(review._id)),
+    ]);
+
+    await ctx.scheduler.runAfter(0, internal.users.deleteReviewAggregates, {
+      reviews: allReviews,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.users.deleteFollowAggregates, {
+      followers: allFollows,
+      following: allFollowing,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.users.deleteReviewLikes, {
+      userId: change.oldDoc.externalId,
+    });
+  }
 });
+
+const internalMutation = customMutation(
+  rawInternalMutation,
+  customCtx(triggers.wrapDB),
+);
+
+export const getUserDisplayName = (user: Doc<"users">) => {
+  return user.firstName || user.lastName
+    ? `${user.firstName ? user.firstName : ""} ${user.lastName ? user.lastName : ""}`.trim()
+    : user.username;
+};
 
 export const upsertFromClerk = internalMutation({
   args: { data: v.any() as Validator<UserJSON> }, // no runtime validation, trust Clerk
@@ -20,7 +83,11 @@ export const upsertFromClerk = internalMutation({
       lastName: data.last_name ?? undefined,
     };
 
-    const user = await userByExternalId(ctx, data.id);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_externalId", (q) => q.eq("externalId", data.id))
+      .unique();
+
     if (user === null) {
       await ctx.db.insert("users", userAttributes);
     } else {
@@ -32,7 +99,10 @@ export const upsertFromClerk = internalMutation({
 export const deleteFromClerk = internalMutation({
   args: { clerkUserId: v.string() },
   async handler(ctx, { clerkUserId }) {
-    const user = await userByExternalId(ctx, clerkUserId);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_externalId", (q) => q.eq("externalId", clerkUserId))
+      .unique();
 
     if (user !== null) {
       await ctx.db.delete(user._id);
@@ -44,33 +114,59 @@ export const deleteFromClerk = internalMutation({
   },
 });
 
-export async function getCurrentUserOrThrow(ctx: QueryCtx) {
-  const userRecord = await getCurrentUser(ctx);
-  if (!userRecord) throw new Error("Can't get current user");
-  return userRecord;
-}
+export const deleteReviewAggregates = rawInternalMutation({
+  args: { reviews: v.array(v.any()) },
+  async handler(ctx, args) {
+    await Promise.all(
+      args.reviews.map(async (review) => {
+        await aggregateReviewsByAlbum.delete(ctx, review);
+        await aggregateReviewsByUsers.delete(ctx, review);
+      }),
+    );
+  },
+});
 
-export async function getCurrentUser(ctx: QueryCtx) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (identity === null) {
-    return null;
-  }
-  return await userByExternalId(ctx, identity.subject);
-}
+export const deleteFollowAggregates = rawInternalMutation({
+  args: { followers: v.array(v.any()), following: v.array(v.any()) },
+  async handler(ctx, args) {
+    await Promise.all([
+      ...args.followers.map((follower) => followerCount.delete(ctx, follower)),
+      ...args.following.map((following) =>
+        followingCount.delete(ctx, following),
+      ),
+    ]);
+  },
+});
+
+export const deleteReviewLikes = rawInternalMutation({
+  args: { userId: v.string() },
+  async handler(ctx, args) {
+    const allReviewLikes = await ctx.db
+      .query("reviewLikes")
+      .withIndex("by_user_review", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    await Promise.all(
+      allReviewLikes.map((reviewLike) => ctx.db.delete(reviewLike._id)),
+    );
+  },
+});
 
 export const getUserByUsername = query({
   args: { username: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const user = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", args.username))
       .unique();
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      ...user,
+      userDisplayName: getUserDisplayName(user),
+    };
   },
 });
-
-async function userByExternalId(ctx: QueryCtx, externalId: string) {
-  return await ctx.db
-    .query("users")
-    .withIndex("by_externalId", (q) => q.eq("externalId", externalId))
-    .unique();
-}
