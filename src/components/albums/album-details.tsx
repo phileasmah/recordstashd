@@ -4,6 +4,8 @@ import { SpotifyAlbum } from "@/types/spotify";
 import { useQuery } from "convex/react";
 import Image from "next/image";
 import { api } from "../../../convex/_generated/api";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { RatingBadge } from "../ui/rating-badge";
 import { AlbumReview } from "./album-review";
@@ -21,6 +23,31 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
   });
   const averageRating = ratingStats?.average;
   const reviewCount = ratingStats?.count;
+
+  // handler to open Spotify app if installed, with web fallback
+  const handleOpenSpotify = () => {
+    const webUrl = album.external_urls?.spotify;
+    const spotifyUri = `spotify:album:${album.id}`;
+    // fallback to web after a delay
+    const fallbackTimeout = window.setTimeout(() => {
+      window.open(webUrl, '_blank');
+    }, 500);
+    // try opening the Spotify app via an iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = spotifyUri;
+    document.body.appendChild(iframe);
+    // clear fallback if app opened (window blur)
+    const clearFallback = () => {
+      window.clearTimeout(fallbackTimeout);
+      window.removeEventListener('blur', clearFallback);
+    };
+    window.addEventListener('blur', clearFallback);
+    // clean up iframe after
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);
+  };
 
   return (
     <div className="space-y-6">
@@ -44,11 +71,14 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                   <CardTitle className="text-3xl font-bold">
                     {album.name}
                   </CardTitle>
-                  {averageRating !== undefined && averageRating !== null && (
+                  {averageRating ? (
                     <RatingBadge
+                      prefix={"Average "}
                       rating={averageRating}
                       hoverText={`${reviewCount} ${reviewCount === 1 ? "review" : "reviews"}`}
                     />
+                  ) : (
+                    <Badge variant="secondary">No ratings yet</Badge>
                   )}
                 </div>
                 <CardDescription className="text-xl">
@@ -62,13 +92,19 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
                 <div>{album.total_tracks || "Unknown"}</div>
                 <div className="text-muted-foreground">Label:</div>
                 <div>{album.label || "Unknown"}</div>
-                <div className="text-muted-foreground">Average Rating:</div>
-                <div>
-                  {averageRating !== undefined && averageRating !== null
-                    ? `${averageRating.toFixed(1)} / 5 (based on ${reviewCount} ${reviewCount === 1 ? "review" : "reviews"})`
-                    : "No ratings yet"}
-                </div>
               </div>
+              <Button
+                className="bg-spotify text-white hover:bg-spotify rounded-full text-base"
+                onClick={handleOpenSpotify}
+              >
+                <Image
+                  src="/spotify_logo_black.svg"
+                  alt="Spotify"
+                  width={22}
+                  height={22}
+                />
+                Listen on Spotify
+              </Button>
             </div>
           </CardHeader>
         </Card>

@@ -37,6 +37,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-spotify: var(--spotify);
+  --color-spotify-dark: var(--spotify-dark);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -88,6 +90,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --spotify: #1DB954;
+  --spotify-dark: #1ed760;
 }
 
 @layer base {
@@ -99,5 +103,26 @@
   }
   button {
     cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .bg-spotify {
+    background-color: var(--spotify);
+  }
+  .bg-spotify-dark {
+    background-color: var(--spotify-dark);
+  }
+  .text-spotify {
+    color: var(--spotify);
+  }
+  .text-spotify-dark {
+    color: var(--spotify-dark);
+  }
+  .border-spotify {
+    border-color: var(--spotify);
+  }
+  .border-spotify-dark {
+    border-color: var(--spotify-dark);
   }
 }

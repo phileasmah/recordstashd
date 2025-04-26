@@ -23,7 +23,8 @@ export default defineSchema({
   })
     .index("by_user_album", ["userId", "albumId"])
     .index("by_user", ["userId", "lastUpdatedTime"])
-    .index("by_album_hasReview", ["albumId", "hasReview"]),
+    .index("by_album_hasReview", ["albumId", "hasReview"])
+    .index("hasReview", ["hasReview"]),
 
   users: defineTable({
     username: v.string(),
@@ -43,7 +44,7 @@ export default defineSchema({
     .index("by_follower_following", ["followerId", "followingId"])
     .index("by_follower", ["followerId"])
     .index("by_following", ["followingId"]),
-  
+
   reviewLikes: defineTable({
     userId: v.string(),
     reviewId: v.id("reviews"),

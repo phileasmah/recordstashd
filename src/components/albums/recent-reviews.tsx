@@ -17,7 +17,7 @@ interface RecentReviewsProps {
 }
 
 export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
-  const recentReviews = useQuery(api.reviewsRead.getRecentReviews, {
+  const recentReviews = useQuery(api.reviewsRead.getRecentReviewsForAlbum, {
     albumName,
     artistName,
     limit: 5,
@@ -27,7 +27,7 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
     return <RecentReviewCardSkeleton />;
   }
 
-  if (recentReviews && recentReviews.length === 0) {
+  if (recentReviews.length === 0) {
     return (
       <MagicCard className="flex min-h-[200px] items-center justify-center rounded-xl py-0">
         <CardContent className="text-center">

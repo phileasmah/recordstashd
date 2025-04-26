@@ -35,6 +35,9 @@ export interface SpotifyAlbum {
   tracks?: {
     items: SpotifyTrack[];
   };
+  external_urls: {
+    spotify: string;
+  };
 }
 
 export interface SpotifySearchResults {

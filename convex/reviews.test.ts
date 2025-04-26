@@ -106,7 +106,7 @@ test("getting recent reviews", async () => {
   });
 
   // Get recent reviews
-  const recentReviews = await t.query(api.reviews.getRecentReviews, {
+  const recentReviews = await t.query(api.reviews.getRecentReviewsForAlbum, {
     albumName: "Test Album",
     artistName: "Test Artist",
     limit: 2

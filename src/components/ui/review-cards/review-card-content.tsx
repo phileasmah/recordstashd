@@ -8,7 +8,9 @@ import { ExpandableReviewText } from "./expandable-review-text";
 import { LikeButton } from "./like-button";
 
 interface ReviewCardContentProps {
-  review: FunctionReturnType<typeof api.reviewsRead.getRecentReviews>[number];
+  review: FunctionReturnType<
+    typeof api.reviewsRead.getRecentReviewsForAlbum
+  >[number];
   index?: number;
   showDivider?: boolean;
 }
@@ -36,7 +38,9 @@ export function ReviewCardContent({
             </div>
           ) : (
             <AvatarFallback>
-              {review.username.slice(0, 2).toUpperCase()}
+              {review.username
+                ? review.username.slice(0, 2).toUpperCase()
+                : "AN"}
             </AvatarFallback>
           )}
         </Avatar>
@@ -49,12 +53,18 @@ export function ReviewCardContent({
                 )}
                 <span className="text-muted-foreground text-sm">
                   Reviewed by{" "}
-                  <Link
-                    href={`/${review.username}`}
-                    className="text-primary text-sm font-medium hover:underline"
-                  >
-                    {review.userDisplayName}
-                  </Link>
+                  {review.username ? (
+                    <Link
+                      href={`/${review.username}`}
+                      className="text-primary text-sm font-medium hover:underline"
+                    >
+                      {review.userDisplayName}
+                    </Link>
+                  ) : (
+                    <span className="text-primary text-sm font-medium">
+                      {review.userDisplayName}
+                    </span>
+                  )}
                 </span>
                 <span className="text-muted-foreground text-sm">•</span>
                 <p className="text-muted-foreground text-sm">

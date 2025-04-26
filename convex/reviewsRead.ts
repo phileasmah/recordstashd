@@ -39,7 +39,7 @@ export const getUserReview = query({
 
 // TODO: Make this take an albumId instead of albumName and artistName
 // Get recent reviews for an album
-export const getRecentReviews = query({
+export const getRecentReviewsForAlbum = query({
   args: {
     albumName: v.string(),
     artistName: v.string(),
@@ -86,22 +86,11 @@ export const getRecentReviews = query({
           checkReviewLikedByUser(ctx, userId, review._id),
         ]);
 
-        if (!user) {
-          return {
-            ...review,
-            username: "Anonymous User",
-            userDisplayName: null,
-            userImageUrl: null,
-            likeCount,
-            likedByUser,
-          };
-        }
-
         return {
           ...review,
-          username: user.username || "Anonymous User",
-          userDisplayName: getUserDisplayName(user),
-          userImageUrl: user.imageUrl,
+          username: user?.username ?? null,
+          userDisplayName: user ? getUserDisplayName(user) : "Anonymous User",
+          userImageUrl: user?.imageUrl ?? null,
           likeCount,
           likedByUser,
         };
@@ -165,7 +154,7 @@ export const getLatestPostsFromFollowing = query({
     const followingStream = stream(ctx.db, schema)
       .query("follows")
       .withIndex("by_follower", (q) => q.eq("followerId", userId))
-      .order("desc")  ;
+      .order("desc");
 
     const followingUsersStream = followingStream.flatMap(
       async (followingUser) =>
@@ -200,5 +189,54 @@ export const getLatestPostsFromFollowing = query({
     );
 
     return reviewsStream.paginate(args.paginationOpts);
+  },
+});
+
+export const getRecentReviews = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const userId = identity?.subject;
+
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("hasReview", (q) => q.eq("hasReview", true))
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    const reviewsWithMetadata = await Promise.all(
+      reviews.page.map(async (review) => {
+        const [user, likeCount, likedByUser, album] = await Promise.all([
+          ctx.db
+            .query("users")
+            .withIndex("by_externalId", (q) =>
+              q.eq("externalId", review.userId),
+            )
+            .unique(),
+          reviewLikeCount.count(ctx, {
+            namespace: review._id,
+            bounds: {},
+          }),
+          checkReviewLikedByUser(ctx, userId, review._id),
+          ctx.db.get(review.albumId),
+        ]);
+
+        return {
+          ...review,
+          username: user?.username ?? null,
+          userDisplayName: user ? getUserDisplayName(user) : "Anonymous User",
+          userImageUrl: user?.imageUrl ?? null,
+          albumName: album?.name,
+          artistName: album?.artist,
+          spotifyAlbumUrl: album?.spotifyAlbumUrl,
+          likeCount,
+          likedByUser,
+        };
+      }),
+    );
+
+    return reviewsWithMetadata;
   },
 });

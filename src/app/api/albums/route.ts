@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!id && (!artist || !album)) {
       return NextResponse.json(
         { error: "Either id or both artist and album must be provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -21,9 +21,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(albumData);
     } else {
       // Search and then fetch complete album data
-      const searchQuery = `${artist} ${album}`;
       const searchResults = await fetchFromSpotify(
-        `/search?q=${encodeURIComponent(searchQuery)}&type=album&limit=1`
+        `/search?q=${`artist%3A${artist}%20album%3A${album}`}&type=album&limit=1`,
       );
 
       const foundAlbum = searchResults.albums?.items?.[0];
@@ -38,4 +37,4 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return handleApiError(error, "Failed to fetch album data");
   }
-} 
+}
