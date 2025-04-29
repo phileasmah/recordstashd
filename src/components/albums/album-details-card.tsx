@@ -9,6 +9,19 @@ import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { RatingBadge } from "../ui/rating-badge";
 
+// Define the structure of the extracted color object based on the library's output
+interface ExtractedColor {
+  hex: string;
+  red: number;
+  green: number;
+  blue: number;
+  hue: number;
+  intensity: number;
+  lightness: number;
+  saturation: number;
+  area: number;
+}
+
 interface AlbumDetailsCardProps {
   album: SpotifyAlbum;
   averageRating?: number;
@@ -25,22 +38,45 @@ export function AlbumDetailsCard({
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
 
   useEffect(() => {
-    const extractColor = async () => {
+    const extractAndSetColor = async () => {
       if (album.images?.[0]?.url) {
         try {
-          const colors = await extractColors(album.images[0].url, {
-            crossOrigin: "anonymous",
-          });
+          const colors: ExtractedColor[] = await extractColors(album.images[0].url);
           if (colors.length > 0) {
-            setBackgroundColor(colors[0].hex);
+            // Filter out black/white colors
+            const isMonochrome = (c: ExtractedColor) => 
+              c.lightness < 0.1 || (c.lightness > 0.9 && c.saturation < 0.1);
+            
+            let usableColors = colors.filter(c => !isMonochrome(c));
+
+            // If filtering removed all colors, fall back to the original list
+            if (usableColors.length === 0) {
+              usableColors = colors;
+            }
+
+            // Sort by saturation (desc), then lightness (desc)
+            usableColors.sort((a, b) => {
+              if (b.saturation !== a.saturation) {
+                return b.saturation - a.saturation;
+              }
+              return b.lightness - a.lightness;
+            });
+            
+            // Set the best color
+            setBackgroundColor(usableColors[0].hex);
           }
         } catch (error) {
           console.error("Failed to extract colors:", error);
+          // Set a default darker grey background on error
+          setBackgroundColor('#505050'); 
         }
+      } else {
+        // Set a default darker grey background if no image URL
+        setBackgroundColor('#505050');
       }
     };
 
-    extractColor();
+    extractAndSetColor();
   }, [album.images]);
 
   const gradientStyle = backgroundColor
