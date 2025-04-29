@@ -1,8 +1,8 @@
 "use client";
 
 import { SpotifyAlbum } from "@/types/spotify";
-import { extractColors } from "extract-colors";
 import Image from "next/image";
+import { Vibrant } from "node-vibrant/browser";
 import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -41,38 +41,16 @@ export function AlbumDetailsCard({
     const extractAndSetColor = async () => {
       if (album.images?.[0]?.url) {
         try {
-          const colors: ExtractedColor[] = await extractColors(album.images[0].url);
-          if (colors.length > 0) {
-            // Filter out black/white colors
-            const isMonochrome = (c: ExtractedColor) => 
-              c.lightness < 0.1 || (c.lightness > 0.9 && c.saturation < 0.1);
-            
-            let usableColors = colors.filter(c => !isMonochrome(c));
-
-            // If filtering removed all colors, fall back to the original list
-            if (usableColors.length === 0) {
-              usableColors = colors;
-            }
-
-            // Sort by saturation (desc), then lightness (desc)
-            usableColors.sort((a, b) => {
-              if (b.saturation !== a.saturation) {
-                return b.saturation - a.saturation;
-              }
-              return b.lightness - a.lightness;
-            });
-            
-            // Set the best color
-            setBackgroundColor(usableColors[0].hex);
-          }
+          const palette = await Vibrant.from(album.images[0].url).getPalette();
+          setBackgroundColor(palette.DarkVibrant?.hex || "#505050");
         } catch (error) {
           console.error("Failed to extract colors:", error);
           // Set a default darker grey background on error
-          setBackgroundColor('#505050'); 
+          setBackgroundColor("#505050");
         }
       } else {
         // Set a default darker grey background if no image URL
-        setBackgroundColor('#505050');
+        setBackgroundColor("#505050");
       }
     };
 
@@ -86,8 +64,8 @@ export function AlbumDetailsCard({
     : {};
 
   return (
-    <Card 
-      className="flex-grow flex-col py-0 md:flex-row lg:w-2/3 bg-transparent border-0 relative overflow-hidden" 
+    <Card
+      className="relative flex-grow flex-col overflow-hidden border-0 bg-transparent py-0 md:flex-row lg:w-2/3"
       style={gradientStyle}
     >
       <Image
@@ -97,15 +75,13 @@ export function AlbumDetailsCard({
         height={330}
         sizes="100%"
         priority
-        className="w-full rounded-sm md:h-[330px] md:w-[330px] lg:h-[320px] lg:w-[320px] my-auto ml-0 md:ml-8"
+        className="my-auto ml-0 w-full rounded-sm md:ml-8 md:h-[330px] md:w-[330px] lg:h-[320px] lg:w-[320px]"
       />
-      <CardHeader className="flex-grow px-8 py-6 my-auto">
+      <CardHeader className="my-auto flex-grow px-8 py-6">
         <div className="space-y-6">
           <div className="space-y-2">
             <div className="flex items-end gap-3 lg:flex-col lg:items-start lg:gap-1 xl:flex-row xl:items-end xl:gap-3">
-              <CardTitle className="text-3xl font-bold">
-                {album.name}
-              </CardTitle>
+              <CardTitle className="text-3xl font-bold">{album.name}</CardTitle>
               {averageRating ? (
                 <RatingBadge
                   prefix={"Average "}
@@ -156,4 +132,4 @@ export function AlbumDetailsCard({
       </CardHeader>
     </Card>
   );
-} 
+}
