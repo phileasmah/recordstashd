@@ -1,7 +1,9 @@
 "use client";
 
 import { SpotifyAlbum } from "@/types/spotify";
+import { extractColors } from "extract-colors";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -20,8 +22,38 @@ export function AlbumDetailsCard({
   reviewCount,
   onOpenSpotify,
 }: AlbumDetailsCardProps) {
+  const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
+
+  useEffect(() => {
+    const extractColor = async () => {
+      if (album.images?.[0]?.url) {
+        try {
+          const colors = await extractColors(album.images[0].url, {
+            crossOrigin: "anonymous",
+          });
+          if (colors.length > 0) {
+            setBackgroundColor(colors[0].hex);
+          }
+        } catch (error) {
+          console.error("Failed to extract colors:", error);
+        }
+      }
+    };
+
+    extractColor();
+  }, [album.images]);
+
+  const gradientStyle = backgroundColor
+    ? {
+        background: `radial-gradient(ellipse at center, ${backgroundColor}35 0%, ${backgroundColor}20 32%, ${backgroundColor}10 50%, transparent 68%)`,
+      }
+    : {};
+
   return (
-    <Card className="flex-grow flex-col py-0 md:flex-row lg:w-2/3 bg-transparent border-none">
+    <Card 
+      className="flex-grow flex-col py-0 md:flex-row lg:w-2/3 bg-transparent border-0 relative overflow-hidden" 
+      style={gradientStyle}
+    >
       <Image
         src={album.images?.[0]?.url || "/placeholder.png"}
         alt={album.name}
