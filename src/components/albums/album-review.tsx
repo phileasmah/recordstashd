@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
-import { ShineBorder } from "../magicui/shine-border";
 import { RatingInput } from "../review-card/rating-input";
 import {
   AlertDialog,
@@ -211,14 +210,14 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                 <div className="flex flex-1 flex-col gap-1">
                   <motion.div>
                     <CardTitle>
-                      {review ? "Edit Your Review" : "Write Your Review"}
+                      {existingReview?.hasReview ? "Edit Your Review" : "Write Your Review"}
                     </CardTitle>
                   </motion.div>
                   <motion.div>
                     <CardDescription>Share your thoughts</CardDescription>
                   </motion.div>
                 </div>
-                {review && (
+                {existingReview?.hasReview && (
                   <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                     <AlertDialogTrigger asChild>
                       <Button
