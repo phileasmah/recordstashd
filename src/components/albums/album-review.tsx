@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
+import { ShineBorder } from "../magicui/shine-border";
 import { RatingInput } from "../review-card/rating-input";
 import {
   AlertDialog,

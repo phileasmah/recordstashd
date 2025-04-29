@@ -2,12 +2,8 @@
 
 import { SpotifyAlbum } from "@/types/spotify";
 import { useQuery } from "convex/react";
-import Image from "next/image";
 import { api } from "../../../convex/_generated/api";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { RatingBadge } from "../ui/rating-badge";
+import { AlbumDetailsCard } from "./album-details-card";
 import { AlbumReview } from "./album-review";
 import { AlbumTracks } from "./album-tracks";
 import { RecentReviews } from "./recent-reviews";
@@ -53,70 +49,12 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
     <div className="space-y-6">
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Album Info Section */}
-        <Card className="flex-grow flex-col py-0 md:flex-row lg:w-2/3">
-          <Image
-            src={album.images?.[0]?.url || "/placeholder.png"}
-            alt={album.name}
-            width={330}
-            height={330}
-            sizes="100%"
-            priority
-            className="w-full rounded-sm md:h-[330px] md:w-[330px] lg:h-[320px] lg:w-[320px]"
-          />
-          <CardHeader className="flex-grow px-8 py-6">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex items-end gap-3 lg:flex-col lg:items-start lg:gap-1 xl:flex-row xl:items-end xl:gap-3">
-                  <CardTitle className="text-3xl font-bold">
-                    {album.name}
-                  </CardTitle>
-                  {averageRating ? (
-                    <RatingBadge
-                      prefix={"Average "}
-                      rating={averageRating}
-                      hoverText={`${reviewCount} ${reviewCount === 1 ? "review" : "reviews"}`}
-                    />
-                  ) : (
-                    <Badge variant="secondary">No ratings yet</Badge>
-                  )}
-                </div>
-                <CardDescription className="text-xl">
-                  {album.artists?.map((artist) => artist.name).join(", ")}
-                </CardDescription>
-              </div>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-base lg:gap-y-1 xl:gap-y-2">
-                <div className="text-muted-foreground">Release Date:</div>
-                <div className="lg:row-start-2 xl:row-start-auto">
-                  {album.release_date || "Unknown"}
-                </div>
-                <div className="text-muted-foreground lg:col-start-2 lg:row-start-1 xl:col-start-auto xl:row-start-auto">
-                  Total Tracks:
-                </div>
-                <div className="lg:col-start-2 lg:row-start-2 xl:col-start-auto xl:row-start-auto">
-                  {album.total_tracks || "Unknown"}
-                </div>
-                <div className="text-muted-foreground lg:col-start-1 lg:row-start-3 xl:col-start-auto xl:row-start-auto">
-                  Label:
-                </div>
-                <div className="lg:col-start-1 lg:row-start-4 xl:col-start-auto xl:row-start-auto">
-                  {album.label || "Unknown"}
-                </div>
-              </div>
-              <Button
-                className="bg-spotify hover:bg-spotify rounded-full text-base text-white"
-                onClick={handleOpenSpotify}
-              >
-                <Image
-                  src="/spotify_logo_black.svg"
-                  alt="Spotify"
-                  width={22}
-                  height={22}
-                />
-                Listen on Spotify
-              </Button>
-            </div>
-          </CardHeader>
-        </Card>
+        <AlbumDetailsCard
+          album={album}
+          averageRating={averageRating}
+          reviewCount={reviewCount}
+          onOpenSpotify={handleOpenSpotify}
+        />
 
         {/* Review Input Section */}
         <div className="lg:w-1/3">

@@ -24,7 +24,7 @@ export function SearchResultsDropdown({
   const [results, setResults] = useState<SpotifySearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { searchAlbums } = useApi();
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 500);
   const [lastSearchQuery, setLastSearchQuery] = useState("");
 
   useEffect(() => {
@@ -36,15 +36,15 @@ export function SearchResultsDropdown({
       }
   
       // Check if the new query is just the previous query with added whitespace
-      if (lastSearchQuery && debouncedQuery.trim() === lastSearchQuery.trim()) {
+      if (lastSearchQuery && debouncedQuery.trim() === lastSearchQuery) {
         return;
       }
   
       setIsLoading(true);
       try {
         const data = await searchAlbums(debouncedQuery);
-        setResults(data);
-        setLastSearchQuery(debouncedQuery);
+            setResults(data);
+        setLastSearchQuery(debouncedQuery.trim());
       } catch (error) {
         console.error("Search failed:", error);
         setResults(null);
@@ -54,7 +54,7 @@ export function SearchResultsDropdown({
     }
 
     performSearch();
-  }, [debouncedQuery, lastSearchQuery, searchAlbums]);
+  }, [debouncedQuery]);
 
   if (!debouncedQuery || !show) return null;
 

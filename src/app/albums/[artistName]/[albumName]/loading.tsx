@@ -7,7 +7,7 @@ export default function Loading() {
       <div className="space-y-6">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Album Info Section */}
-          <Card className="flex w-full flex-col py-0 md:flex-row lg:w-2/3">
+          <Card className="flex w-full flex-col py-0 md:flex-row lg:w-2/3 bg-transparent border-none">
             <div className="relative aspect-square w-full md:w-80 flex-shrink-0">
               <Skeleton className="h-full w-full rounded-lg" />
             </div>

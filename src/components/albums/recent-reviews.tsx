@@ -29,7 +29,7 @@ export function RecentReviews({ albumName, artistName }: RecentReviewsProps) {
 
   if (recentReviews.length === 0) {
     return (
-      <MagicCard className="flex min-h-[200px] items-center justify-center rounded-xl py-0">
+      <MagicCard className="flex min-h-[200px] items-center justify-center rounded-sm py-0">
         <CardContent className="text-center">
           <p className="text-muted-foreground">
             No reviews yet. Be the first to write a review for this album!
