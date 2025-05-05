@@ -9,7 +9,7 @@ import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
-import { query, mutation as rawMutation } from "./_generated/server";
+import { internalMutation, query, mutation as rawMutation } from "./_generated/server";
 import { getUserDisplayName } from "./users";
 
 // Set up triggers to keep aggregates in sync
@@ -219,5 +219,17 @@ export const getFollowing = query({
       ...following,
       page: followingWithUserInfo,
     };
+  },
+});
+
+export const deleteFollowAggregates = internalMutation({
+  args: { followers: v.array(v.any()), following: v.array(v.any()) },
+  async handler(ctx, args) {
+    await Promise.all([
+      ...args.followers.map((follower) => followerCount.delete(ctx, follower)),
+      ...args.following.map((following) =>
+        followingCount.delete(ctx, following),
+      ),
+    ]);
   },
 });

@@ -1,3 +1,4 @@
+import { createAlbumSlug, createArtistSlug } from "@/utils/slugify";
 import { PaginatedQueryItem } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import Image from "next/image";
@@ -14,7 +15,8 @@ interface AlbumReviewCardContentProps {
         username: string;
         userDisplayName: string | null;
       })
-    | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>;
+    | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>
+    | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviews>;
   index?: number;
   showDivider?: boolean;
 }
@@ -27,7 +29,7 @@ export function AlbumReviewCardContent({
   const hasReview = !!review.review;
   const albumUrl =
     review.artistName && review.albumName
-      ? `/albums/${encodeURIComponent(review.artistName)}/${encodeURIComponent(review.albumName)}`
+      ? `/albums/${createArtistSlug(review.artistName)}/${createAlbumSlug(review.albumName)}`
       : "#";
 
   if (!hasReview && review.rating) {
@@ -61,7 +63,10 @@ export function AlbumReviewCardContent({
         <div className="flex-1 space-y-2">
           <div className="text-muted-foreground flex flex-col gap-2 text-sm">
             <div className="flex items-center gap-1.5">
-              <Link href={albumUrl} className="text-primary font-medium hover:underline">
+              <Link
+                href={albumUrl}
+                className="text-primary font-medium hover:underline"
+              >
                 {review.albumName}
               </Link>
               <span>by</span>
@@ -73,17 +78,17 @@ export function AlbumReviewCardContent({
               )}
               <span className="text-muted-foreground text-sm">
                 Reviewed by{" "}
-                {"likedByUser" in review ? (
-                  <span className="text-sm font-medium">
-                    {review.userDisplayName}
-                  </span>
-                ) : (
+                {review.username ? (
                   <Link
                     href={`/${review.username}`}
                     className="text-primary text-sm font-medium hover:underline"
                   >
                     {review.userDisplayName}
                   </Link>
+                ) : (
+                  <span className="text-sm font-medium">
+                    {review.userDisplayName}
+                  </span>
                 )}
               </span>
               <span>•</span>
@@ -94,14 +99,11 @@ export function AlbumReviewCardContent({
                   year: "numeric",
                 })}
               </span>
-              {"likedByUser" in review && (
-                <LikeButton
-                  reviewId={review._id}
-                  initialLikedState={review.likedByUser}
-                  initialLikeCount={review.likeCount}
-                  className="-ml-0.5"
-                />
-              )}
+              <LikeButton
+                reviewId={review._id}
+                likedByUser={review.likedByUser}
+                likeCount={review.likes}
+              />
             </div>
           </div>
           {review.review && <ExpandableReviewText text={review.review} />}

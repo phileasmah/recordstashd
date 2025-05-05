@@ -1,34 +1,39 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
 
-export function RecentReviews() { 
+import { usePaginatedQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { AlbumReviewCardContent } from "../ui/review-cards/album-review-card-content";
+import { AlbumReviewCardSkeleton } from "../ui/skeletons/album-review-card-skeleton";
+
+export function RecentReviews() {
+  const { results: reviews, isLoading } = usePaginatedQuery(
+    api.reviewsRead.getRecentReviews,
+    {},
+    { initialNumItems: 5 },
+  );
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {[1, 2, 3, 4, 5, 6].map((index) => (
-        <Card key={index}>
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <Avatar>
-                <AvatarImage src={``} />
-                <AvatarFallback>U{index}</AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle>Album Title {index}</CardTitle>
-                <CardDescription>Reviewed by User {index}</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">4.5 ★</Badge>
-              <p className="text-sm text-muted-foreground">
-                &ldquo;Great album with amazing production...&rdquo;
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="space-y-1">
+      {isLoading ? (
+        <>
+          {[...Array(3)].map((_, i) => (
+            <AlbumReviewCardSkeleton key={i} showDivider={i !== 2} index={i} />
+          ))}
+        </>
+      ) : reviews.length === 0 ? (
+        <p className="text-muted-foreground p-10 text-center">
+          Follow some users to see their reviews here
+        </p>
+      ) : (
+        reviews.map((review, index) => (
+          <AlbumReviewCardContent
+            key={review._id}
+            review={review}
+            index={index}
+            showDivider={index !== reviews.length - 1}
+          />
+        ))
+      )}
     </div>
   );
-} 
+}

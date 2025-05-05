@@ -2,18 +2,19 @@ import { stream } from "convex-helpers/server/stream";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { query } from "./_generated/server";
-import { checkReviewLikedByUser, reviewLikeCount } from "./reviewLikes";
+import { checkReviewLikedByUser } from "./reviewLikes";
 import { findReviewByUserAndAlbum } from "./reviewsWrite";
 import schema from "./schema";
 import { getUserDisplayName } from "./users";
 
-// Get a user's review for a specific album
 export const getUserReview = query({
   args: {
-    albumName: v.string(),
-    artistName: v.string(),
+    albumId: v.union(v.id("albums"), v.null()),
   },
   async handler(ctx, args) {
+    if (!args.albumId) {
+      return null;
+    }
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Not authenticated");
@@ -21,12 +22,7 @@ export const getUserReview = query({
     const userId = identity.subject;
 
     // Find the album
-    const album = await ctx.db
-      .query("albums")
-      .withIndex("by_name_artist", (q) =>
-        q.eq("name", args.albumName).eq("artist", args.artistName),
-      )
-      .first();
+    const album = await ctx.db.get(args.albumId);
 
     if (!album) {
       return null; // Album doesn't exist
@@ -37,52 +33,47 @@ export const getUserReview = query({
   },
 });
 
-// TODO: Make this take an albumId instead of albumName and artistName
-// Get recent reviews for an album
 export const getRecentReviewsForAlbum = query({
   args: {
-    albumName: v.string(),
-    artistName: v.string(),
-    limit: v.number(),
+    paginationOpts: paginationOptsValidator,
+    albumId: v.union(v.id("albums"), v.null()),
   },
   async handler(ctx, args) {
+    if (!args.albumId) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: "null",
+      };
+    }
     const identity = await ctx.auth.getUserIdentity();
     const userId = identity?.subject;
     // Find the album
-    const album = await ctx.db
-      .query("albums")
-      .withIndex("by_name_artist", (q) =>
-        q.eq("name", args.albumName).eq("artist", args.artistName),
-      )
-      .first();
+    const album = await ctx.db.get(args.albumId);
 
     if (!album) {
-      return []; // Album doesn't exist
+      throw new ConvexError("Album not found");
     }
 
     // Get recent reviews that have review text
-    const reviews = await ctx.db
+    const paginatedReviews = await ctx.db
       .query("reviews")
       .withIndex("by_album_hasReview", (q) =>
         q.eq("albumId", album._id).eq("hasReview", true),
       )
       .order("desc")
-      .take(args.limit);
+      .paginate(args.paginationOpts);
 
     // Get user details for each review
     const reviewsWithUserInfo = await Promise.all(
-      reviews.map(async (review) => {
-        const [user, likeCount, likedByUser] = await Promise.all([
+      paginatedReviews.page.map(async (review) => {
+        const [user, likedByUser] = await Promise.all([
           ctx.db
             .query("users")
             .withIndex("by_externalId", (q) =>
               q.eq("externalId", review.userId),
             )
             .unique(),
-          reviewLikeCount.count(ctx, {
-            namespace: review._id,
-            bounds: {},
-          }),
           checkReviewLikedByUser(ctx, userId, review._id),
         ]);
 
@@ -91,13 +82,15 @@ export const getRecentReviewsForAlbum = query({
           username: user?.username ?? null,
           userDisplayName: user ? getUserDisplayName(user) : "Anonymous User",
           userImageUrl: user?.imageUrl ?? null,
-          likeCount,
           likedByUser,
         };
       }),
     );
 
-    return reviewsWithUserInfo;
+    return {
+      ...paginatedReviews,
+      page: reviewsWithUserInfo,
+    };
   },
 });
 
@@ -117,12 +110,8 @@ export const getAllUserReviews = query({
 
     const reviewsWithAlbumInfo = await Promise.all(
       reviews.map(async (review) => {
-        const [album, likeCount, likedByUser] = await Promise.all([
+        const [album, likedByUser] = await Promise.all([
           ctx.db.get(review.albumId),
-          reviewLikeCount.count(ctx, {
-            namespace: review._id,
-            bounds: {},
-          }),
           checkReviewLikedByUser(ctx, currentUserId, review._id),
         ]);
         return {
@@ -130,7 +119,6 @@ export const getAllUserReviews = query({
           albumName: album?.name,
           artistName: album?.artist,
           spotifyAlbumUrl: album?.spotifyAlbumUrl,
-          likeCount,
           likedByUser,
         };
       }),
@@ -174,7 +162,10 @@ export const getLatestPostsFromFollowing = query({
           .withIndex("by_user", (q) => q.eq("userId", followingUser.externalId))
           .order("desc")
           .map(async (review) => {
-            const album = await ctx.db.get(review.albumId);
+            const [album, likedByUser] = await Promise.all([
+              ctx.db.get(review.albumId),
+              checkReviewLikedByUser(ctx, userId, review._id),
+            ]);
             return {
               ...review,
               username: followingUser.username || "Anonymous User",
@@ -183,6 +174,7 @@ export const getLatestPostsFromFollowing = query({
               albumName: album?.name,
               artistName: album?.artist,
               spotifyAlbumUrl: album?.spotifyAlbumUrl,
+              likedByUser,
             };
           }),
       ["userId", "lastUpdatedTime"],
@@ -208,17 +200,13 @@ export const getRecentReviews = query({
 
     const reviewsWithMetadata = await Promise.all(
       reviews.page.map(async (review) => {
-        const [user, likeCount, likedByUser, album] = await Promise.all([
+        const [user, likedByUser, album] = await Promise.all([
           ctx.db
             .query("users")
             .withIndex("by_externalId", (q) =>
               q.eq("externalId", review.userId),
             )
             .unique(),
-          reviewLikeCount.count(ctx, {
-            namespace: review._id,
-            bounds: {},
-          }),
           checkReviewLikedByUser(ctx, userId, review._id),
           ctx.db.get(review.albumId),
         ]);
@@ -231,12 +219,68 @@ export const getRecentReviews = query({
           albumName: album?.name,
           artistName: album?.artist,
           spotifyAlbumUrl: album?.spotifyAlbumUrl,
-          likeCount,
           likedByUser,
         };
       }),
     );
 
-    return reviewsWithMetadata;
+    return {
+      ...reviews,
+      page: reviewsWithMetadata,
+    };
+  },
+});
+
+export const getMostLikedReviewsForAlbum = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    albumId: v.union(v.id("albums"), v.null()),
+  },
+  async handler(ctx, args) {
+    if (!args.albumId) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: "null",
+      };
+    }
+
+    const identity = await ctx.auth.getUserIdentity();
+    const userId = identity?.subject;
+
+    const paginatedReviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_album_hasReview_likes", (q) =>
+        q.eq("albumId", args.albumId!).eq("hasReview", true),
+      )
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    const reviewsWithMetadata = await Promise.all(
+      paginatedReviews.page.map(async (review) => {
+        const [user, likedByUser] = await Promise.all([
+          ctx.db
+            .query("users")
+            .withIndex("by_externalId", (q) =>
+              q.eq("externalId", review.userId),
+            )
+            .unique(),
+          checkReviewLikedByUser(ctx, userId, review._id),
+        ]);
+
+        return {
+          ...review,
+          username: user?.username ?? null,
+          userDisplayName: user ? getUserDisplayName(user) : "Anonymous User",
+          userImageUrl: user?.imageUrl ?? null,
+          likedByUser,
+        };
+      }),
+    );
+
+    return {
+      ...paginatedReviews,
+      page: reviewsWithMetadata,
+    };
   },
 });

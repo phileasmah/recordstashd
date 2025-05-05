@@ -11,11 +11,6 @@ import {
   query,
   internalMutation as rawInternalMutation,
 } from "./_generated/server";
-import { followerCount, followingCount } from "./follows";
-import {
-  aggregateReviewsByAlbum,
-  aggregateReviewsByUsers,
-} from "./reviewAggregates";
 
 const triggers = new Triggers<DataModel>();
 //TODO batch this
@@ -46,16 +41,16 @@ triggers.register("users", async (ctx, change) => {
       ...allReviews.map((review) => ctx.db.delete(review._id)),
     ]);
 
-    await ctx.scheduler.runAfter(0, internal.users.deleteReviewAggregates, {
+    await ctx.scheduler.runAfter(0, internal.reviewAggregates.deleteReviewAggregates, {
       reviews: allReviews,
     });
 
-    await ctx.scheduler.runAfter(0, internal.users.deleteFollowAggregates, {
+    await ctx.scheduler.runAfter(0, internal.follows.deleteFollowAggregates, {
       followers: allFollows,
       following: allFollowing,
     });
 
-    await ctx.scheduler.runAfter(0, internal.users.deleteReviewLikes, {
+    await ctx.scheduler.runAfter(0, internal.reviewLikes.deleteAllUserLikes, {
       userId: change.oldDoc.externalId,
     });
   }
@@ -111,44 +106,6 @@ export const deleteFromClerk = internalMutation({
         `Can't delete user, there is none for Clerk user ID: ${clerkUserId}`,
       );
     }
-  },
-});
-
-export const deleteReviewAggregates = rawInternalMutation({
-  args: { reviews: v.array(v.any()) },
-  async handler(ctx, args) {
-    await Promise.all(
-      args.reviews.map(async (review) => {
-        await aggregateReviewsByAlbum.delete(ctx, review);
-        await aggregateReviewsByUsers.delete(ctx, review);
-      }),
-    );
-  },
-});
-
-export const deleteFollowAggregates = rawInternalMutation({
-  args: { followers: v.array(v.any()), following: v.array(v.any()) },
-  async handler(ctx, args) {
-    await Promise.all([
-      ...args.followers.map((follower) => followerCount.delete(ctx, follower)),
-      ...args.following.map((following) =>
-        followingCount.delete(ctx, following),
-      ),
-    ]);
-  },
-});
-
-export const deleteReviewLikes = rawInternalMutation({
-  args: { userId: v.string() },
-  async handler(ctx, args) {
-    const allReviewLikes = await ctx.db
-      .query("reviewLikes")
-      .withIndex("by_user_review", (q) => q.eq("userId", args.userId))
-      .collect();
-
-    await Promise.all(
-      allReviewLikes.map((reviewLike) => ctx.db.delete(reviewLike._id)),
-    );
   },
 });
 

@@ -39,6 +39,7 @@
   --color-card: var(--card);
   --color-spotify: var(--spotify);
   --color-spotify-dark: var(--spotify-dark);
+  --color-card-border: var(--card-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -92,6 +93,7 @@
   --sidebar-ring: oklch(0.556 0 0);
   --spotify: #1DB954;
   --spotify-dark: #1ed760;
+  --card-border: #2e2f2f;
 }
 
 @layer base {

@@ -15,16 +15,18 @@ export default defineSchema({
 
   reviews: defineTable({
     albumId: v.id("albums"),
-    userId: v.string(), // Clerk user ID
-    rating: v.optional(v.number()), // e.g., 1-5 stars
+    userId: v.string(), 
+    rating: v.optional(v.number()), 
     review: v.optional(v.string()),
     hasReview: v.boolean(),
-    lastUpdatedTime: v.number(), // timestamp for sorting by recency
+    lastUpdatedTime: v.number(), 
+    likes: v.number(),
   })
     .index("by_user_album", ["userId", "albumId"])
     .index("by_user", ["userId", "lastUpdatedTime"])
     .index("by_album_hasReview", ["albumId", "hasReview"])
-    .index("hasReview", ["hasReview"]),
+    .index("hasReview", ["hasReview"])
+    .index("by_album_hasReview_likes", ["albumId", "hasReview", "likes"]),
 
   users: defineTable({
     username: v.string(),

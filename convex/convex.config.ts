@@ -6,6 +6,5 @@ app.use(aggregate, { name: "aggregateReviewsByAlbum" });
 app.use(aggregate, { name: "aggregateReviewsByUsers" });
 app.use(aggregate, { name: "followerCount" });
 app.use(aggregate, { name: "followingCount" });
-app.use(aggregate, { name: "reviewLikeCount" });
 export default app;
 

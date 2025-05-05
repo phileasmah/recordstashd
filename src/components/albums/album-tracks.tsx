@@ -29,7 +29,7 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
   };
 
   return (
-    <Card className="flex flex-col gap-0 h-[520px]">
+    <Card className="flex flex-col gap-0 h-[520px] py-5 pb-0">
       <CardHeader
         className={cn(
           "bg-card sticky top-0 z-10 py-2 [.border-b]:pb-3 [.border-b]:-mt-3",
@@ -65,7 +65,7 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
             transition={transition}
             className={cn("text-sm")}
           >
-            <CardDescription>
+            <CardDescription className={cn(isScrolled ? "mt-0.5" : "")}>
               {isScrolled && <span className="mx-1 hidden sm:inline">-</span>}
               {album.total_tracks} songs,{" "}
               {formatTotalDuration(album.tracks?.items)}
@@ -80,18 +80,18 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
           style={{ overflowY: "scroll" }}
           onScroll={handleScroll}
         >
-          <CardContent className="pt-2">
+          <CardContent className={cn("mb-5", isScrolled && "mt-[6.5rem]")}>
             <div className="space-y-1.5">
               {album.tracks?.items?.map((track, index) => (
                 <div
                   key={track.id}
-                  className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2 transition-colors"
+                  className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5  transition-colors"
                 >
                   <div className="text-muted-foreground w-6 shrink-0 text-center">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-grow">
-                    <div className="truncate font-medium">{track.name}</div>
+                    <div className="font-medium">{track.name}</div>
                     <div className="text-muted-foreground truncate text-sm">
                       {track.artists?.map((artist) => artist.name).join(", ")}
                     </div>

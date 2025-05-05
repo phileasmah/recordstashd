@@ -1,4 +1,4 @@
-import { FunctionReturnType } from "convex/server";
+import { PaginatedQueryItem } from "convex/react";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
@@ -8,9 +8,9 @@ import { ExpandableReviewText } from "./expandable-review-text";
 import { LikeButton } from "./like-button";
 
 interface ReviewCardContentProps {
-  review: FunctionReturnType<
-    typeof api.reviewsRead.getRecentReviewsForAlbum
-  >[number];
+  review:
+    | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviewsForAlbum>
+    | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewsForAlbum>;
   index?: number;
   showDivider?: boolean;
 }
@@ -79,8 +79,8 @@ export function ReviewCardContent({
                 </p>
                 <LikeButton
                   reviewId={review._id}
-                  initialLikedState={review.likedByUser}
-                  initialLikeCount={review.likeCount}
+                  likedByUser={review.likedByUser}
+                  likeCount={review.likes}
                 />
               </div>
             </div>

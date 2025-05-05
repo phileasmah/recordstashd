@@ -1,42 +1,35 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
+import { useConvexAuth, useMutation } from "convex/react";
 import { Heart } from "lucide-react";
-import { useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { Button } from "../button";
 
 interface LikeButtonProps {
   reviewId: Id<"reviews">;
-  initialLikedState: boolean;
-  initialLikeCount: number;
+  likedByUser: boolean;
+  likeCount: number;
   className?: string;
 }
 
 export function LikeButton({
   reviewId,
-  initialLikedState,
-  initialLikeCount,
+  likedByUser,
+  likeCount,
   className,
 }: LikeButtonProps) {
-  const { isSignedIn } = useAuth();
-  const [isLiked, setIsLiked] = useState(initialLikedState);
-  const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const { isAuthenticated } = useConvexAuth();
 
   const likeReview = useMutation(api.reviewLikes.likeReview);
   const unlikeReview = useMutation(api.reviewLikes.unlikeReview);
 
   const handleClick = async () => {
-    if (isLiked) {
+    if (likedByUser) {
       await unlikeReview({ reviewId });
-      setLikeCount((prev) => prev - 1);
     } else {
       await likeReview({ reviewId });
-      setLikeCount((prev) => prev + 1);
     }
-    setIsLiked(!isLiked);
   };
 
   return (
@@ -44,16 +37,16 @@ export function LikeButton({
       variant="ghost"
       size="sm"
       className={cn(
-        "flex h-7 items-center gap-1 pt-0.5 disabled:opacity-100",
+        "pt-[3px] pb-[2px] h-max flex items-center gap-1 disabled:opacity-100",
         className,
       )}
       onClick={handleClick}
-      disabled={!isSignedIn}
+      disabled={!isAuthenticated}
     >
       <Heart
-        className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-500"}`}
+        className={`h-3 w-3 ${likedByUser ? "fill-red-500 text-red-500" : "text-gray-500"}`}
       />
-      <span className="text-sm">{likeCount}</span>
+      <span className="text-accent-foreground text-sm">{likeCount}</span>
     </Button>
   );
 }

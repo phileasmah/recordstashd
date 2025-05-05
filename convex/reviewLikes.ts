@@ -1,36 +1,14 @@
 // convex/likes.ts
-import { TableAggregate } from "@convex-dev/aggregate";
-import {
-  customCtx,
-  customMutation,
-} from "convex-helpers/server/customFunctions";
-import { Triggers } from "convex-helpers/server/triggers";
 import { v } from "convex/values";
-import { components } from "./_generated/api";
-import { DataModel, Id } from "./_generated/dataModel";
-import { query, QueryCtx, mutation as rawMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
+import {
+  internalMutation,
+  mutation,
+  query,
+  QueryCtx,
+} from "./_generated/server";
 
-// TODO: Maybe remove trigger for manual insert/delete etc, maybe refactor all 
-const triggers = new Triggers<DataModel>();
-
-// Aggregate for counting likes per content item
-export const reviewLikeCount = new TableAggregate<{
-  Namespace: Id<"reviews">;
-  Key: null;
-  DataModel: DataModel;
-  TableName: "reviewLikes";
-}>(components.reviewLikeCount, {
-  namespace: (doc) => doc.reviewId,
-  sortKey: () => null, // Just counting, no sorting needed
-});
-
-// Register triggers to update aggregates when likes table changes
-triggers.register("reviewLikes", reviewLikeCount.trigger());
-
-// Use custom mutation to ensure triggers run
-const mutation = customMutation(rawMutation, customCtx(triggers.wrapDB));
-
-// Like content
 export const likeReview = mutation({
   args: {
     reviewId: v.id("reviews"),
@@ -52,14 +30,22 @@ export const likeReview = mutation({
     if (existing) return existing;
 
     // Create new like
-    return await ctx.db.insert("reviewLikes", {
-      userId,
-      reviewId: args.reviewId,
+    const [like, review] = await Promise.all([
+      ctx.db.insert("reviewLikes", {
+        userId,
+        reviewId: args.reviewId,
+      }),
+      ctx.db.get(args.reviewId),
+    ]);
+
+    await ctx.db.patch(args.reviewId, {
+      likes: review!.likes + 1,
     });
+
+    return like;
   },
 });
 
-// Unlike content
 export const unlikeReview = mutation({
   args: { reviewId: v.id("reviews") },
   handler: async (ctx, args) => {
@@ -77,7 +63,13 @@ export const unlikeReview = mutation({
       .first();
 
     if (existing) {
-      await ctx.db.delete(existing._id);
+      const review = await ctx.db.get(args.reviewId);
+      await Promise.all([
+        ctx.db.patch(args.reviewId, {
+          likes: review!.likes - 1,
+        }),
+        ctx.db.delete(existing._id),
+      ]);
       return true;
     }
     return false;
@@ -88,17 +80,6 @@ export const reviewLikedByUser = query({
   args: { reviewId: v.id("reviews"), userId: v.string() },
   handler: async (ctx, args) => {
     return await checkReviewLikedByUser(ctx, args.userId, args.reviewId);
-  },
-});
-
-// Get like count for content
-export const getReviewLikeCount = query({
-  args: { reviewId: v.id("reviews") },
-  handler: async (ctx, args) => {
-    return await reviewLikeCount.count(ctx, {
-      namespace: args.reviewId,
-      bounds: {},
-    });
   },
 });
 
@@ -116,3 +97,56 @@ export const checkReviewLikedByUser = async (
     .first();
   return !!like;
 };
+
+export const deleteAllReviewLikes = internalMutation({
+  args: { reviewId: v.id("reviews") },
+  handler: async (ctx, args) => {
+    const likesToDelete = await ctx.db
+      .query("reviewLikes")
+      .withIndex("by_review", (q) => q.eq("reviewId", args.reviewId))
+      .collect();
+
+    await Promise.all(likesToDelete.map((like) => ctx.db.delete(like._id)));
+  },
+});
+
+export const deleteAllUserLikes = internalMutation({
+  args: { userId: v.string() },
+  async handler(ctx, args) {
+    const allReviewLikes = await ctx.db
+      .query("reviewLikes")
+      .withIndex("by_user_review", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    const allReviewsLiked = await Promise.all(
+      allReviewLikes.map((reviewLike) => ctx.db.get(reviewLike.reviewId)),
+    );
+
+    await Promise.all(
+      allReviewsLiked.map((review) => {
+        if (review) {
+          ctx.db.patch(review._id, {
+            likes: review.likes - 1,
+          });
+        }
+      }),
+    );
+
+    await ctx.scheduler.runAfter(
+      0,
+      internal.reviewLikes.removeAllUserLikeEntities,
+      {
+        allReviewLikes,
+      },
+    );
+  },
+});
+
+export const removeAllUserLikeEntities = internalMutation({
+  args: { allReviewLikes: v.array(v.any()) },
+  handler: async (ctx, args) => {
+    await Promise.all(
+      args.allReviewLikes.map((reviewLike) => ctx.db.delete(reviewLike._id)),
+    );
+  },
+});

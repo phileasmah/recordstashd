@@ -9,30 +9,17 @@ import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { RatingBadge } from "../ui/rating-badge";
 
-// Define the structure of the extracted color object based on the library's output
-interface ExtractedColor {
-  hex: string;
-  red: number;
-  green: number;
-  blue: number;
-  hue: number;
-  intensity: number;
-  lightness: number;
-  saturation: number;
-  area: number;
-}
-
 interface AlbumDetailsCardProps {
   album: SpotifyAlbum;
   averageRating?: number;
-  reviewCount?: number;
+  ratingCount?: number;
   onOpenSpotify: () => void;
 }
 
 export function AlbumDetailsCard({
   album,
   averageRating,
-  reviewCount,
+  ratingCount,
   onOpenSpotify,
 }: AlbumDetailsCardProps) {
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
@@ -42,7 +29,7 @@ export function AlbumDetailsCard({
       if (album.images?.[0]?.url) {
         try {
           const palette = await Vibrant.from(album.images[0].url).getPalette();
-          setBackgroundColor(palette.DarkVibrant?.hex || "#505050");
+          setBackgroundColor(palette.LightVibrant?.hex || "#505050");
         } catch (error) {
           console.error("Failed to extract colors:", error);
           // Set a default darker grey background on error
@@ -59,7 +46,7 @@ export function AlbumDetailsCard({
 
   const gradientStyle = backgroundColor
     ? {
-        background: `radial-gradient(ellipse at center, ${backgroundColor}35 0%, ${backgroundColor}20 32%, ${backgroundColor}10 50%, transparent 68%)`,
+        background: `radial-gradient(ellipse at center, ${backgroundColor}22 0%, ${backgroundColor}12 32%, ${backgroundColor}06 50%, transparent 68%)`,
       }
     : {};
 
@@ -86,8 +73,8 @@ export function AlbumDetailsCard({
                 <RatingBadge
                   prefix={"Average "}
                   rating={averageRating}
-                  hoverText={`${reviewCount} ${
-                    reviewCount === 1 ? "review" : "reviews"
+                  hoverText={`${ratingCount} ${
+                    ratingCount === 1 ? "rating" : "ratings"
                   }`}
                 />
               ) : (

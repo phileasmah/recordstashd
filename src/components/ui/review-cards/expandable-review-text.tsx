@@ -20,7 +20,9 @@ export function ExpandableReviewText({ text }: ExpandableReviewTextProps) {
   return (
     <div className="space-y-2">
       <div
-        className={`${isExpanded ? "max-h-56" : "max-h-16"} overflow-hidden transition-[max-height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]`}
+        className={`${
+          isExpanded ? "max-h-lvh" : "max-h-36"
+        } overflow-hidden transition-all duration-500 ease-in-out`}
       >
         {isExpanded && needsScroll ? (
           <ScrollArea className="h-56">
@@ -29,7 +31,9 @@ export function ExpandableReviewText({ text }: ExpandableReviewTextProps) {
             </p>
           </ScrollArea>
         ) : (
-          <p className="text-muted-foreground pr-4 text-sm whitespace-pre-line">
+          <p
+            className={`text-muted-foreground pr-4 text-sm whitespace-pre-line ${!isExpanded ? "line-clamp-6" : ""}`}
+          >
             {text}
           </p>
         )}

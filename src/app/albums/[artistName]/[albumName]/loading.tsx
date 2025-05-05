@@ -1,6 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import RecentReviewCardSkeleton from "@/components/ui/skeletons/recent-review-card-skeleton";
+import { TransitionPanel } from "@/components/ui/transition-panel";
+
 export default function Loading() {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -56,7 +58,7 @@ export default function Loading() {
         </div>
 
         {/* Tracks and Reviews Section */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_2fr]">
           {/* Tracks Section */}
           <Card className="gap-4">
             <CardHeader>
@@ -91,7 +93,33 @@ export default function Loading() {
           </Card>
 
           {/* Reviews Section */}
-          <RecentReviewCardSkeleton />
+          <div>
+            {/* Skeleton header & tabs */}
+            <div className="mb-4 flex items-center justify-between">
+              <Skeleton className="h-6 w-24 rounded-md" />
+              <div className="flex space-x-2">
+                <Skeleton className="h-8 w-20 rounded-md" />
+                <Skeleton className="h-8 w-20 rounded-md" />
+              </div>
+            </div>
+            <div className="border-card-border overflow-hidden border-t px-5">
+              <TransitionPanel
+                activeIndex={0}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                variants={{
+                  enter: { opacity: 0, y: -20, filter: 'blur(4px)' },
+                  center: { opacity: 1, y: 0, filter: 'blur(0px)' },
+                  exit: { opacity: 0, y: 20, filter: 'blur(4px)' },
+                }}
+              >
+                {[0, 1].map((i) => (
+                  <div key={i} className="py-4">
+                    <RecentReviewCardSkeleton />
+                  </div>
+                ))}
+              </TransitionPanel>
+            </div>
+          </div>
         </div>
       </div>
     </div>

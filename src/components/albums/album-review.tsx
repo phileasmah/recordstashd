@@ -1,13 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { RatingInput } from "../review-card/rating-input";
 import {
   AlertDialog,
@@ -32,8 +33,10 @@ import { Textarea } from "../ui/textarea";
 import { SignedOutReview } from "./signed-out-review";
 
 interface AlbumReviewProps {
+  albumIdInDb: Id<"albums"> | null;
   albumName: string;
   artistName: string;
+  setAlbumIdInDb: Dispatch<SetStateAction<Id<"albums"> | null>>;
 }
 
 // Define all possible states the card can be in
@@ -64,8 +67,13 @@ const slideVariants = {
   }),
 };
 
-export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
-  const { isSignedIn } = useAuth();
+export function AlbumReview({
+  albumIdInDb,
+  albumName,
+  artistName,
+  setAlbumIdInDb,
+}: AlbumReviewProps) {
+  const { isAuthenticated } = useConvexAuth();
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
@@ -73,12 +81,14 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const [direction, setDirection] = useState(0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const createReview = useMutation(api.reviewsWrite.createReview);
+  const createReviewAndReturnAlbumId = useMutation(
+    api.reviewsWrite.createReviewAndReturnAlbumId,
+  );
   const updateReview = useMutation(api.reviewsWrite.updateReview);
   const deleteReview = useMutation(api.reviewsWrite.deleteReview);
   const existingReview = useQuery(
     api.reviewsRead.getUserReview,
-    isSignedIn ? { albumName, artistName } : "skip",
+    isAuthenticated ? { albumId: albumIdInDb } : "skip",
   );
 
   // Load existing review
@@ -93,7 +103,7 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
   const handleRatingChange = async (newRating: number) => {
     const previousRating = rating;
     setRating(newRating);
-    
+
     try {
       if (existingReview) {
         if (!newRating && !review) {
@@ -107,11 +117,13 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
           });
         }
       } else {
-        await createReview({
+        const albumId = await createReviewAndReturnAlbumId({
+          albumId: albumIdInDb,
           albumName,
           artistName,
           rating: newRating,
         });
+        setAlbumIdInDb(albumId);
       }
     } catch (error) {
       console.error("Failed to save review:", error);
@@ -141,11 +153,13 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
           });
         }
       } else {
-        await createReview({
+        const albumId = await createReviewAndReturnAlbumId({
+          albumId: albumIdInDb,
           albumName,
           artistName,
           review,
         });
+        setAlbumIdInDb(albumId);
       }
       toast.success("Review saved successfully!");
       setCardState({ state: "default" });
@@ -210,7 +224,9 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                 <div className="flex flex-1 flex-col gap-1">
                   <motion.div>
                     <CardTitle>
-                      {existingReview?.hasReview ? "Edit Your Review" : "Write Your Review"}
+                      {existingReview?.hasReview
+                        ? "Edit Your Review"
+                        : "Write Your Review"}
                     </CardTitle>
                   </motion.div>
                   <motion.div>
@@ -218,23 +234,29 @@ export function AlbumReview({ albumName, artistName }: AlbumReviewProps) {
                   </motion.div>
                 </div>
                 {existingReview?.hasReview && (
-                  <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                  <AlertDialog
+                    open={isDeleteDialogOpen}
+                    onOpenChange={setIsDeleteDialogOpen}
+                  >
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="ghost"
                         className={cn(
-                          "my-auto group relative h-8 overflow-hidden rounded-full",
+                          "group relative my-auto h-8 overflow-hidden rounded-full",
                           "hover:bg-destructive/90 hover:text-destructive-foreground",
-                          isDeleteDialogOpen && "bg-destructive/90 text-destructive-foreground"
+                          isDeleteDialogOpen &&
+                            "bg-destructive/90 text-destructive-foreground",
                         )}
                       >
                         <span className="flex items-center gap-2">
                           <Trash2 className="h-4 w-4 shrink-0" />
-                          <span className={cn(
-                            "-mt-0.5 overflow-hidden text-sm whitespace-nowrap transition-all duration-250",
-                            "w-0 group-hover:w-[85px]",
-                            isDeleteDialogOpen && "w-[85px]"
-                          )}>
+                          <span
+                            className={cn(
+                              "-mt-0.5 overflow-hidden text-sm whitespace-nowrap transition-all duration-250",
+                              "w-0 group-hover:w-[85px]",
+                              isDeleteDialogOpen && "w-[85px]",
+                            )}
+                          >
                             Delete review
                           </span>
                         </span>

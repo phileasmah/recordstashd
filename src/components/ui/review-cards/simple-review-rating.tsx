@@ -10,7 +10,8 @@ interface SimpleReviewRatingProps {
         username: string;
         userDisplayName: string | null;
       })
-    | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>;
+    | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>
+    | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviews>;
   albumUrl: string;
 }
 
@@ -23,15 +24,15 @@ export function SimpleReviewRating({
   return (
     <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
       <span className="font-medium">
-        {"likedByUser" in review ? (
-          <span className="text-sm font-medium">{review.userDisplayName}</span>
-        ) : (
+        {review.username ? (
           <Link
             href={`/${review.username}`}
             className="text-primary text-sm font-medium hover:underline"
           >
             {review.userDisplayName}
           </Link>
+        ) : (
+          <span className="text-sm font-medium">{review.userDisplayName}</span>
         )}
       </span>{" "}
       gave <RatingBadge rating={review.rating} className="-mb-0.5" /> to{" "}

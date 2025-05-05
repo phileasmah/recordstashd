@@ -1,5 +1,7 @@
 import { AlbumDetails } from "@/components/albums/album-details";
 import { getAlbum } from "@/lib/apiRequests";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "../../../../../convex/_generated/api";
 
 interface AlbumPageProps {
   params: Promise<{
@@ -11,18 +13,23 @@ interface AlbumPageProps {
   }>;
 }
 
-export default async function AlbumPageContent({ params, searchParams }: AlbumPageProps) {
+export default async function AlbumPageContent({
+  params,
+  searchParams,
+}: AlbumPageProps) {
   const { artistName, albumName } = await params;
   const { id } = await searchParams;
 
   try {
-    const albumData = await getAlbum(
-      id ? { id } : { artist: artistName, album: albumName },
-    );
+    const albumData = await getAlbum(id ? { id } : { artist: artistName, album: albumName });
+    const albumIdInDb = await fetchQuery(api.album.getAlbumIdIfExists, {
+      artistName: albumData.artists[0].name,
+      albumName: albumData.name,
+    });
 
     return (
       <div className="container mx-auto px-4 py-8">
-        <AlbumDetails album={albumData} />
+        <AlbumDetails album={albumData} albumIdInDb={albumIdInDb} />
       </div>
     );
   } catch (error) {

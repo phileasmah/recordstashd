@@ -8,7 +8,7 @@ import {
   QueryCtx,
   internalAction,
   internalMutation,
-  mutation
+  mutation,
 } from "./_generated/server";
 import {
   aggregateReviewsByAlbum,
@@ -76,8 +76,9 @@ async function updateReviewAggregates(
 }
 
 // Create a new review for an album
-export const createReview = mutation({
+export const createReviewAndReturnAlbumId = mutation({
   args: {
+    albumId: v.union(v.id("albums"), v.null()),
     albumName: v.string(),
     artistName: v.string(),
     rating: v.optional(v.number()),
@@ -90,18 +91,20 @@ export const createReview = mutation({
     }
     const userId = identity.subject;
 
-    // First, find or create the album
-    const albumId = await findOrCreateAlbum(
-      ctx,
-      args.albumName,
-      args.artistName,
-    );
+    let albumId: Id<"albums">;
+    if (!args.albumId) {
+      albumId = await findOrCreateAlbum(ctx, args.albumName, args.artistName);
+    } else {
+      albumId = args.albumId;
+    }
 
     // Check if user already has a review for this album
     const existingReview = await findReviewByUserAndAlbum(ctx, userId, albumId);
 
     if (existingReview) {
-      throw new Error("Review already exists for this album. Use updateReview to modify it.");
+      throw new Error(
+        "Review already exists for this album. Use updateReview to modify it.",
+      );
     }
 
     // For new reviews, require at least one field (rating or review)
@@ -119,6 +122,7 @@ export const createReview = mutation({
       hasReview: args.review !== undefined,
       rating: args.rating,
       review: args.review?.trim(),
+      likes: 0,
     };
 
     // Insert the review
@@ -127,7 +131,7 @@ export const createReview = mutation({
     // Update the aggregate
     const doc = await ctx.db.get(insertedReview);
     await updateReviewAggregates(ctx, null, doc!, "insert");
-    return doc;
+    return albumId  ;
   },
 });
 
@@ -208,6 +212,10 @@ export const deleteReview = mutation({
     await updateReviewAggregates(ctx, review, null, "delete");
     // Then delete from the database
     await ctx.db.delete(args.reviewId);
+
+    await ctx.scheduler.runAfter(0, internal.reviewLikes.deleteAllReviewLikes, {
+      reviewId: args.reviewId,
+    });
   },
 });
 

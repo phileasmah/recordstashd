@@ -2,7 +2,7 @@ import { TableAggregate } from "@convex-dev/aggregate";
 import { v } from "convex/values";
 import { components } from "./_generated/api";
 import { DataModel, Id } from "./_generated/dataModel";
-import { query } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 
 // Define an aggregate for review ratings grouped by album
 export const aggregateReviewsByAlbum = new TableAggregate<{
@@ -31,17 +31,11 @@ export const aggregateReviewsByUsers = new TableAggregate<{
 // Get the average rating for a specific album
 export const getAlbumAverageRating = query({
   args: {
-    albumName: v.string(),
-    artistName: v.string(),
+    albumId: v.id("albums"), 
   },
   async handler(ctx, args) {
     // First find the album
-    const album = await ctx.db
-      .query("albums")
-      .withIndex("by_name_artist", (q) =>
-        q.eq("name", args.albumName).eq("artist", args.artistName),
-      )
-      .first();
+    const album = await ctx.db.get(args.albumId);
 
     if (!album) {
       return null; // Album doesn't exist
@@ -95,5 +89,17 @@ export const getUserStats = query({
     ]);
 
     return { totalReviews: count, thisMonthReviews: thisMonthCount };
+  },
+});
+
+export const deleteReviewAggregates = internalMutation({
+  args: { reviews: v.array(v.any()) },
+  async handler(ctx, args) {
+    await Promise.all(
+      args.reviews.map(async (review) => {
+        await aggregateReviewsByAlbum.delete(ctx, review);
+        await aggregateReviewsByUsers.delete(ctx, review);
+      }),
+    );
   },
 });

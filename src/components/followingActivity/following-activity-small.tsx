@@ -7,7 +7,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { AlbumReviewCardSkeleton } from "../ui/skeletons/album-review-card-skeleton";
 
 export default function FollowingActivitySmall() {
-  // TODO: This is a hack because we determine to load this component in a server component 
+  // TODO: This is a hack because we determine to load this component in a server component
   // and when this is rendered, the user might not be loaded.
   const { isLoaded } = useUser();
 

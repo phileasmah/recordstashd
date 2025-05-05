@@ -2,23 +2,27 @@
 
 import { SpotifyAlbum } from "@/types/spotify";
 import { useQuery } from "convex/react";
+import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { AlbumDetailsCard } from "./album-details-card";
 import { AlbumReview } from "./album-review";
+import { AlbumReviews } from "./album-reviews";
 import { AlbumTracks } from "./album-tracks";
-import { RecentReviews } from "./recent-reviews";
 
 interface AlbumDetailsProps {
   album: SpotifyAlbum;
+  albumIdInDb: Id<"albums"> | null;
 }
 
-export function AlbumDetails({ album }: AlbumDetailsProps) {
-  const ratingStats = useQuery(api.reviewAggregates.getAlbumAverageRating, {
-    albumName: album.name,
-    artistName: album.artists?.[0]?.name || "",
-  });
+export function AlbumDetails({ album, albumIdInDb }: AlbumDetailsProps) {
+  const [albumId, setAlbumId] = useState<Id<"albums"> | null>(albumIdInDb);
+  const ratingStats = useQuery(
+    api.reviewAggregates.getAlbumAverageRating,
+    albumId ? { albumId } : "skip",
+  );
   const averageRating = ratingStats?.average;
-  const reviewCount = ratingStats?.count;
+  const ratingCount = ratingStats?.count;
 
   // handler to open Spotify app if installed, with web fallback
   const handleOpenSpotify = () => {
@@ -44,36 +48,30 @@ export function AlbumDetails({ album }: AlbumDetailsProps) {
       document.body.removeChild(iframe);
     }, 1000);
   };
-
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-8 lg:flex-row">
-        {/* Album Info Section */}
         <AlbumDetailsCard
           album={album}
           averageRating={averageRating}
-          reviewCount={reviewCount}
+          ratingCount={ratingCount}
           onOpenSpotify={handleOpenSpotify}
         />
 
-        {/* Review Input Section */}
         <div className="lg:w-1/3">
           <AlbumReview
+            albumIdInDb={albumId}
             albumName={album.name}
             artistName={album.artists?.[0]?.name || ""}
+            setAlbumIdInDb={setAlbumId}
           />
         </div>
       </div>
 
-      {/* Tracks and Reviews Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_2fr]">
         <AlbumTracks album={album} />
-
-        {/* Reviews Section */}
-        <RecentReviews
-          albumName={album.name}
-          artistName={album.artists?.[0]?.name || ""}
-        />
+        <AlbumReviews albumIdInDb={albumId} />
       </div>
     </div>
   );
