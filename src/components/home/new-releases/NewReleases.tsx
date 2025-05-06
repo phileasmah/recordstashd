@@ -4,15 +4,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { getNewReleases } from "@/lib/apiRequests";
+import { fetchNewReleasesFromSpotify } from "@/lib/spotifyService";
 import { NewRelease } from "./NewRelease";
 
 export async function NewReleases() {
-  const data = await getNewReleases({ limit: 6 });
+  const data = await fetchNewReleasesFromSpotify({ limit: 6 });
   const albums = data.albums.items;
 
   if (!albums || albums.length === 0) {
-    return <p className="text-center text-muted-foreground">No new releases found.</p>;
+    return (
+      <p className="text-muted-foreground text-center">
+        No new releases found.
+      </p>
+    );
   }
 
   return (
@@ -27,4 +31,3 @@ export async function NewReleases() {
     </Carousel>
   );
 }
-
