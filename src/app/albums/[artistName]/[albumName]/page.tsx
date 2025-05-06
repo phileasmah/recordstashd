@@ -1,8 +1,7 @@
 import { AlbumDetails } from "@/components/albums/album-details";
-import { getAlbum } from "@/lib/apiRequests";
+import { fetchAlbumFromSpotify } from "@/lib/spotifyService";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../../../../../convex/_generated/api";
-import { fetchAlbumFromSpotify } from "@/lib/spotifyService";
 
 interface AlbumPageProps {
   params: Promise<{
@@ -22,7 +21,9 @@ export default async function AlbumPageContent({
   const { id } = await searchParams;
 
   try {
-    const albumData = await fetchAlbumFromSpotify(id ? { id } : { artist: artistName, album: albumName });
+    const albumData = await fetchAlbumFromSpotify(
+      id ? { id } : { artist: artistName, album: albumName },
+    );
     const albumIdInDb = await fetchQuery(api.album.getAlbumIdIfExists, {
       artistName: albumData.artists[0].name,
       albumName: albumData.name,
@@ -45,9 +46,3 @@ export default async function AlbumPageContent({
     );
   }
 }
-
-// export default async function AlbumPage(props: AlbumPageProps) {
-//   const searchParams = props.searchParams;
-//   const params = props.params;
-//   return <AlbumPageContent params={params} searchParams={searchParams} />;
-// }
