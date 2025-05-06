@@ -59,14 +59,32 @@ export const getNewReleases = async (params?: {
   if (params?.limit) queryParams.set("limit", params.limit.toString());
   if (params?.country) queryParams.set("country", params.country);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/api/new-releases?${queryParams}`,
-  );
-  const data = await response.json();
+  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/api/new-releases?${queryParams}`;
+  console.log("Fetching new releases from URL:", url);
+
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error((data as ApiError).error || "Failed to fetch new releases");
+    const errorText = await response.text();
+    console.error(
+      "Failed to fetch new releases. Status:",
+      response.status,
+      "Response text:",
+      errorText,
+    );
+    try {
+      const errorJson = JSON.parse(errorText);
+      throw new Error(
+        errorJson.error ||
+          `Failed to fetch new releases. Status: ${response.status}`,
+      );
+    } catch (e) {
+      throw new Error(
+        `Failed to fetch new releases. Status: ${response.status}. Response: ${errorText.substring(0, 200)}... ${e}`,
+      );
+    }
   }
 
+  const data = await response.json();
   return data as NewReleasesResponse;
 };
