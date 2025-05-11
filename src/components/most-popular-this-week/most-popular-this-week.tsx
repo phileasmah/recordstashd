@@ -16,7 +16,7 @@ export function MostPopularThisWeek({ oneWeekAgo }: { oneWeekAgo: Date }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-2xl font-bold">Popular Reviews This Week</h2>
+        <h2 className="text-2xl font-bold">Popular Reviews This Month</h2>
         <ViewAllButton href="/reviews/popular" />
       </div>
       <ReviewList

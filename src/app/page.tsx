@@ -1,15 +1,15 @@
 import FollowingActivitySmall from "@/components/followingActivity/following-activity-small";
-import { MostPopularThisWeek } from "@/components/most-popular-this-week/most-popular-this-week";
 import { NewReleases } from "@/components/home/new-releases/NewReleases";
 import { NewReleasesLoadingSkeleton } from "@/components/home/new-releases/NewReleasesLoadingSkeleton";
+import { MostPopularThisWeek } from "@/components/most-popular-this-week/most-popular-this-week";
 import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 
 export default async function Home() {
   const { userId } = await auth();
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  oneWeekAgo.setHours(0, 0, 0, 0);
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+  oneMonthAgo.setHours(0, 0, 0, 0);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -27,7 +27,7 @@ export default async function Home() {
       </section>
 
       <section className="mb-12">
-        <MostPopularThisWeek oneWeekAgo={oneWeekAgo} />
+        <MostPopularThisWeek oneWeekAgo={oneMonthAgo} />
       </section>
     </div>
   );
