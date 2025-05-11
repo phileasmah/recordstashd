@@ -25,7 +25,7 @@ export default defineSchema({
     .index("by_user_album", ["userId", "albumId"])
     .index("by_user", ["userId", "lastUpdatedTime"])
     .index("by_album_hasReview", ["albumId", "hasReview"])
-    .index("hasReview", ["hasReview"])
+    .index("by_hasReview_likes", ["hasReview", "likes"])
     .index("by_album_hasReview_likes", ["albumId", "hasReview", "likes"]),
 
   users: defineTable({

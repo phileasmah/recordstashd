@@ -170,7 +170,7 @@ export const getLatestPostsFromFollowing = query({
               ...review,
               username: followingUser.username || "Anonymous User",
               userDisplayName: getUserDisplayName(followingUser),
-              userImageUrl: followingUser.imageUrl,
+              userImageUrl: followingUser.imageUrl ?? null,
               albumName: album?.name,
               artistName: album?.artist,
               spotifyAlbumUrl: album?.spotifyAlbumUrl,
@@ -184,8 +184,9 @@ export const getLatestPostsFromFollowing = query({
   },
 });
 
-export const getRecentReviews = query({
+export const getMostLikedReviewThisWeek = query({
   args: {
+    oneWeekAgo: v.number(),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
@@ -194,8 +195,9 @@ export const getRecentReviews = query({
 
     const reviews = await ctx.db
       .query("reviews")
-      .withIndex("hasReview", (q) => q.eq("hasReview", true))
+      .withIndex("by_hasReview_likes", (q) => q.eq("hasReview", true))
       .order("desc")
+      .filter((q) => q.gte(q.field("_creationTime"), args.oneWeekAgo))
       .paginate(args.paginationOpts);
 
     const reviewsWithMetadata = await Promise.all(

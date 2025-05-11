@@ -11,7 +11,7 @@ interface SimpleReviewRatingProps {
         userDisplayName: string | null;
       })
     | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>
-    | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviews>;
+    | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewThisWeek>;
   albumUrl: string;
 }
 

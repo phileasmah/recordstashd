@@ -13,7 +13,7 @@ interface AlbumPageProps {
   }>;
 }
 
-export default async function AlbumPageContent({
+export default async function AlbumPage({
   params,
   searchParams,
 }: AlbumPageProps) {

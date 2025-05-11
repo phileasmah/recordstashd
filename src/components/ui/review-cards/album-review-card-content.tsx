@@ -16,7 +16,7 @@ interface AlbumReviewCardContentProps {
         userDisplayName: string | null;
       })
     | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>
-    | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviews>;
+    | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewThisWeek>;
   index?: number;
   showDivider?: boolean;
 }

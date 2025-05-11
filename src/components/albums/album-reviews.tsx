@@ -3,9 +3,8 @@ import { usePaginatedQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
+import { ReviewList } from "../reviews/review-list";
 import { ReviewCardContent } from "../ui/review-cards/review-card-content";
-import { Skeleton } from "../ui/skeleton";
-import RecentReviewCardSkeleton from "../ui/skeletons/recent-review-card-skeleton";
 import { TransitionPanel } from "../ui/transition-panel";
 
 interface AlbumReviews {
@@ -14,122 +13,78 @@ interface AlbumReviews {
 
 export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const { results: recentReviews, isLoading: isLoadingRecents } =
-    usePaginatedQuery(
-      api.reviewsRead.getRecentReviewsForAlbum,
-      {
-        albumId: albumIdInDb,
-      },
-      { initialNumItems: 5 },
-    );
-  const { results: mostLikedReviews, isLoading: isLoadingMostLiked } =
-    usePaginatedQuery(
-      api.reviewsRead.getMostLikedReviewsForAlbum,
-      {
-        albumId: albumIdInDb,
-      },
-      { initialNumItems: 5 },
-    );
+  const {
+    results: recentReviews,
+    loadMore: loadMoreRecentReviews,
+    status: recentReviewsStatus,
+  } = usePaginatedQuery(
+    api.reviewsRead.getRecentReviewsForAlbum,
+    {
+      albumId: albumIdInDb,
+    },
+    { initialNumItems: 5 },
+  );
+  const {
+    results: mostLikedReviews,
+    loadMore: loadMoreMostLikedReviews,
+    status: mostLikedReviewsStatus,
+  } = usePaginatedQuery(
+    api.reviewsRead.getMostLikedReviewsForAlbum,
+    {
+      albumId: albumIdInDb,
+    },
+    { initialNumItems: 5 },
+  );
 
   const TABS = [
     {
       title: "Recently Reviewed",
-      content: () => {
-        if (isLoadingRecents) {
-          return <RecentReviewCardSkeleton />;
-        }
-
-        if (recentReviews.length === 0) {
-          return (
-            <div className="flex min-h-[200px] items-center justify-center py-0">
-              <p className="text-muted-foreground">
-                No reviews yet. Be the first to write a review for this album!
-              </p>
-            </div>
-          );
-        }
-
-        return (
-          <div>
-            {recentReviews.map((review, index) => (
-              <ReviewCardContent
-                key={review._id}
-                review={review}
-                index={index}
-                showDivider={index !== recentReviews.length - 1}
-              />
-            ))}
-          </div>
-        );
-      },
+      content: () => (
+        <ReviewList
+          ReviewComponent={ReviewCardContent}
+          reviews={recentReviews}
+          isLoadingFirstPage={recentReviewsStatus === "LoadingFirstPage"}
+          canLoadMore={recentReviewsStatus === "CanLoadMore"}
+          onLoadMore={() => loadMoreRecentReviews(5)}
+          isLoadingMore={recentReviewsStatus === "LoadingMore"}
+        />
+      ),
     },
     {
       title: "Most Liked",
-      content: () => {
-        if (isLoadingMostLiked) {
-          return <RecentReviewCardSkeleton />;
-        }
-
-        if (mostLikedReviews.length === 0) {
-          return (
-            <div className="flex min-h-[200px] items-center justify-center py-0">
-              <p className="text-muted-foreground">
-                No reviews yet. Be the first to write a review for this album!
-              </p>
-            </div>
-          );
-        }
-
-        return (
-          <div>
-            {mostLikedReviews.map((review, index) => (
-              <ReviewCardContent
-                key={review._id}
-                review={review}
-                index={index}
-                showDivider={index !== mostLikedReviews.length - 1}
-              />
-            ))}
-          </div>
-        );
-      },
+      content: () => (
+        <ReviewList
+          ReviewComponent={ReviewCardContent}
+          reviews={mostLikedReviews}
+          isLoadingFirstPage={mostLikedReviewsStatus === "LoadingFirstPage"}
+          canLoadMore={mostLikedReviewsStatus === "CanLoadMore"}
+          onLoadMore={() => loadMoreMostLikedReviews(5)}
+          isLoadingMore={mostLikedReviewsStatus === "LoadingMore"}
+        />
+      ),
     },
   ];
 
-  // Determine if the current tab is still loading
-  const isLoadingTab = (activeIndex === 0 && isLoadingRecents) || (activeIndex === 1 && isLoadingMostLiked);
-
   return (
     <div>
-      {isLoadingTab ? (
-        <div className="mb-4 flex items-center justify-between">
-          <Skeleton className="h-6 w-24 rounded-md" />
-          <div className="flex space-x-2">
-            {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-8 w-20 rounded-md" />
-            ))}
-          </div>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Reviews</h2>
+        <div className="flex space-x-2">
+          {TABS.map((tab, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveIndex(index)}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                activeIndex === index
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {tab.title}
+            </button>
+          ))}
         </div>
-      ) : (
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Reviews</h2>
-          <div className="flex space-x-2">
-            {TABS.map((tab, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveIndex(index)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  activeIndex === index
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                {tab.title}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
       <div className="border-card-border overflow-hidden border-t px-5">
         <TransitionPanel
           activeIndex={activeIndex}

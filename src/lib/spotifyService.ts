@@ -1,7 +1,7 @@
 import {
-    NewReleasesResponse,
-    SpotifyAlbum,
-    SpotifySearchResults,
+  NewReleasesResponse,
+  SpotifyAlbum,
+  SpotifySearchResults,
 } from "@/types/spotify";
 import { fetchFromSpotify } from "./spotify";
 
@@ -10,8 +10,8 @@ export async function fetchNewReleasesFromSpotify(params?: {
   country?: string;
 }): Promise<NewReleasesResponse> {
   const limit = params?.limit || 6;
-  const country = params?.country || "US";
-  const endpoint = `/browse/new-releases?limit=${limit}&country=${country}`;
+  // const country = params?.country || "US";
+  const endpoint = `/browse/new-releases?limit=${limit}`;
 
   try {
     const data = await fetchFromSpotify(endpoint);
