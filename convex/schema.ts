@@ -10,20 +10,23 @@ export default defineSchema({
   albums: defineTable({
     name: v.string(),
     artist: v.string(),
+    spotifyAlbumUrl: v.optional(v.string()),
   }).index("by_name_artist", ["name", "artist"]),
 
   reviews: defineTable({
     albumId: v.id("albums"),
-    userId: v.string(), // Clerk user ID
-    rating: v.optional(v.number()), // e.g., 1-5 stars
+    userId: v.string(), 
+    rating: v.optional(v.number()), 
     review: v.optional(v.string()),
     hasReview: v.boolean(),
-    lastUpdatedTime: v.number(), // timestamp for sorting by recency
+    lastUpdatedTime: v.number(), 
+    likes: v.number(),
   })
-    .index("by_album", ["albumId", "lastUpdatedTime"])
     .index("by_user_album", ["userId", "albumId"])
     .index("by_user", ["userId", "lastUpdatedTime"])
-    .index("by_album_hasReview", ["albumId", "hasReview"]),
+    .index("by_album_hasReview", ["albumId", "hasReview"])
+    .index("by_hasReview_likes", ["hasReview", "likes"])
+    .index("by_album_hasReview_likes", ["albumId", "hasReview", "likes"]),
 
   users: defineTable({
     username: v.string(),
@@ -33,6 +36,21 @@ export default defineSchema({
     // this the Clerk ID, stored in the subject JWT field
     externalId: v.string(),
   })
-    .index("byExternalId", ["externalId"])
-    .index("byUsername", ["username"]),
+    .index("by_externalId", ["externalId"])
+    .index("by_username", ["username"]),
+
+  follows: defineTable({
+    followerId: v.string(),
+    followingId: v.string(),
+  })
+    .index("by_follower_following", ["followerId", "followingId"])
+    .index("by_follower", ["followerId"])
+    .index("by_following", ["followingId"]),
+
+  reviewLikes: defineTable({
+    userId: v.string(),
+    reviewId: v.id("reviews"),
+  })
+    .index("by_user_review", ["userId", "reviewId"])
+    .index("by_review", ["reviewId"]),
 });

@@ -11,7 +11,7 @@ import {
 export function SignedOutReview() {
   return (
     <>
-      <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
+      <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}/>
       <CardHeader>
         <CardTitle>Rate & Review</CardTitle>
         <CardDescription>

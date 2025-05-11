@@ -1,11 +1,12 @@
+import { fetchFromSpotify } from "@/lib/spotify";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchFromSpotify, handleApiError } from "../utils";
+import { handleApiError } from "../utils";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q");
-    const limit = searchParams.get("limit") || "5";
+    const limit = "5";
 
     if (!query) {
       return NextResponse.json(

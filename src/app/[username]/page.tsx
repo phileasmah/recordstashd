@@ -1,8 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
-import NotFound from "../not-found";
-import ProfilePageContent from "./profile-content";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../../../convex/_generated/api";
+import NotFound from "../not-found";
+import ProfilePageContent from "./profile-content";
 
 interface ProfilePageProps {
   params: Promise<{
@@ -26,6 +26,7 @@ export default async function UserPage({ params }: ProfilePageProps) {
     <ProfilePageContent
       userProfile={userProfile}
       isOwnProfile={isOwnProfile}
+      isSignedIn={!!currentUserDetails}
     />
   );
 }

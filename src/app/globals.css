@@ -37,20 +37,23 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-spotify: var(--spotify);
+  --color-spotify-dark: var(--spotify-dark);
+  --color-card-border: var(--card-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --animate-shine: shine var(--duration) infinite linear;
   @keyframes shine {
-  0% {
-    background-position: 0% 0%;
+    0% {
+      background-position: 0% 0%;
     }
-  50% {
-    background-position: 100% 100%;
+    50% {
+      background-position: 100% 100%;
     }
-  to {
-    background-position: 0% 0%;
+    to {
+      background-position: 0% 0%;
     }
   }
 }
@@ -88,6 +91,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --spotify: #1DB954;
+  --spotify-dark: #1ed760;
+  --card-border: #2e2f2f;
 }
 
 @layer base {
@@ -96,5 +102,29 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  button {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .bg-spotify {
+    background-color: var(--spotify);
+  }
+  .bg-spotify-dark {
+    background-color: var(--spotify-dark);
+  }
+  .text-spotify {
+    color: var(--spotify);
+  }
+  .text-spotify-dark {
+    color: var(--spotify-dark);
+  }
+  .border-spotify {
+    border-color: var(--spotify);
+  }
+  .border-spotify-dark {
+    border-color: var(--spotify-dark);
   }
 }

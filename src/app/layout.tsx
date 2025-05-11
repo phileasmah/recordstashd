@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GigReview",
+  title: "RecordStashd",
   description: "Review and discover music",
 };
 

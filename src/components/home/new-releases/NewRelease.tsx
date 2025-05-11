@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { CarouselItem } from "@/components/ui/carousel";
 import { SpotifyAlbum } from "@/types/spotify";
+import { createAlbumSlug, createArtistSlug } from "@/utils/slugify";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,7 +20,7 @@ export function NewRelease({ album }: NewReleaseProps) {
   return (
     <CarouselItem className="md:basis-1/3 lg:basis-1/5 py-1">
       <Link
-        href={`/albums/${encodeURIComponent(album.artists[0].name)}/${encodeURIComponent(album.name)}?id=${album.id}`}
+        href={`/albums/${createArtistSlug(album.artists[0].name)}/${createAlbumSlug(album.name)}?id=${album.id}`}
         className="block"
       >
         <Card className="hover:bg-accent overflow-hidden pt-0 transition-colors duration-200">
@@ -33,6 +34,7 @@ export function NewRelease({ album }: NewReleaseProps) {
                 }
                 alt={album.name}
                 fill
+                sizes="100%"
                 className="object-cover"
               />
             </div>

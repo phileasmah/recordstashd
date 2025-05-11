@@ -1,12 +1,25 @@
-import { ConvexHttpClient } from "convex/browser";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { api } from "../../convex/_generated/api";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+export async function fetchFromSpotify(endpoint: string) {
+  const token = await getSpotifyToken();
+  const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-export async function getSpotifyToken() {
+  if (!response.ok) {
+    throw new Error(`Spotify API request failed: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+async function getSpotifyToken() {
   // Try to get token from Convex
-  const storedToken = await convex.query(api.spotify.getStoredToken);
-  
+  const storedToken = await fetchQuery(api.spotify.getStoredToken);
+
   if (storedToken?.accessToken) {
     return storedToken.accessToken;
   }
@@ -15,29 +28,29 @@ export async function getSpotifyToken() {
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Spotify credentials not configured');
+    throw new Error("Spotify credentials not configured");
   }
 
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
     },
-    body: 'grant_type=client_credentials',
+    body: "grant_type=client_credentials",
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch Spotify token');
+    throw new Error("Failed to fetch Spotify token");
   }
 
   const data = await response.json();
-  
+
   // Store the token in Convex
-  await convex.mutation(api.spotify.storeToken, {
+  fetchMutation(api.spotify.storeToken, {
     accessToken: data.access_token,
     expiresAt: Date.now() + (data.expires_in - 300) * 1000,
   });
-  
+
   return data.access_token;
-} 
+}

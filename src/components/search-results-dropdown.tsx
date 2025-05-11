@@ -5,6 +5,7 @@ import { SpotifySearchResults } from "@/types/spotify";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createAlbumSlug, createArtistSlug } from "../utils/slugify";
 import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
@@ -24,9 +25,9 @@ export function SearchResultsDropdown({
   const [results, setResults] = useState<SpotifySearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { searchAlbums } = useApi();
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 500);
   const [lastSearchQuery, setLastSearchQuery] = useState("");
-
+  
   useEffect(() => {
     async function performSearch() {
       if (!debouncedQuery) {
@@ -34,17 +35,17 @@ export function SearchResultsDropdown({
         setLastSearchQuery("");
         return;
       }
-  
+
       // Check if the new query is just the previous query with added whitespace
-      if (lastSearchQuery && debouncedQuery.trim() === lastSearchQuery.trim()) {
+      if (lastSearchQuery && debouncedQuery.trim() === lastSearchQuery) {
         return;
       }
-  
+
       setIsLoading(true);
       try {
         const data = await searchAlbums(debouncedQuery);
         setResults(data);
-        setLastSearchQuery(debouncedQuery);
+        setLastSearchQuery(debouncedQuery.trim());
       } catch (error) {
         console.error("Search failed:", error);
         setResults(null);
@@ -54,7 +55,7 @@ export function SearchResultsDropdown({
     }
 
     performSearch();
-  }, [debouncedQuery, lastSearchQuery, searchAlbums]);
+  }, [lastSearchQuery, searchAlbums, debouncedQuery]);
 
   if (!debouncedQuery || !show) return null;
 
@@ -91,16 +92,15 @@ export function SearchResultsDropdown({
           </div>
         ) : results && results.albums && results.albums.items ? (
           <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-muted-foreground ml-2.5">Albums</h3>
+            <h3 className="text-muted-foreground ml-2.5 text-sm font-semibold">
+              Albums
+            </h3>
             <div className="flex flex-col gap-1.5">
               {results.albums.items.map((album) => {
-                // Basic slugification - replace spaces and special chars
-                const artistNameSlug = encodeURIComponent(
-                  album.artists?.[0]?.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'unknown-artist'
+                const artistNameSlug = createArtistSlug(
+                  album.artists?.[0]?.name,
                 );
-                const albumNameSlug = encodeURIComponent(
-                  album.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'unknown-album'
-                );
+                const albumNameSlug = createAlbumSlug(album.name);
                 const href = `/albums/${artistNameSlug}/${albumNameSlug}?id=${album.id}`;
 
                 return (

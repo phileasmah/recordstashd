@@ -1,21 +1,33 @@
+import FollowingActivitySmall from "@/components/followingActivity/following-activity-small";
+import { MostPopularThisWeek } from "@/components/most-popular-this-week/most-popular-this-week";
 import { NewReleases } from "@/components/home/new-releases/NewReleases";
 import { NewReleasesLoadingSkeleton } from "@/components/home/new-releases/NewReleasesLoadingSkeleton";
-import { RecentReviews } from "@/components/home/RecentReviews";
+import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  oneWeekAgo.setHours(0, 0, 0, 0);
+
   return (
     <div className="container mx-auto px-4 py-8">
+      {userId && (
+        <section className="mb-12">
+          <FollowingActivitySmall />
+        </section>
+      )}
+
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">New Releases</h2>
+        <h2 className="mb-4 text-2xl font-bold">New Releases</h2>
         <Suspense fallback={<NewReleasesLoadingSkeleton />}>
           <NewReleases />
         </Suspense>
       </section>
 
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">Recent Reviews</h2>
-        <RecentReviews />
+        <MostPopularThisWeek oneWeekAgo={oneWeekAgo} />
       </section>
     </div>
   );
