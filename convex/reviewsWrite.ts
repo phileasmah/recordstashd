@@ -219,6 +219,29 @@ export const deleteReview = mutation({
   },
 });
 
+// Used by the admin to delete a review
+export const deleteReviewInternal = internalMutation({
+  args: {
+    reviewId: v.id("reviews"),
+  },
+  async handler(ctx, args) {
+    // Find the review
+    const review = await ctx.db.get(args.reviewId);
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    // Delete from the aggregate first
+    await updateReviewAggregates(ctx, review, null, "delete");
+    // Then delete from the database
+    await ctx.db.delete(args.reviewId);
+
+    await ctx.scheduler.runAfter(0, internal.reviewLikes.deleteAllReviewLikes, {
+      reviewId: args.reviewId,
+    });
+  },
+});
+
 export const getSpotifyImageUrlAndSave = internalAction({
   args: { albumName: v.string(), artistName: v.string() },
   handler: async (ctx, args) => {
