@@ -1,12 +1,13 @@
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { api } from "../../convex/_generated/api";
 
-export async function fetchFromSpotify(endpoint: string) {
+export async function fetchFromSpotify(endpoint: string, cache?: RequestCache) {
   const token = await getSpotifyToken();
   const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    ...(cache ? { cache } : {}),
   });
 
   if (!response.ok) {
