@@ -8,7 +8,7 @@ import { fetchNewReleasesFromSpotify } from "@/lib/spotifyService";
 import { NewRelease } from "./NewRelease";
 
 export async function NewReleases() {
-  const data = await fetchNewReleasesFromSpotify({ limit: 5 });
+  const data = await fetchNewReleasesFromSpotify({ limit: 6 });
   const albums = data.albums.items;
 
   if (!albums || albums.length === 0) {
