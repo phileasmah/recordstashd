@@ -12,7 +12,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   ({ className, isExpanded, ...props }, ref) => {
     return (
       <div className={cn(
-        "relative transition-all duration-300",
+        "relative transition-all duration-300 flex-grow",
         isExpanded ? "w-96" : "w-64"
       )}>
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

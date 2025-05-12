@@ -14,6 +14,8 @@ interface SearchResultsDropdownProps {
   className?: string;
   show?: boolean;
   onMouseDown?: () => void;
+  isMobile?: boolean;
+  onResultClick?: () => void;
 }
 
 export function SearchResultsDropdown({
@@ -21,6 +23,8 @@ export function SearchResultsDropdown({
   className,
   show = false,
   onMouseDown,
+  isMobile = false,
+  onResultClick,
 }: SearchResultsDropdownProps) {
   const [results, setResults] = useState<SpotifySearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +65,11 @@ export function SearchResultsDropdown({
 
   return (
     <Card
-      className={cn("absolute top-full left-0 z-50 mt-2 w-full", className)}
+      className={cn(
+        "z-50 w-full",
+        !isMobile && "absolute top-full left-0 mt-2",
+        className
+      )}
       onMouseDown={(e) => {
         e.preventDefault(); // Prevent blur event on the input
         onMouseDown?.();
@@ -108,6 +116,7 @@ export function SearchResultsDropdown({
                     key={album.id}
                     href={href}
                     className="hover:bg-accent flex items-center gap-4 rounded-md p-2 transition-colors"
+                    onClick={onResultClick}
                   >
                     <Image
                       src={album.images?.[0]?.url || "/placeholder.png"}

@@ -46,7 +46,7 @@ export function AlbumDetailsCard({
 
   const gradientStyle = backgroundColor
     ? {
-        background: `radial-gradient(ellipse at center, ${backgroundColor}22 0%, ${backgroundColor}12 32%, ${backgroundColor}06 50%, transparent 68%)`,
+        background: `radial-gradient(ellipse at center, ${backgroundColor}2a 0%, ${backgroundColor}15 32%, ${backgroundColor}08 50%, transparent 68%)`,
       }
     : {};
 
