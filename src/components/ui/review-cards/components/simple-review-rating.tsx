@@ -1,8 +1,8 @@
 import { PaginatedQueryItem } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import Link from "next/link";
-import { api } from "../../../../convex/_generated/api";
-import { RatingBadge } from "../rating-badge";
+import { api } from "../../../../../convex/_generated/api";
+import { RatingBadge } from "../../rating-badge";
 
 interface SimpleReviewRatingProps {
   review:
@@ -20,9 +20,14 @@ export function SimpleReviewRating({
   albumUrl,
 }: SimpleReviewRatingProps) {
   if (review.rating === undefined) return null;
+  const date = new Date(review.lastUpdatedTime).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
   return (
-    <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
+    <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
       <span className="font-medium">
         {review.username ? (
           <Link
@@ -42,12 +47,11 @@ export function SimpleReviewRating({
       >
         {review.albumName}
       </Link>
-      by {review.artistName} •{" "}
-      {new Date(review.lastUpdatedTime).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })}
-    </p>
+      by {review.artistName}
+      <div className="hidden items-center gap-1 sm:flex">
+        <span className="text-muted-foreground text-sm">•</span>
+        <p className="text-muted-foreground text-sm">{date}</p>
+      </div>
+    </div>
   );
 }

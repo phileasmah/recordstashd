@@ -41,7 +41,7 @@ export default function Loading() {
           </Card>
 
           {/* Review Input Section */}
-          <Card className="w-full lg:w-1/3">
+          <Card className="w-full lg:w-1/3 rounded-3xl">
             <CardHeader>
               <CardTitle>
                 <Skeleton className="h-7 w-32 mb-2" />

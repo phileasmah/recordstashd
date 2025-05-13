@@ -4,8 +4,8 @@ import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Avatar, AvatarFallback } from "../avatar";
 import { RatingBadge } from "../rating-badge";
-import { ExpandableReviewText } from "./expandable-review-text";
-import { LikeButton } from "./like-button";
+import { ExpandableReviewText } from "./components/expandable-review-text";
+import { LikeButton } from "./components/like-button";
 
 interface ReviewCardContentProps {
   review:
@@ -44,48 +44,54 @@ export function ReviewCardContent({
             </AvatarFallback>
           )}
         </Avatar>
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <div>
-              <div className="flex items-center gap-2">
+        <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center">
+          <div className="flex-1 space-y-2">
+            <div className="text-muted-foreground flex flex-col gap-2 text-sm">
+              <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center">
                 {review.rating !== undefined && review.rating !== 0 && (
-                  <RatingBadge rating={review.rating} />
+                  <div className="mr-1 hidden sm:block">
+                    <RatingBadge rating={review.rating} />
+                  </div>
                 )}
-                <span className="text-muted-foreground text-sm">
-                  Reviewed by{" "}
-                  {review.username ? (
-                    <Link
-                      href={`/${review.username}`}
-                      className="text-primary text-sm font-medium hover:underline"
-                    >
-                      {review.userDisplayName}
-                    </Link>
-                  ) : (
-                    <span className="text-primary text-sm font-medium">
-                      {review.userDisplayName}
-                    </span>
-                  )}
-                </span>
-                <span className="text-muted-foreground text-sm">•</span>
-                <p className="text-muted-foreground text-sm">
-                  {new Date(review.lastUpdatedTime).toLocaleDateString(
-                    "en-GB",
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    },
-                  )}
-                </p>
-                <LikeButton
-                  reviewId={review._id}
-                  likedByUser={review.likedByUser}
-                  likeCount={review.likes}
-                />
+                <div className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm">
+                  <span>Review by</span>
+                  <span>
+                    {review.username ? (
+                      <Link
+                        href={`/${review.username}`}
+                        className="text-primary text-sm font-medium hover:underline"
+                      >
+                        {review.userDisplayName}
+                      </Link>
+                    ) : (
+                      <span className="text-sm font-medium">
+                        {review.userDisplayName}
+                      </span>
+                    )}
+                  </span>
+                  <div className="hidden items-center gap-1.5 sm:flex">
+                    <span className="text-muted-foreground text-sm">•</span>
+                    <p className="text-muted-foreground text-sm">
+                      {new Date(review.lastUpdatedTime).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        },
+                      )}
+                    </p>
+                  </div>
+                  <LikeButton
+                    reviewId={review._id}
+                    likedByUser={review.likedByUser}
+                    likeCount={review.likes}
+                  />
+                </div>
               </div>
             </div>
+            {review.review && <ExpandableReviewText text={review.review} />}
           </div>
-          {review.review && <ExpandableReviewText text={review.review} />}
         </div>
       </div>
     </div>

@@ -2,9 +2,9 @@
 import { cn } from "@/lib/utils";
 import { useConvexAuth, useMutation } from "convex/react";
 import { Heart } from "lucide-react";
-import { api } from "../../../../convex/_generated/api";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { Button } from "../button";
+import { api } from "../../../../../convex/_generated/api";
+import { Id } from "../../../../../convex/_generated/dataModel";
+import { Button } from "../../button";
 
 interface LikeButtonProps {
   reviewId: Id<"reviews">;
@@ -37,7 +37,7 @@ export function LikeButton({
       variant="ghost"
       size="sm"
       className={cn(
-        "pt-[3px] pb-[2px] h-max flex items-center gap-1 disabled:opacity-100",
+        "sm:hover:bg-accent mt-0 !-ml-1.5 flex h-max items-center gap-1 pt-[3px] pb-[2px] hover:bg-transparent disabled:opacity-100 sm:mt-1 sm:mb-1 sm:!ml-0",
         className,
       )}
       onClick={handleClick}

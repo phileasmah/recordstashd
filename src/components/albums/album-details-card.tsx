@@ -4,6 +4,7 @@ import { SpotifyAlbum } from "@/types/spotify";
 import Image from "next/image";
 import { Vibrant } from "node-vibrant/browser";
 import { useEffect, useState } from "react";
+import SpotifyLogoBlack from "../svgs/spotify-logo-black";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -107,12 +108,7 @@ export function AlbumDetailsCard({
             className="bg-spotify hover:bg-spotify rounded-full text-base text-white"
             onClick={onOpenSpotify}
           >
-            <Image
-              src="/spotify_logo_black.svg"
-              alt="Spotify"
-              width={22}
-              height={22}
-            />
+            <SpotifyLogoBlack className="size-5" />
             Listen on Spotify
           </Button>
         </div>

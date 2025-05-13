@@ -330,16 +330,30 @@ export function AlbumReview({
                   onChange={handleRatingChange}
                   className=""
                 />
-                <motion.div className="flex flex-col gap-2">
+                <motion.div className="flex flex-col gap-0.5 mt-2">
                   <Button
                     onClick={() => {
                       setDirection(1);
                       setCardState({ state: "writing_review" });
                     }}
                     variant="outline"
-                    className="w-full"
+                    className="w-full rounded-t-3xl rounded-b-sm py-6 hover:rounded-sm"
                   >
                     <span>{review ? "Edit Review" : "Write Your Review"}</span>
+                  </Button>
+                  <Button
+                    disabled
+                    variant="outline"
+                    className="w-full rounded-sm py-6 hover:rounded-full"
+                  >
+                    <span>Coming soon...</span>
+                  </Button>
+                  <Button
+                    disabled
+                    variant="outline"
+                    className="w-full rounded-t-sm rounded-b-3xl py-6 hover:rounded-full"
+                  >
+                    <span>Coming soon...</span>
                   </Button>
                 </motion.div>
               </CardContent>
@@ -350,7 +364,7 @@ export function AlbumReview({
   };
 
   return (
-    <Card className="relative flex h-full flex-col">
+    <Card className="relative flex h-full flex-col rounded-3xl">
       <SignedOut>
         <SignedOutReview />
       </SignedOut>

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { SpotifyAlbum, SpotifyTrack } from "@/types/spotify";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { motion } from "motion/react";
-import { UIEvent, useRef, useState } from "react";
+import { UIEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -21,7 +21,29 @@ const transition = { duration: 0.2, ease: [0.2, 0, 0, 1] };
 
 export function AlbumTracks({ album }: AlbumTracksProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [doesContentOverflow, setDoesContentOverflow] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const checkOverflow = useCallback(() => {
+    if (contentRef.current) {
+      const contentHeight = contentRef.current.getBoundingClientRect().height;
+      const wouldOverflow = contentHeight > 483;
+      setDoesContentOverflow(wouldOverflow);
+    }
+  }, []);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    if (contentRef.current) {
+      resizeObserver.observe(contentRef.current);
+    }
+    
+    // Initial check
+    checkOverflow();
+
+    return () => resizeObserver.disconnect();
+  }, [checkOverflow]);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const scrollTop = event.currentTarget.scrollTop;
@@ -29,11 +51,11 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
   };
 
   return (
-    <Card className="flex flex-col gap-0 h-[520px] py-5 pb-0">
+    <Card className="flex h-max max-h-[520px] flex-col gap-0 py-5 pb-0">
       <CardHeader
         className={cn(
-          "bg-card sticky top-0 z-10 py-2 [.border-b]:pb-3 [.border-b]:-mt-3",
-          isScrolled && "border-b"
+          "bg-card sticky top-0 z-10 py-2 [.border-b]:-mt-3 [.border-b]:pb-3",
+          isScrolled && "border-b",
         )}
       >
         <motion.div
@@ -48,14 +70,12 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
         >
           <motion.div
             initial={false}
-            animate={{ 
-              fontSize: isScrolled ? "1rem" : "1.5rem", 
+            animate={{
+              fontSize: isScrolled ? "1rem" : "1.5rem",
             }}
             transition={transition}
           >
-            <CardTitle
-              className={cn( isScrolled ? "leading-tight" : "" )}
-            >
+            <CardTitle className={cn(isScrolled ? "leading-tight" : "")}>
               Tracks
             </CardTitle>
           </motion.div>
@@ -73,19 +93,24 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
           </motion.div>
         </motion.div>
       </CardHeader>
-      <ScrollAreaPrimitive.Root className="relative h-[400px] flex-grow overflow-hidden">
+      <ScrollAreaPrimitive.Root
+        className={cn(
+          "flex-grow overflow-hidden",
+          doesContentOverflow && "h-[520px]",
+        )}
+      >
         <ScrollAreaPrimitive.Viewport
           ref={viewportRef}
           className="h-full w-full rounded-[inherit]"
           style={{ overflowY: "scroll" }}
           onScroll={handleScroll}
         >
-          <CardContent className={cn("mb-5", isScrolled && "mt-[6.5rem]")}>
+          <CardContent ref={contentRef} className={cn("mb-5", isScrolled && "mt-[6.5rem]")}>
             <div className="space-y-1.5">
               {album.tracks?.items?.map((track, index) => (
                 <div
                   key={track.id}
-                  className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5  transition-colors"
+                  className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5 transition-colors"
                 >
                   <div className="text-muted-foreground w-6 shrink-0 text-center">
                     {index + 1}
@@ -126,7 +151,7 @@ function formatTotalDuration(tracks?: SpotifyTrack[]): string {
   if (!tracks || tracks.length === 0) return "0 min";
   const totalMs = tracks.reduce(
     (acc: number, track: SpotifyTrack) => acc + (track.duration_ms || 0),
-    0
+    0,
   );
   const hours = Math.floor(totalMs / 3600000);
   const minutes = Math.floor((totalMs % 3600000) / 60000);

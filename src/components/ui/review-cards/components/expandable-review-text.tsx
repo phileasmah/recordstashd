@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../button";
-import { ScrollArea } from "../scroll-area";
+import { Button } from "../../button";
+import { ScrollArea } from "../../scroll-area";
 
 interface ExpandableReviewTextProps {
   text: string;

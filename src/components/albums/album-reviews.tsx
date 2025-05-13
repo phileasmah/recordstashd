@@ -38,19 +38,6 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
 
   const TABS = [
     {
-      title: "Recently Reviewed",
-      content: () => (
-        <ReviewList
-          ReviewComponent={ReviewCardContent}
-          reviews={recentReviews}
-          isLoadingFirstPage={recentReviewsStatus === "LoadingFirstPage"}
-          canLoadMore={recentReviewsStatus === "CanLoadMore"}
-          onLoadMore={() => loadMoreRecentReviews(5)}
-          isLoadingMore={recentReviewsStatus === "LoadingMore"}
-        />
-      ),
-    },
-    {
       title: "Most Liked",
       content: () => (
         <ReviewList
@@ -60,6 +47,19 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
           canLoadMore={mostLikedReviewsStatus === "CanLoadMore"}
           onLoadMore={() => loadMoreMostLikedReviews(5)}
           isLoadingMore={mostLikedReviewsStatus === "LoadingMore"}
+        />
+      ),
+    },
+    {
+      title: "Recently Reviewed",
+      content: () => (
+        <ReviewList
+          ReviewComponent={ReviewCardContent}
+          reviews={recentReviews}
+          isLoadingFirstPage={recentReviewsStatus === "LoadingFirstPage"}
+          canLoadMore={recentReviewsStatus === "CanLoadMore"}
+          onLoadMore={() => loadMoreRecentReviews(5)}
+          isLoadingMore={recentReviewsStatus === "LoadingMore"}
         />
       ),
     },
@@ -74,10 +74,10 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`py-1.5 text-sm font-medium transition-all duration-200 ease-in-out ${
                 activeIndex === index
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted"
+                  ? "bg-accent text-accent-foreground rounded-full px-4"
+                  : "text-muted-foreground hover:bg-muted rounded-md px-2"
               }`}
             >
               {tab.title}
