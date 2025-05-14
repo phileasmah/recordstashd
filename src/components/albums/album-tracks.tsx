@@ -86,7 +86,7 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
             className={cn("text-sm")}
           >
             <CardDescription className={cn(isScrolled ? "mt-0.5" : "")}>
-              {isScrolled && <span className="mx-1 hidden sm:inline">-</span>}
+              {isScrolled && <span className="mx-1">-</span>}
               {album.total_tracks} songs,{" "}
               {formatTotalDuration(album.tracks?.items)}
             </CardDescription>
