@@ -1,6 +1,5 @@
 import { createAlbumSlug, createArtistSlug } from "@/utils/slugify";
 import { PaginatedQueryItem } from "convex/react";
-import { FunctionReturnType } from "convex/server";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
@@ -11,7 +10,7 @@ import { SimpleReviewRating } from "./components/simple-review-rating";
 
 interface AlbumReviewCardContentProps {
   review:
-    | (FunctionReturnType<typeof api.reviewsRead.getAllUserReviews>[number] & {
+    | (PaginatedQueryItem<typeof api.reviewsRead.getAllUserReviews> & {
         username: string;
         userDisplayName: string | null;
       })

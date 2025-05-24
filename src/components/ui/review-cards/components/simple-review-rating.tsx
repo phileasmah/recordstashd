@@ -1,12 +1,11 @@
 import { PaginatedQueryItem } from "convex/react";
-import { FunctionReturnType } from "convex/server";
 import Link from "next/link";
 import { api } from "../../../../../convex/_generated/api";
 import { RatingBadge } from "../../rating-badge";
 
 interface SimpleReviewRatingProps {
   review:
-    | (FunctionReturnType<typeof api.reviewsRead.getAllUserReviews>[number] & {
+    | (PaginatedQueryItem<typeof api.reviewsRead.getAllUserReviews> & {
         username: string;
         userDisplayName: string | null;
       })
@@ -27,7 +26,7 @@ export function SimpleReviewRating({
   });
 
   return (
-    <div className="text-muted-foreground flex items-center gap-1.5 text-sm py-4 px-6">
+    <div className="text-muted-foreground flex items-center gap-1.5 px-6 py-4 text-sm">
       <span className="font-medium">
         {review.username ? (
           <Link
