@@ -105,7 +105,7 @@ export function AlbumDetailsCard({
             </div>
           </div>
           <Button
-            className="bg-spotify hover:bg-spotify rounded-full text-base text-white"
+            className="bg-spotify hover:bg-spotify rounded-full text-base text-white py-5 px-5!"
             onClick={onOpenSpotify}
           >
             <SpotifyLogoBlack className="size-5" />
