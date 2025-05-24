@@ -19,7 +19,7 @@ export default function FollowingActivitySmall() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-center justify-between px-4">
         <h2 className="text-2xl font-bold">Activity from people you follow</h2>
         <ViewAllButton href="/following" />
       </div>
