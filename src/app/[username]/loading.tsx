@@ -1,13 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlbumReviewCardSkeleton } from "@/components/ui/skeletons/album-review-card-skeleton";
+import { ReviewListSkeleton } from "@/components/ui/skeletons/review-list-skeleton";
 
 export default function ProfileLoading() {
   return (
@@ -58,26 +50,13 @@ export default function ProfileLoading() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Reviews</CardTitle>
-          <CardDescription>Recent activity</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[600px]">
-            <div className="divide-border space-y-1 divide-y">
-              {/* Review Skeletons */}
-              {[...Array(3)].map((_, i) => (
-                <AlbumReviewCardSkeleton
-                  key={i}
-                  showDivider={i !== 2}
-                  index={i}
-                />
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+      <div>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">Reviews</h1>
+          <p className="text-muted-foreground mt-2">Recent activity</p>
+        </div>
+        <ReviewListSkeleton variant="full" />
+      </div>
     </div>
   );
 }

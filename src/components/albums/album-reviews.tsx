@@ -43,10 +43,8 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
         <ReviewList
           ReviewComponent={ReviewCardContent}
           reviews={mostLikedReviews}
-          isLoadingFirstPage={mostLikedReviewsStatus === "LoadingFirstPage"}
-          canLoadMore={mostLikedReviewsStatus === "CanLoadMore"}
+          status={mostLikedReviewsStatus}
           onLoadMore={() => loadMoreMostLikedReviews(5)}
-          isLoadingMore={mostLikedReviewsStatus === "LoadingMore"}
         />
       ),
     },
@@ -56,10 +54,8 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
         <ReviewList
           ReviewComponent={ReviewCardContent}
           reviews={recentReviews}
-          isLoadingFirstPage={recentReviewsStatus === "LoadingFirstPage"}
-          canLoadMore={recentReviewsStatus === "CanLoadMore"}
+          status={recentReviewsStatus}
           onLoadMore={() => loadMoreRecentReviews(5)}
-          isLoadingMore={recentReviewsStatus === "LoadingMore"}
         />
       ),
     },
@@ -69,15 +65,15 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Reviews</h2>
-        <div className="flex space-x-2">
+        <div className="flex space-x-1">
           {TABS.map((tab, index) => (
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
-              className={`py-1.5 text-sm font-medium transition-all duration-200 ease-in-out ${
+              className={`bg-muted py-1.5 text-sm font-medium transition-all duration-200 ease-in-out ${
                 activeIndex === index
-                  ? "bg-accent text-accent-foreground rounded-full px-4"
-                  : "text-muted-foreground hover:bg-muted rounded-md px-2"
+                  ? "text-accent-foreground rounded-full px-4"
+                  : "text-muted-foreground rounded-lg px-2"
               }`}
             >
               {tab.title}
@@ -85,7 +81,7 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
           ))}
         </div>
       </div>
-      <div className="border-card-border overflow-hidden border-t px-5">
+      <div className="border-card-border overflow-hidden border-t">
         <TransitionPanel
           activeIndex={activeIndex}
           transition={{ duration: 0.2, ease: "easeInOut" }}

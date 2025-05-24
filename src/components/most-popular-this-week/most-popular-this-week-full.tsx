@@ -27,10 +27,8 @@ export default function MostPopularThisWeekFull({ oneWeekAgo }: { oneWeekAgo: Da
       <ReviewList
         ReviewComponent={AlbumReviewCardContent}
         reviews={reviews}
-        isLoadingFirstPage={status === "LoadingFirstPage"}
-        canLoadMore={status === "CanLoadMore"}
+        status={status}
         onLoadMore={() => loadMore(10)}
-        isLoadingMore={status === "LoadingMore"}
         emptyMessage="No reviews yet"
       />
     </div>

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import RecentReviewCardSkeleton from "@/components/ui/skeletons/recent-review-card-skeleton";
+import { ReviewListSkeleton } from "@/components/ui/skeletons/review-list-skeleton";
 import { TransitionPanel } from "@/components/ui/transition-panel";
 
 export default function Loading() {
@@ -114,7 +114,7 @@ export default function Loading() {
               >
                 {[0, 1].map((i) => (
                   <div key={i} className="py-4">
-                    <RecentReviewCardSkeleton />
+                    <ReviewListSkeleton variant="inline" />
                   </div>
                 ))}
               </TransitionPanel>

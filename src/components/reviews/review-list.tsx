@@ -1,44 +1,54 @@
 import { cn } from "@/lib/utils";
-import { PaginatedQueryItem } from "convex/react";
+import { PaginatedQueryItem, PaginationStatus } from "convex/react";
 import { ComponentType } from "react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
-import RecentReviewCardSkeleton from "../ui/skeletons/recent-review-card-skeleton";
+import { ReviewListSkeleton } from "../ui/skeletons/review-list-skeleton";
 
-type InlineReview = PaginatedQueryItem<typeof api.reviewsRead.getRecentReviewsForAlbum> | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewsForAlbum>;
-type FullReview = PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing> | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewThisWeek>;
+type InlineReview =
+  | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviewsForAlbum>
+  | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewsForAlbum>;
+type FullReview =
+  | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>
+  | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewThisWeek>;
 
 interface ReviewListProps<T extends InlineReview | FullReview> {
   ReviewComponent: ComponentType<{
     review: T;
-    index: number;
-    showDivider: boolean;
+    index?: number;
+    showDivider?: boolean;
+    isFirst?: boolean;
+    isLast?: boolean;
   }>;
   reviews: T[];
-  isLoadingFirstPage: boolean;
-  canLoadMore?: boolean;
-  onLoadMore?: () => void;
-  isLoadingMore?: boolean;
   emptyMessage?: string;
   className?: string;
   showLoadMore?: boolean;
+  
+  // Pagination-aware props (when used with usePaginatedQuery)
+  status?: PaginationStatus;
+  onLoadMore?: (numItems?: number) => void;
 }
 
 export function ReviewList<T extends InlineReview | FullReview>({
   ReviewComponent,
   reviews,
-  isLoadingFirstPage,
-  canLoadMore = false,
-  onLoadMore,
-  isLoadingMore = false,
   emptyMessage = "No reviews yet",
   className,
+  onLoadMore,
   showLoadMore = true,
+  status,
 }: ReviewListProps<T>) {
-  if (isLoadingFirstPage) {
+  // Derive loading states from pagination status
+  const isLoadingFirst = status === "LoadingFirstPage";
+  const isLoadingMorePages = status === "LoadingMore";
+  const canLoadMorePages = status === "CanLoadMore";
+  const isExhausted = status === "Exhausted";
+
+  if (isLoadingFirst) {
     return (
       <div className={cn("flex flex-col", className)}>
-        <RecentReviewCardSkeleton />
+        <ReviewListSkeleton />
       </div>
     );
   }
@@ -56,17 +66,36 @@ export function ReviewList<T extends InlineReview | FullReview>({
     );
   }
 
+  const handleLoadMore = () => {
+    if (onLoadMore) {
+      // Call with default numItems (20) when used with pagination
+      onLoadMore(20);
+    }
+  };
+
   return (
-    <div className={cn("flex flex-col", className)}>
-      {reviews.map((review, index) => (
-        <ReviewComponent
-          key={review._id}
-          review={review}
-          index={index}
-          showDivider={index !== reviews.length - 1}
-        />
-      ))}
-      {isLoadingMore && (
+    <div className={cn("flex flex-col space-y-1", className)}>
+      {reviews.map((review, index) => {
+        const isFirst = index === 0;
+        const isLast = index === reviews.length - 1;
+        const isMiddle = !isFirst && !isLast;
+
+        return (
+          <div
+            key={review._id}
+            className={cn(
+              "bg-card",
+              isFirst && "rounded-t-3xl rounded-b",
+              isLast && "rounded rounded-b-3xl",
+              isMiddle && "rounded",
+              reviews.length === 1 && "rounded-3xl",
+            )}
+          >
+            <ReviewComponent review={review} />
+          </div>
+        );
+      })}
+      {isLoadingMorePages && (
         <div className="flex justify-center py-4">
           <svg
             className="text-muted-foreground size-6 animate-spin"
@@ -89,12 +118,12 @@ export function ReviewList<T extends InlineReview | FullReview>({
           </svg>
         </div>
       )}
-      {showLoadMore && canLoadMore && !isLoadingMore && onLoadMore && (
+      {showLoadMore && canLoadMorePages && !isLoadingMorePages && onLoadMore && (
         <Button
           size="sm"
           variant="secondary"
-          className="mx-auto"
-          onClick={onLoadMore}
+          className="mx-auto mt-4"
+          onClick={handleLoadMore}
         >
           Load More
         </Button>

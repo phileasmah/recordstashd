@@ -23,10 +23,8 @@ export default function FollowingActivityFull() {
     <ReviewList
       ReviewComponent={AlbumReviewCardContent}
       reviews={reviews}
-      isLoadingFirstPage={status === "LoadingFirstPage"}
-      canLoadMore={status === "CanLoadMore"}
+      status={status}
       onLoadMore={() => loadMore(10)}
-      isLoadingMore={status === "LoadingMore"}
       emptyMessage="Follow some users to see their reviews here"
     />
   );

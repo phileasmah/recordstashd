@@ -22,7 +22,7 @@ export function MostPopularThisWeek({ oneWeekAgo }: { oneWeekAgo: Date }) {
       <ReviewList
         ReviewComponent={AlbumReviewCardContent}
         reviews={reviews}
-        isLoadingFirstPage={status === "LoadingFirstPage"}
+        status={status}
         emptyMessage="No reviews yet"
         showLoadMore={false}
       />

@@ -27,7 +27,7 @@ export function SimpleReviewRating({
   });
 
   return (
-    <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+    <div className="text-muted-foreground flex items-center gap-1.5 text-sm py-4 px-6">
       <span className="font-medium">
         {review.username ? (
           <Link

@@ -97,19 +97,20 @@ export const getRecentReviewsForAlbum = query({
 export const getAllUserReviews = query({
   args: {
     userId: v.string(),
+    paginationOpts: paginationOptsValidator,
   },
   async handler(ctx, args) {
     const identity = await ctx.auth.getUserIdentity();
     const currentUserId = identity?.subject;
 
-    const reviews = await ctx.db
+    const paginatedReviews = await ctx.db
       .query("reviews")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .order("desc")
-      .take(10);
+      .paginate(args.paginationOpts);
 
     const reviewsWithAlbumInfo = await Promise.all(
-      reviews.map(async (review) => {
+      paginatedReviews.page.map(async (review) => {
         const [album, likedByUser] = await Promise.all([
           ctx.db.get(review.albumId),
           checkReviewLikedByUser(ctx, currentUserId, review._id),
@@ -124,7 +125,10 @@ export const getAllUserReviews = query({
       }),
     );
 
-    return reviewsWithAlbumInfo;
+    return {
+      ...paginatedReviews,
+      page: reviewsWithAlbumInfo,
+    };
   },
 });
 

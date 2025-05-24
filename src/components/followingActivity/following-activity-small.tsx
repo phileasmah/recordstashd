@@ -30,7 +30,7 @@ export default function FollowingActivitySmall() {
         <ReviewList
           ReviewComponent={AlbumReviewCardContent}
           reviews={reviews}
-          isLoadingFirstPage={status === "LoadingFirstPage"}
+          status={status}
           emptyMessage="Follow some users to see their reviews here"
           showLoadMore={false}
         />

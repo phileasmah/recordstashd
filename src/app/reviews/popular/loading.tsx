@@ -1,4 +1,4 @@
-import RecentReviewCardSkeleton from "@/components/ui/skeletons/recent-review-card-skeleton";
+import { ReviewListSkeleton } from "@/components/ui/skeletons/review-list-skeleton";
 
 export default function Loading() {
   return (
@@ -9,9 +9,7 @@ export default function Loading() {
           The most liked reviews from the past week
         </p>
       </div>
-      <div className="flex flex-col">
-        <RecentReviewCardSkeleton />
-      </div>
+      <ReviewListSkeleton variant="full" />
     </div>
   );
 }
