@@ -43,7 +43,6 @@ export function ReviewList<T extends InlineReview | FullReview>({
   const isLoadingFirst = status === "LoadingFirstPage";
   const isLoadingMorePages = status === "LoadingMore";
   const canLoadMorePages = status === "CanLoadMore";
-  const isExhausted = status === "Exhausted";
 
   if (isLoadingFirst) {
     return (

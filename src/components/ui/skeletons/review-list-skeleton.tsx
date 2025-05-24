@@ -7,14 +7,14 @@ interface ReviewListSkeletonProps {
   variant?: "inline" | "full";
 }
 
-export function ReviewListSkeleton({ 
-  count = 3, 
+export function ReviewListSkeleton({
+  count = 3,
   className,
-  variant = "inline" 
+  variant = "inline",
 }: ReviewListSkeletonProps) {
   const items = Array.from({ length: count }, (_, i) => i);
 
-  const SkeletonContent = ({ index }: { index: number }) => {
+  const SkeletonContent = () => {
     if (variant === "full") {
       return (
         <div className="flex items-start gap-4 p-4">
@@ -86,10 +86,10 @@ export function ReviewListSkeleton({
               items.length === 1 && "rounded-3xl",
             )}
           >
-            <SkeletonContent index={i} />
+            <SkeletonContent />
           </div>
         );
       })}
     </div>
   );
-} 
+}
