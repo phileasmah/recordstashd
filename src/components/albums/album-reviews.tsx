@@ -70,10 +70,10 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
-              className={`bg-muted py-1.5 text-sm font-medium transition-all duration-200 ease-in-out ${
+              className={`bg-muted py-2 text-sm font-medium transition-all duration-200 ease-in-out ${
                 activeIndex === index
-                  ? "text-accent-foreground rounded-full px-4"
-                  : "text-muted-foreground rounded-lg px-2"
+                  ? "text-accent-foreground rounded-full px-5"
+                  : "text-muted-foreground rounded-lg px-3"
               }`}
             >
               {tab.title}
