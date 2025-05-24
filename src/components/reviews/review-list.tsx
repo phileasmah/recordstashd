@@ -10,7 +10,11 @@ type InlineReview =
   | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewsForAlbum>;
 type FullReview =
   | PaginatedQueryItem<typeof api.reviewsRead.getLatestPostsFromFollowing>
-  | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewThisWeek>;
+  | PaginatedQueryItem<typeof api.reviewsRead.getMostLikedReviewThisWeek>
+  | (PaginatedQueryItem<typeof api.reviewsRead.getAllUserReviews> & {
+      username: string;
+      userDisplayName: string | null;
+    });
 
 interface ReviewListProps<T extends InlineReview | FullReview> {
   ReviewComponent: ComponentType<{
@@ -24,7 +28,7 @@ interface ReviewListProps<T extends InlineReview | FullReview> {
   emptyMessage?: string;
   className?: string;
   showLoadMore?: boolean;
-  
+
   // Pagination-aware props (when used with usePaginatedQuery)
   status?: PaginationStatus;
   onLoadMore?: (numItems?: number) => void;
@@ -117,16 +121,19 @@ export function ReviewList<T extends InlineReview | FullReview>({
           </svg>
         </div>
       )}
-      {showLoadMore && canLoadMorePages && !isLoadingMorePages && onLoadMore && (
-        <Button
-          size="sm"
-          variant="secondary"
-          className="mx-auto mt-4"
-          onClick={handleLoadMore}
-        >
-          Load More
-        </Button>
-      )}
+      {showLoadMore &&
+        canLoadMorePages &&
+        !isLoadingMorePages &&
+        onLoadMore && (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="mx-auto mt-4"
+            onClick={handleLoadMore}
+          >
+            Load More
+          </Button>
+        )}
     </div>
   );
 }

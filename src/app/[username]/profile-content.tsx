@@ -138,7 +138,11 @@ export default function ProfilePageContent({
         </div>
         <ReviewList
           ReviewComponent={AlbumReviewCardContent}
-          reviews={userReviews}
+          reviews={userReviews?.map((review) => ({
+            ...review,
+            username: userProfile.username,
+            userDisplayName: userProfile.userDisplayName,
+          }))}
           status={userReviewsStatus}
           onLoadMore={() => loadMoreReviews(10)}
           emptyMessage="No reviews yet"
