@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Skeleton } from "../skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 interface ReviewListSkeletonProps {
   count?: number;

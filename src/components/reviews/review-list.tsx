@@ -3,7 +3,7 @@ import { PaginatedQueryItem, PaginationStatus } from "convex/react";
 import { ComponentType } from "react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
-import { ReviewListSkeleton } from "../ui/skeletons/review-list-skeleton";
+import { ReviewListSkeleton } from "./review-list-skeleton";
 
 type InlineReview =
   | PaginatedQueryItem<typeof api.reviewsRead.getRecentReviewsForAlbum>
@@ -28,7 +28,7 @@ interface ReviewListProps<T extends InlineReview | FullReview> {
   emptyMessage?: string;
   className?: string;
   showLoadMore?: boolean;
-
+  skeletonVariant?: "inline" | "full";
   // Pagination-aware props (when used with usePaginatedQuery)
   status?: PaginationStatus;
   onLoadMore?: (numItems?: number) => void;
@@ -42,6 +42,7 @@ export function ReviewList<T extends InlineReview | FullReview>({
   onLoadMore,
   showLoadMore = true,
   status,
+  skeletonVariant = "full",
 }: ReviewListProps<T>) {
   // Derive loading states from pagination status
   const isLoadingFirst = status === "LoadingFirstPage";
@@ -51,7 +52,7 @@ export function ReviewList<T extends InlineReview | FullReview>({
   if (isLoadingFirst) {
     return (
       <div className={cn("flex flex-col", className)}>
-        <ReviewListSkeleton />
+        <ReviewListSkeleton variant={skeletonVariant} />
       </div>
     );
   }
@@ -60,11 +61,11 @@ export function ReviewList<T extends InlineReview | FullReview>({
     return (
       <div
         className={cn(
-          "flex min-h-[200px] items-center justify-center py-0",
+          "bg-card opacity-50 flex min-h-[100px] items-center justify-center rounded-3xl py-0",
           className,
         )}
       >
-        <p className="text-muted-foreground">{emptyMessage}</p>
+        <p>{emptyMessage}</p>
       </div>
     );
   }

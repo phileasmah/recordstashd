@@ -242,7 +242,7 @@ export function AlbumReview({
                       <Button
                         variant="ghost"
                         className={cn(
-                          "group relative my-auto h-8 overflow-hidden rounded-full",
+                          "group relative my-auto h-8 overflow-hidden rounded-full px-5",
                           "hover:bg-destructive/90 hover:text-destructive-foreground",
                           isDeleteDialogOpen &&
                             "bg-destructive/90 text-destructive-foreground",
@@ -296,7 +296,7 @@ export function AlbumReview({
                 <motion.div>
                   <Button
                     onClick={handleSubmitReview}
-                    className="w-full"
+                    className="w-full rounded-md py-5 hover:rounded-3xl transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)]"
                     disabled={isSubmittingReview || !review.trim()}
                   >
                     {isSubmittingReview ? "Saving..." : "Save Review"}

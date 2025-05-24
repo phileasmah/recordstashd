@@ -1,6 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ReviewListSkeleton } from "@/components/reviews/review-list-skeleton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ReviewListSkeleton } from "@/components/ui/skeletons/review-list-skeleton";
 import { TransitionPanel } from "@/components/ui/transition-panel";
 
 export default function Loading() {
@@ -9,8 +15,8 @@ export default function Loading() {
       <div className="space-y-6">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Album Info Section */}
-          <Card className="flex w-full flex-col py-0 md:flex-row lg:w-2/3 bg-transparent border-none">
-            <div className="relative aspect-square w-full md:w-80 flex-shrink-0">
+          <Card className="flex w-full flex-col border-none bg-transparent py-0 md:flex-row lg:w-2/3">
+            <div className="relative aspect-square w-full flex-shrink-0 md:w-80">
               <Skeleton className="h-full w-full rounded-lg" />
             </div>
             <CardHeader className="flex-grow px-4 py-6 md:px-8">
@@ -26,7 +32,7 @@ export default function Loading() {
                     <Skeleton className="h-6 w-32" />
                   </CardDescription>
                 </div>
-                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-base pr-8">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 pr-8 text-base">
                   <div className="text-muted-foreground">Release Date:</div>
                   <Skeleton className="h-5 w-24" />
                   <div className="text-muted-foreground">Total Tracks:</div>
@@ -41,10 +47,10 @@ export default function Loading() {
           </Card>
 
           {/* Review Input Section */}
-          <Card className="w-full lg:w-1/3 rounded-3xl">
+          <Card className="w-full rounded-3xl lg:w-1/3">
             <CardHeader>
               <CardTitle>
-                <Skeleton className="h-7 w-32 mb-2" />
+                <Skeleton className="mb-2 h-7 w-32" />
               </CardTitle>
               <CardDescription>
                 <Skeleton className="h-5 w-48" />
@@ -58,7 +64,7 @@ export default function Loading() {
         </div>
 
         {/* Tracks and Reviews Section */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_2fr]">
+        <div className="border-accent grid grid-cols-1 gap-6 rounded-3xl lg:grid-cols-[1fr_2fr]">
           {/* Tracks Section */}
           <Card className="gap-4">
             <CardHeader>
@@ -75,14 +81,14 @@ export default function Loading() {
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div
                       key={i}
-                      className="hover:bg-accent flex items-center gap-4 rounded-md py-2.5 transition-colors px-4"
+                      className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5 transition-colors"
                     >
                       <div className="text-muted-foreground text-center">
-                        <Skeleton className="h-5 w-5 mx-auto" />
+                        <Skeleton className="mx-auto h-5 w-5" />
                       </div>
                       <div className="flex-grow">
                         <Skeleton className="h-5 w-40" />
-                        <Skeleton className="h-4 w-24 mt-1" />
+                        <Skeleton className="mt-1 h-4 w-24" />
                       </div>
                       <Skeleton className="h-5 w-12" />
                     </div>
@@ -95,21 +101,21 @@ export default function Loading() {
           {/* Reviews Section */}
           <div>
             {/* Skeleton header & tabs */}
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-3 flex items-center justify-between">
               <Skeleton className="h-6 w-24 rounded-md" />
               <div className="flex space-x-2">
-                <Skeleton className="h-8 w-20 rounded-md" />
-                <Skeleton className="h-8 w-20 rounded-md" />
+                <Skeleton className="h-8 w-20 rounded-r rounded-l-3xl" />
+                <Skeleton className="h-8 w-20 rounded-l rounded-r-3xl" />
               </div>
             </div>
             <div className="border-card-border overflow-hidden border-t px-5">
               <TransitionPanel
                 activeIndex={0}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
                 variants={{
-                  enter: { opacity: 0, y: -20, filter: 'blur(4px)' },
-                  center: { opacity: 1, y: 0, filter: 'blur(0px)' },
-                  exit: { opacity: 0, y: 20, filter: 'blur(4px)' },
+                  enter: { opacity: 0, y: -20, filter: "blur(4px)" },
+                  center: { opacity: 1, y: 0, filter: "blur(0px)" },
+                  exit: { opacity: 0, y: 20, filter: "blur(4px)" },
                 }}
               >
                 {[0, 1].map((i) => (
@@ -124,4 +130,4 @@ export default function Loading() {
       </div>
     </div>
   );
-} 
+}

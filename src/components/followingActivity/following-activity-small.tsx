@@ -4,7 +4,6 @@ import { usePaginatedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { ReviewList } from "../reviews/review-list";
 import { AlbumReviewCardContent } from "../ui/review-cards/album-review-card-content";
-import { ScrollArea } from "../ui/scroll-area";
 import { ViewAllButton } from "../ui/view-all-button";
 
 export default function FollowingActivitySmall() {
@@ -15,26 +14,22 @@ export default function FollowingActivitySmall() {
   const { results: reviews, status } = usePaginatedQuery(
     api.reviewsRead.getLatestPostsFromFollowing,
     isLoaded ? {} : "skip",
-    { initialNumItems: 5 },
+    { initialNumItems: 4 },
   );
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-2xl font-bold">
-          Activity from people you follow
-        </h2>
+        <h2 className="text-2xl font-bold">Activity from people you follow</h2>
         <ViewAllButton href="/following" />
       </div>
-      <ScrollArea className="max-h-[600px]">
-        <ReviewList
-          ReviewComponent={AlbumReviewCardContent}
-          reviews={reviews}
-          status={status}
-          emptyMessage="Follow some users to see their reviews here"
-          showLoadMore={false}
-        />
-      </ScrollArea>
+      <ReviewList
+        ReviewComponent={AlbumReviewCardContent}
+        reviews={reviews}
+        status={status}
+        emptyMessage="Follow users to see their reviews here"
+        showLoadMore={false}
+      />
     </div>
   );
 }

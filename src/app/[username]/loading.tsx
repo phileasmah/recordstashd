@@ -1,5 +1,5 @@
+import { ReviewListSkeleton } from "@/components/reviews/review-list-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ReviewListSkeleton } from "@/components/ui/skeletons/review-list-skeleton";
 
 export default function ProfileLoading() {
   return (

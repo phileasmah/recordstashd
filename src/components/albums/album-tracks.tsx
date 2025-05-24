@@ -51,7 +51,7 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
   };
 
   return (
-    <Card className="flex h-max max-h-[520px] flex-col gap-0 py-5 pb-0">
+    <Card className="flex h-max max-h-[520px] flex-col gap-0 py-5 pb-0 rounded-3xl border-accent">
       <CardHeader
         className={cn(
           "bg-card sticky top-0 z-10 py-2 [.border-b]:-mt-3 [.border-b]:pb-3",
@@ -105,14 +105,14 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
           style={{ overflowY: "scroll" }}
           onScroll={handleScroll}
         >
-          <CardContent ref={contentRef} className={cn("mb-5", isScrolled && "mt-[6.5rem]")}>
+          <CardContent ref={contentRef} className={cn("mb-5 px-5", isScrolled && "mt-[6.5rem]")}>
             <div className="space-y-1.5">
               {album.tracks?.items?.map((track, index) => (
                 <div
                   key={track.id}
                   className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5 transition-colors"
                 >
-                  <div className="text-muted-foreground w-6 shrink-0 text-center">
+                  <div className="text-muted-foreground w-4 text-center">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-grow">

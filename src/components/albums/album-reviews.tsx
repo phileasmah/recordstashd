@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 import { usePaginatedQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
@@ -45,6 +46,7 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
           reviews={mostLikedReviews}
           status={mostLikedReviewsStatus}
           onLoadMore={() => loadMoreMostLikedReviews(5)}
+          skeletonVariant="inline"
         />
       ),
     },
@@ -56,6 +58,7 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
           reviews={recentReviews}
           status={recentReviewsStatus}
           onLoadMore={() => loadMoreRecentReviews(5)}
+          skeletonVariant="inline"
         />
       ),
     },
@@ -63,18 +66,22 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Reviews</h2>
         <div className="flex space-x-1">
           {TABS.map((tab, index) => (
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
-              className={`bg-muted py-2 text-sm font-medium transition-all duration-200 ease-in-out ${
+              className={cn(
+                "bg-muted py-2 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)] ease-in-out",
+                index === 0
+                  ? "rounded-l-3xl rounded-r"
+                  : "rounded-l rounded-r-3xl",
                 activeIndex === index
-                  ? "text-accent-foreground rounded-full px-5"
-                  : "text-muted-foreground rounded-lg px-3"
-              }`}
+                  ? "text-accent-foreground rounded-3xl px-5"
+                  : "text-muted-foreground px-3",
+              )}
             >
               {tab.title}
             </button>

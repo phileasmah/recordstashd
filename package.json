@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint && tsc --noEmit",
     "test:backend": "vitest",
     "test:backend:once": "vitest run",
     "test:backend:debug": "vitest --inspect-brk --no-file-parallelism",

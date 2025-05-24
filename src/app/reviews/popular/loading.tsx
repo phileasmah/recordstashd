@@ -1,4 +1,4 @@
-import { ReviewListSkeleton } from "@/components/ui/skeletons/review-list-skeleton";
+import { ReviewListSkeleton } from "@/components/reviews/review-list-skeleton";
 
 export default function Loading() {
   return (
