@@ -68,11 +68,10 @@ export function AlbumDetailsCard({
       <CardHeader className="my-auto flex-grow px-8 py-6">
         <div className="space-y-6">
           <div className="space-y-2">
-            <div className="flex items-end gap-3 lg:flex-col lg:items-start lg:gap-1 xl:flex-row xl:items-end xl:gap-3">
+            <div className="flex flex-col items-start gap-1 xl:flex-row xl:items-end xl:gap-3">
               <CardTitle className="text-3xl font-bold">{album.name}</CardTitle>
               {averageRating ? (
                 <RatingBadge
-                  prefix={"Average "}
                   rating={averageRating}
                   hoverText={`${ratingCount} ${
                     ratingCount === 1 ? "rating" : "ratings"
@@ -105,7 +104,7 @@ export function AlbumDetailsCard({
             </div>
           </div>
           <Button
-            className="bg-spotify hover:bg-spotify rounded-full text-base text-white py-5 px-5!"
+            className="bg-spotify hover:bg-spotify rounded-full px-5! py-5 text-base text-white"
             onClick={onOpenSpotify}
           >
             <SpotifyLogoBlack className="size-5" />
