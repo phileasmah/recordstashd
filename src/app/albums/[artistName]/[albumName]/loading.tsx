@@ -1,10 +1,10 @@
 import { ReviewListSkeleton } from "@/components/reviews/review-list-skeleton";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TransitionPanel } from "@/components/ui/transition-panel";
@@ -19,18 +19,20 @@ export default function Loading() {
             <div className="relative aspect-square w-full flex-shrink-0 md:w-80">
               <Skeleton className="h-full w-full rounded-lg" />
             </div>
-            <CardHeader className="flex-grow px-4 py-6 md:px-8">
+            <CardHeader className="my-auto flex-grow px-8 py-6">
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col items-start gap-4 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="space-y-2">
                     <CardTitle className="text-3xl font-bold">
                       <Skeleton className="h-10 w-48" />
                     </CardTitle>
+                    <CardDescription className="text-xl">
+                      <Skeleton className="h-6 w-32" />
+                    </CardDescription>
+                  </div>
+                  <div className="xl:mt-1">
                     <Skeleton className="h-6 w-24 rounded" />
                   </div>
-                  <CardDescription className="text-xl">
-                    <Skeleton className="h-6 w-32" />
-                  </CardDescription>
                 </div>
                 <div className="grid grid-cols-2 gap-x-8 gap-y-3 pr-8 text-base">
                   <div className="text-muted-foreground">Release Date:</div>

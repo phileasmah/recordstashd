@@ -67,23 +67,26 @@ export function AlbumDetailsCard({
       />
       <CardHeader className="my-auto flex-grow px-8 py-6">
         <div className="space-y-6">
-          <div className="space-y-2">
-            <div className="flex flex-col items-start gap-1 xl:flex-row xl:items-end xl:gap-3">
+          <div className="flex flex-col items-start gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div className="space-y-2">
               <CardTitle className="text-3xl font-bold">{album.name}</CardTitle>
+              <CardDescription className="text-xl">
+                {album.artists?.map((artist) => artist.name).join(", ")}
+              </CardDescription>
+            </div>
+            <div className="xl:mt-1">
               {averageRating ? (
                 <RatingBadge
                   rating={averageRating}
                   hoverText={`${ratingCount} ${
                     ratingCount === 1 ? "rating" : "ratings"
                   }`}
+                  className="xl:mt-1"
                 />
               ) : (
                 <Badge variant="secondary">No ratings yet</Badge>
               )}
             </div>
-            <CardDescription className="text-xl">
-              {album.artists?.map((artist) => artist.name).join(", ")}
-            </CardDescription>
           </div>
           <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-base lg:gap-y-1 xl:gap-y-2">
             <div className="text-muted-foreground">Release Date:</div>
