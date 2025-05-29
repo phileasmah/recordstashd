@@ -18,11 +18,15 @@ export function createArtistSlug(artistName: string | undefined | null): string 
   return createSlug(artistName || 'unknown-artist');
 }
 
-/**
- * Creates a slug for an album name
- * @param albumName The album name to slugify
- * @returns A URL-friendly slug for the album name
- */
+
 export function createAlbumSlug(albumName: string): string {
   return createSlug(albumName);
+}
+
+export function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove special characters except word characters and spaces
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .trim();
 } 
