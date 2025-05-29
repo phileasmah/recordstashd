@@ -51,8 +51,8 @@ export default async function AlbumPage({
               </p>
               
               <div className="bg-muted p-4 rounded-lg text-sm mb-8">
-                <p><strong>Expected:</strong> "{decodeURIComponent(expectedAlbumSlug)}" by {decodeURIComponent(expectedArtistSlug)}</p>
-                <p><strong>Found:</strong> "{actualAlbumName}" by {actualArtistName}</p>
+                <p><strong>Expected:</strong> &quot;{decodeURIComponent(expectedAlbumSlug)}&quot; by {decodeURIComponent(expectedArtistSlug)}</p>
+                <p><strong>Found:</strong> &quot;{actualAlbumName}&quot; by {actualArtistName}</p>
               </div>
 
               <Link
