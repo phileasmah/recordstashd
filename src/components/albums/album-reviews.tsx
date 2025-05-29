@@ -74,7 +74,7 @@ export function AlbumReviews({ albumIdInDb }: AlbumReviews) {
               key={index}
               onClick={() => setActiveIndex(index)}
               className={cn(
-                "bg-muted py-2 text-sm font-medium transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)] ease-in-out",
+                "bg-muted py-2 text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
                 index === 0
                   ? "rounded-l-3xl rounded-r"
                   : "rounded-l rounded-r-3xl",

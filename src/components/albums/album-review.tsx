@@ -253,7 +253,7 @@ export function AlbumReview({
                           <span
                             className={cn(
                               "-mt-0.5 overflow-hidden text-sm whitespace-nowrap transition-all duration-250",
-                              "w-0 group-hover:w-[85px]",
+                              "w-0 group-hover:w-[85px] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
                               isDeleteDialogOpen && "w-[85px]",
                             )}
                           >
@@ -296,7 +296,7 @@ export function AlbumReview({
                 <motion.div>
                   <Button
                     onClick={handleSubmitReview}
-                    className="w-full rounded-md py-5 hover:rounded-3xl transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)]"
+                    className="w-full rounded-md py-5 hover:rounded-3xl transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                     disabled={isSubmittingReview || !review.trim()}
                   >
                     {isSubmittingReview ? "Saving..." : "Save Review"}
