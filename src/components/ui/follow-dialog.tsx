@@ -48,13 +48,15 @@ export function FollowDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="flex flex-col gap-1.5 text-center hover:opacity-80">
-          <span className="text-accent-foreground text-3xl font-bold tracking-tighter whitespace-pre-wrap">
-            {count}
-          </span>
-          <p className="text-muted-foreground text-sm">
-            {type === "followers" ? "Followers" : "Following"}
-          </p>
+        <button className="flex w-full flex-col items-center gap-3 p-4 hover:opacity-80">
+          <div className="text-center">
+            <span className="text-accent-foreground block text-2xl font-bold tracking-tighter">
+              {count}
+            </span>
+            <p className="text-muted-foreground text-xs">
+              {type === "followers" ? "Followers" : "Following"}
+            </p>
+          </div>
         </button>
       </DialogTrigger>
       <DialogContent className="px-1 pb-1 sm:max-w-sm">
