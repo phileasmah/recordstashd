@@ -7,6 +7,7 @@ import {
   UserButton,
   useUser,
 } from "@clerk/nextjs";
+import { SiGithub } from "@icons-pack/react-simple-icons";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
 import { SearchBar } from "./search-bar";
@@ -39,6 +40,14 @@ export function Navbar() {
             </div> */}
           </div>
           <div className="flex items-center gap-4">
+            <Link
+              href="https://github.com/phileasmah/album-review-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-gray-800"
+            >
+              <SiGithub className="h-6 w-6" />
+            </Link>
             <SearchBar />
             <SignedIn>
               <UserButton>

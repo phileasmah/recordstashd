@@ -17,6 +17,9 @@ importers:
       '@convex-dev/aggregate':
         specifier: ^0.1.20
         version: 0.1.20(convex@1.23.0(@clerk/clerk-react@5.27.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      '@icons-pack/react-simple-icons':
+        specifier: ^13.1.0
+        version: 13.1.0(react@19.1.0)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -428,6 +431,11 @@ packages:
   '@humanwhocodes/retry@0.4.2':
     resolution: {integrity: sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==}
     engines: {node: '>=18.18'}
+
+  '@icons-pack/react-simple-icons@13.1.0':
+    resolution: {integrity: sha512-BrBHWxWM1X2pCdFmQfYnwkfwwm9Ta5NMdvSNe/ns2e9rhVK863rRAF6AhDjsvUIDKXSkRG1HfXZiSX/Uij0kxg==}
+    peerDependencies:
+      react: ^16.13 || ^17 || ^18 || ^19
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -3555,6 +3563,10 @@ snapshots:
   '@humanwhocodes/retry@0.3.1': {}
 
   '@humanwhocodes/retry@0.4.2': {}
+
+  '@icons-pack/react-simple-icons@13.1.0(react@19.1.0)':
+    dependencies:
+      react: 19.1.0
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
