@@ -1,7 +1,11 @@
 import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { RequestInit } from "next/dist/server/web/spec-extension/request";
 import { api } from "../../convex/_generated/api";
 
-export async function fetchFromSpotify(endpoint: string, nextFetchRequestConfig?: NextFetchRequestConfig) {
+export async function fetchFromSpotify(
+  endpoint: string,
+  nextFetchRequestConfig?: RequestInit,
+) {
   const token = await getSpotifyToken();
   const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
     headers: {

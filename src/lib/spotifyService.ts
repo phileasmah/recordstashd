@@ -14,7 +14,9 @@ export async function fetchNewReleasesFromSpotify(params?: {
   const endpoint = `/browse/new-releases?limit=${limit}`;
 
   try {
-    const data = await fetchFromSpotify(endpoint, { revalidate: 60 * 60 * 24 * 2 });
+    const data = await fetchFromSpotify(endpoint, {
+      next: { revalidate: 60 * 60 * 24 * 2 },
+    });
     return data as NewReleasesResponse;
   } catch (error) {
     throw new Error(
