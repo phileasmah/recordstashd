@@ -9,6 +9,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { RatingBadge } from "../ui/rating-badge";
+import SpotifyAttribution from "../ui/spotify-attribution";
 
 interface AlbumDetailsCardProps {
   album: SpotifyAlbum;
@@ -56,15 +57,26 @@ export function AlbumDetailsCard({
       className="relative flex-grow flex-col overflow-hidden border-0 bg-transparent py-0 md:flex-row lg:w-2/3"
       style={gradientStyle}
     >
-      <Image
-        src={album.images?.[0]?.url || "/placeholder.png"}
-        alt={album.name}
-        width={330}
-        height={330}
-        sizes="100%"
-        priority
-        className="my-auto ml-0 w-full rounded-sm md:ml-8 md:h-[330px] md:w-[330px] lg:h-[320px] lg:w-[320px]"
-      />
+      <div className="relative my-auto ml-0 w-full md:ml-8 md:h-[330px] md:w-[330px] lg:h-[320px] lg:w-[320px]">
+        <Image
+          src={album.images?.[0]?.url || "/placeholder.png"}
+          alt={album.name}
+          fill
+          sizes="100%"
+          priority
+          className="rounded-sm object-cover"
+        />
+        {album.external_urls?.spotify && (
+          <div className="absolute bottom-2 left-2">
+            <SpotifyAttribution
+              href={album.external_urls.spotify}
+              size="sm"
+              variant="badge"
+              asButton
+            />
+          </div>
+        )}
+      </div>
       <CardHeader className="my-auto flex-grow px-8 py-6">
         <div className="space-y-6">
           <div className="flex flex-col items-start gap-4 xl:flex-row xl:items-start xl:justify-between">

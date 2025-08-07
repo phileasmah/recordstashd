@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createAlbumSlug, createArtistSlug } from "../utils/slugify";
 import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
+import SpotifyAttribution from "./ui/spotify-attribution";
 
 interface SearchResultsDropdownProps {
   query: string;
@@ -118,13 +119,25 @@ export function SearchResultsDropdown({
                     className="hover:bg-accent flex items-center gap-4 rounded-md p-2 transition-colors"
                     onClick={onResultClick}
                   >
-                    <Image
-                      src={album.images?.[0]?.url || "/placeholder.png"}
-                      width={48}
-                      height={48}
-                      alt={album.name}
-                      className="h-12 w-12 rounded-md object-cover"
-                    />
+                    <div className="relative h-12 w-12">
+                      <Image
+                        src={album.images?.[0]?.url || "/placeholder.png"}
+                        fill
+                        sizes="48px"
+                        alt={album.name}
+                        className="rounded-md object-cover"
+                      />
+                      {album.external_urls?.spotify && (
+                        <div className="absolute -bottom-1 -left-1">
+                          <SpotifyAttribution
+                            href={album.external_urls.spotify}
+                            size="sm"
+                            variant="badge"
+                            asButton
+                          />
+                        </div>
+                      )}
+                    </div>
                     <div>
                       <div className="font-medium">{album.name}</div>
                       <div className="text-muted-foreground text-sm">

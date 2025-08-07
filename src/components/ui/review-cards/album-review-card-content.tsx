@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { RatingBadge } from "../rating-badge";
+import SpotifyAttribution from "../spotify-attribution";
 import { ExpandableReviewText } from "./components/expandable-review-text";
 import { LikeButton } from "./components/like-button";
 import { SimpleReviewRating } from "./components/simple-review-rating";
@@ -45,6 +46,16 @@ export function AlbumReviewCardContent({
           sizes="100%"
           className="rounded object-cover"
         />
+        {"spotifyExternalUrl" in review && review.spotifyExternalUrl && (
+          <div className="absolute bottom-1 left-1">
+            <SpotifyAttribution
+              href={review.spotifyExternalUrl as string}
+              size="sm"
+              variant="badge"
+              asButton
+            />
+          </div>
+        )}
       </div>
       <div className="flex-1 space-y-2">
         <div className="text-muted-foreground flex flex-col gap-2 text-sm">
@@ -60,6 +71,17 @@ export function AlbumReviewCardContent({
             {review.rating !== undefined && review.rating !== 0 && (
               <div className="block sm:hidden">
                 <RatingBadge rating={review.rating} />
+              </div>
+            )}
+            {"spotifyExternalUrl" in review && review.spotifyExternalUrl && (
+              <div className="ml-auto hidden sm:block">
+                <SpotifyAttribution
+                  href={review.spotifyExternalUrl as string}
+                  variant="inline"
+                  size="sm"
+                  label="On Spotify"
+                  asButton
+                />
               </div>
             )}
           </div>

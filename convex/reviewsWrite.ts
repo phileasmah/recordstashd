@@ -4,15 +4,15 @@ import { ConvexError, v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import {
-  MutationCtx,
-  QueryCtx,
-  internalAction,
-  internalMutation,
-  mutation,
+    MutationCtx,
+    QueryCtx,
+    internalAction,
+    internalMutation,
+    mutation,
 } from "./_generated/server";
 import {
-  aggregateReviewsByAlbum,
-  aggregateReviewsByUsers,
+    aggregateReviewsByAlbum,
+    aggregateReviewsByUsers,
 } from "./reviewAggregates";
 
 // Helper function to find or create an album
@@ -263,10 +263,13 @@ export const getSpotifyImageUrlAndSave = internalAction({
       throw new ConvexError("Image not found");
     }
 
+    const album = searchResults.albums.items[0];
     await ctx.scheduler.runAfter(0, internal.reviewsWrite.saveSpotifyAlbumUrl, {
       albumName: args.albumName,
       artistName: args.artistName,
-      spotifyAlbumUrl: searchResults.albums.items[0].images[0].url,
+      spotifyAlbumUrl: album.images?.[0]?.url ?? "",
+      spotifyAlbumId: album.id,
+      spotifyExternalUrl: album.external_urls?.spotify ?? "",
     });
   },
 });
@@ -276,6 +279,8 @@ export const saveSpotifyAlbumUrl = internalMutation({
     albumName: v.string(),
     artistName: v.string(),
     spotifyAlbumUrl: v.string(),
+    spotifyAlbumId: v.string(),
+    spotifyExternalUrl: v.string(),
   },
   handler: async (ctx, args) => {
     const album = await ctx.db
@@ -289,6 +294,10 @@ export const saveSpotifyAlbumUrl = internalMutation({
       throw new ConvexError("Album not found");
     }
 
-    await ctx.db.patch(album._id, { spotifyAlbumUrl: args.spotifyAlbumUrl });
+    await ctx.db.patch(album._id, {
+      spotifyAlbumUrl: args.spotifyAlbumUrl,
+      spotifyAlbumId: args.spotifyAlbumId,
+      spotifyExternalUrl: args.spotifyExternalUrl,
+    });
   },
 });

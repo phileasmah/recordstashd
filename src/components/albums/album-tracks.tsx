@@ -4,12 +4,13 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { motion } from "motion/react";
 import { UIEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "../ui/card";
+import SpotifyAttribution from "../ui/spotify-attribution";
 
 interface AlbumTracksProps {
   album: SpotifyAlbum;
@@ -91,6 +92,17 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
               {formatTotalDuration(album.tracks?.items)}
             </CardDescription>
           </motion.div>
+          {album.external_urls?.spotify && (
+            <div className="ml-auto">
+              <SpotifyAttribution
+                href={album.external_urls.spotify}
+                variant="inline"
+                size="md"
+                label="View on Spotify"
+                asButton
+              />
+            </div>
+          )}
         </motion.div>
       </CardHeader>
       <ScrollAreaPrimitive.Root
@@ -121,8 +133,17 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
                       {track.artists?.map((artist) => artist.name).join(", ")}
                     </div>
                   </div>
-                  <div className="text-muted-foreground ml-auto shrink-0">
-                    {formatDuration(track.duration_ms)}
+                  <div className="text-muted-foreground ml-auto shrink-0 flex items-center gap-2">
+                    <span>{formatDuration(track.duration_ms)}</span>
+                    {track.external_urls?.spotify && (
+                      <SpotifyAttribution
+                        href={track.external_urls.spotify}
+                        size="sm"
+                        variant="badge"
+                        asButton
+                        label="Open on Spotify"
+                      />
+                    )}
                   </div>
                 </div>
               ))}
