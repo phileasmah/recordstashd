@@ -3,9 +3,13 @@
 A simple social album review app built with Next.js and Convex, with Spotify integration for album and artist data. Browse albums, write reviews, see what's popular, and follow other listeners.
 
 ## Screenshots
+Home Page
+![Home page](images/home-page.png)
 
+Album Page
 ![Album page](images/album-page.png)
 
+Profile Page
 ![Profile page](images/profile-page.png)
 
 ## Getting Started
