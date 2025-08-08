@@ -1,16 +1,13 @@
 import { UserJSON } from "@clerk/nextjs/server";
 import {
-  customCtx,
-  customMutation,
+    customCtx,
+    customMutation,
 } from "convex-helpers/server/customFunctions";
 import { Triggers } from "convex-helpers/server/triggers";
 import { v, Validator } from "convex/values";
 import { internal } from "./_generated/api";
 import { DataModel, Doc } from "./_generated/dataModel";
-import {
-  query,
-  internalMutation as rawInternalMutation,
-} from "./_generated/server";
+import { mutation, query, internalMutation as rawInternalMutation } from "./_generated/server";
 
 const triggers = new Triggers<DataModel>();
 //TODO batch this
@@ -76,6 +73,7 @@ export const upsertFromClerk = internalMutation({
       externalId: data.id,
       firstName: data.first_name ?? undefined,
       lastName: data.last_name ?? undefined,
+      // keep existing consent fields if present; webhook won't set them
     };
 
     const user = await ctx.db
@@ -125,5 +123,39 @@ export const getUserByUsername = query({
       ...user,
       userDisplayName: getUserDisplayName(user),
     };
+  },
+});
+
+export const recordLegalConsent = mutation({
+  args: {
+    termsVersion: v.string(),
+    privacyPolicyVersion: v.string(),
+    acceptedAt: v.number(),
+  },
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_externalId", (q) => q.eq("externalId", identity.subject))
+      .unique();
+
+    if (!user) return;
+
+    const needsUpdate =
+      !user.termsAcceptedAt ||
+      user.termsVersion !== args.termsVersion ||
+      user.privacyPolicyVersion !== args.privacyPolicyVersion;
+
+    if (needsUpdate) {
+      await ctx.db.patch(user._id, {
+        termsAcceptedAt: args.acceptedAt,
+        termsVersion: args.termsVersion,
+        privacyPolicyVersion: args.privacyPolicyVersion,
+      });
+    }
   },
 });

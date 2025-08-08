@@ -23,10 +23,8 @@ export function SpotifyAttribution({
 }: SpotifyAttributionProps) {
   if (!href) return null;
 
-  const sizeClasses =
-    size === "sm"
-      ? "h-5 px-2 text-[11px] [&_svg]:size-3.5"
-      : "h-6 px-2.5 text-xs [&_svg]:size-4";
+  const inlineSvgSizeClass = size === "sm" ? "size-4" : "size-5";
+  const badgeSvgSizeClass = size === "sm" ? "[&_svg]:size-3" : "[&_svg]:size-4";
 
   if (variant === "inline") {
     if (asButton) {
@@ -43,7 +41,7 @@ export function SpotifyAttribution({
             className,
           )}
         >
-          <SpotifyLogoBlack className="size-4" />
+          <SpotifyLogoBlack className={inlineSvgSizeClass} />
           <span>{label ?? "On Spotify"}</span>
         </button>
       );
@@ -58,7 +56,7 @@ export function SpotifyAttribution({
           className,
         )}
       >
-        <SpotifyLogoBlack className="size-4" />
+        <SpotifyLogoBlack className={inlineSvgSizeClass} />
         <span>{label ?? "On Spotify"}</span>
       </Link>
     );
@@ -78,7 +76,7 @@ export function SpotifyAttribution({
         className={cn(
           // Match Badge: px-2 py-0.5 text-xs, rounded-md, gap-1
           "inline-flex items-center justify-center rounded-md border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/90 px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 transition-[color,box-shadow]",
-          "[&_svg]:size-3",
+          badgeSvgSizeClass,
           className,
         )}
       >
@@ -96,7 +94,7 @@ export function SpotifyAttribution({
       className={cn(
         // Match Badge: px-2 py-0.5 text-xs, rounded-md, gap-1
         "inline-flex items-center justify-center rounded-md border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/90 px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1 transition-[color,box-shadow]",
-        "[&_svg]:size-3",
+        badgeSvgSizeClass,
         className,
       )}
     >
