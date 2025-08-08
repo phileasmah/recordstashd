@@ -4,12 +4,13 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { motion } from "motion/react";
 import { UIEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "../ui/card";
+import SpotifyAttribution from "../ui/spotify-attribution";
 
 interface AlbumTracksProps {
   album: SpotifyAlbum;
@@ -110,7 +111,7 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
               {album.tracks?.items?.map((track, index) => (
                 <div
                   key={track.id}
-                  className="hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5 transition-colors"
+                  className="group relative hover:bg-accent flex items-center gap-4 rounded-md px-4 py-2.5 transition-colors overflow-hidden"
                 >
                   <div className="text-muted-foreground w-4 text-center">
                     {index + 1}
@@ -121,9 +122,20 @@ export function AlbumTracks({ album }: AlbumTracksProps) {
                       {track.artists?.map((artist) => artist.name).join(", ")}
                     </div>
                   </div>
-                  <div className="text-muted-foreground ml-auto shrink-0">
+                  <span className="text-muted-foreground ml-auto shrink-0 transition-opacity duration-200 group-hover:opacity-0">
                     {formatDuration(track.duration_ms)}
-                  </div>
+                  </span>
+                  {track.external_urls?.spotify && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-2 opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0">
+                      <SpotifyAttribution
+                        href={track.external_urls.spotify}
+                        size="sm"
+                        variant="badge"
+                        asButton
+                        label="Open on Spotify"
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

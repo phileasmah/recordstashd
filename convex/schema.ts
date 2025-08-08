@@ -11,6 +11,8 @@ export default defineSchema({
     name: v.string(),
     artist: v.string(),
     spotifyAlbumUrl: v.optional(v.string()),
+    spotifyAlbumId: v.optional(v.string()),
+    spotifyExternalUrl: v.optional(v.string()),
   }).index("by_name_artist", ["name", "artist"]),
 
   reviews: defineTable({

@@ -120,6 +120,7 @@ export const getAllUserReviews = query({
           albumName: album?.name,
           artistName: album?.artist,
           spotifyAlbumUrl: album?.spotifyAlbumUrl,
+          spotifyExternalUrl: album?.spotifyExternalUrl,
           likedByUser,
         };
       }),
@@ -225,6 +226,7 @@ export const getMostLikedReviewThisWeek = query({
           albumName: album?.name,
           artistName: album?.artist,
           spotifyAlbumUrl: album?.spotifyAlbumUrl,
+          spotifyExternalUrl: album?.spotifyExternalUrl,
           likedByUser,
         };
       }),

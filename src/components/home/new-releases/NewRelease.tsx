@@ -1,12 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { CarouselItem } from "@/components/ui/carousel";
+import SpotifyAttribution from "@/components/ui/spotify-attribution";
 import { SpotifyAlbum } from "@/types/spotify";
 import { createAlbumSlug, createArtistSlug } from "@/utils/slugify";
 import Image from "next/image";
@@ -48,6 +49,16 @@ export function NewRelease({ album }: NewReleaseProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {album.external_urls?.spotify && (
+              <div className="mb-2">
+                <SpotifyAttribution
+                  href={album.external_urls.spotify}
+                  size="sm"
+                  variant="badge"
+                  asButton
+                />
+              </div>
+            )}
             <Badge variant="secondary">New Release</Badge>
           </CardContent>
         </Card>
