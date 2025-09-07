@@ -1,4 +1,4 @@
-import { stream } from "convex-helpers/server/stream";
+import { mergedStream, stream } from "convex-helpers/server/stream";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { query } from "./_generated/server";
@@ -143,27 +143,33 @@ export const getLatestPostsFromFollowing = query({
     }
     const userId = identity.subject;
 
-    const followingStream = stream(ctx.db, schema)
+    const following = await stream(ctx.db, schema)
       .query("follows")
       .withIndex("by_follower", (q) => q.eq("followerId", userId))
-      .order("desc");
+      .order("desc")
+      // TODO: Find a way to remove limit 
+      .take(1000);
 
-    const followingUsersStream = followingStream.flatMap(
-      async (followingUser) =>
-        stream(ctx.db, schema)
+    if (following.length === 0) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: "null",
+      };
+    }
+
+    const perUserReviewStreams = await Promise.all(
+      following.map(async (follow) => {
+        const followingUser = await ctx.db
           .query("users")
           .withIndex("by_externalId", (q) =>
-            q.eq("externalId", followingUser.followingId),
+            q.eq("externalId", follow.followingId),
           )
-          .order("desc"),
-      ["externalId"],
-    );
+          .unique();
 
-    const reviewsStream = followingUsersStream.flatMap(
-      async (followingUser) =>
-        stream(ctx.db, schema)
+        return stream(ctx.db, schema)
           .query("reviews")
-          .withIndex("by_user", (q) => q.eq("userId", followingUser.externalId))
+          .withIndex("by_user", (q) => q.eq("userId", follow.followingId))
           .order("desc")
           .map(async (review) => {
             const [album, likedByUser] = await Promise.all([
@@ -172,19 +178,22 @@ export const getLatestPostsFromFollowing = query({
             ]);
             return {
               ...review,
-              username: followingUser.username || "Anonymous User",
-              userDisplayName: getUserDisplayName(followingUser),
-              userImageUrl: followingUser.imageUrl ?? null,
+              username: followingUser?.username || "Anonymous User",
+              userDisplayName: followingUser
+                ? getUserDisplayName(followingUser)
+                : "Anonymous User",
+              userImageUrl: followingUser?.imageUrl ?? null,
               albumName: album?.name,
               artistName: album?.artist,
               spotifyAlbumUrl: album?.spotifyAlbumUrl,
               likedByUser,
             };
-          }),
-      ["userId", "lastUpdatedTime"],
+          });
+      }),
     );
 
-    return reviewsStream.paginate(args.paginationOpts);
+    const merged = mergedStream(perUserReviewStreams, ["lastUpdatedTime"]);
+    return merged.paginate(args.paginationOpts);
   },
 });
 
