@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -40,6 +41,15 @@ export default function RootLayout({
           >
             <Navbar />
             <main className="flex-1">{children}</main>
+            <footer className="border-t border-zinc-800 py-6 text-sm text-zinc-400">
+              <div className="container mx-auto px-4 flex items-center justify-between">
+                <p>© {new Date().getFullYear()} RecordStashd</p>
+                <div className="flex items-center gap-4">
+                  <Link className="hover:underline" href="/terms">Terms</Link>
+                  <Link className="hover:underline" href="/privacy">Privacy</Link>
+                </div>
+              </div>
+            </footer>
             <Toaster />
           </body>
         </html>
