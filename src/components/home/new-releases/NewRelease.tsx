@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,12 +19,12 @@ interface NewReleaseProps {
 export function NewRelease({ album }: NewReleaseProps) {
   return (
     <CarouselItem className="md:basis-1/3 lg:basis-1/5 py-1">
-      <Link
-        href={`/albums/${createArtistSlug(album.artists[0].name)}/${createAlbumSlug(album.name)}?id=${album.id}`}
-        className="block"
-      >
-        <Card className="hover:bg-accent overflow-hidden pt-0 transition-colors duration-200">
-          {album.images[0] && (
+      <Card className="hover:bg-accent overflow-hidden pt-0 transition-colors duration-200">
+        {album.images[0] && (
+          <Link
+            href={`/albums/${createArtistSlug(album.artists[0].name)}/${createAlbumSlug(album.name)}?id=${album.id}`}
+            className="block"
+          >
             <div className="relative aspect-square w-full">
               <Image
                 src={
@@ -38,20 +38,40 @@ export function NewRelease({ album }: NewReleaseProps) {
                 className="object-cover"
               />
             </div>
-          )}
-          <CardHeader>
+          </Link>
+        )}
+        <CardHeader>
+          <Link
+            href={`/albums/${createArtistSlug(album.artists[0].name)}/${createAlbumSlug(album.name)}?id=${album.id}`}
+            className="block"
+          >
             <CardTitle className="line-clamp-1 text-base">
               {album.name}
             </CardTitle>
             <CardDescription className="line-clamp-1 text-sm">
               {album.artists.map((a) => a.name).join(", ")}
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Badge variant="secondary">New Release</Badge>
-          </CardContent>
-        </Card>
-      </Link>
+          </Link>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between">
+          <Button asChild variant="outline" size="sm" className="rounded-3xl hover:rounded-md transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)]">
+            <Link
+              href={album.external_urls.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open ${album.name} on Spotify`}
+            >
+              <Image
+                src="/spotify_logo_green.svg"
+                alt=""
+                width={16}
+                height={16}
+              />
+              <span>Open on Spotify</span>
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
     </CarouselItem>
   );
 }
