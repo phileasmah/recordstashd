@@ -48,7 +48,7 @@ export function AlbumReviewCardContent({
       </div>
       <div className="flex-1 space-y-2">
         <div className="text-muted-foreground flex flex-col gap-2 text-sm">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <Link
               href={albumUrl}
               className="text-primary font-medium hover:underline"
