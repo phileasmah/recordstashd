@@ -1,6 +1,7 @@
 ## Album Review App
 
 A simple social album review app built with Next.js and Convex, with Spotify integration for album and artist data. Browse albums, write reviews, see what's popular, and follow other listeners.
+See https://www.recordstashd.com/phileas for live site.
 
 ## Screenshots
 Home Page
