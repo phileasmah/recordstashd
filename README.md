@@ -123,4 +123,5 @@ convex/
    npm run dev       # in another terminal
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000).
+## Good to knows 
+- Env values for Convex in `auth.config.ts` is configured in the Convex dashboard
