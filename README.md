@@ -6,6 +6,9 @@ A full-stack social album review platform where users can search the Spotify cat
 
 ![Home page](images/home-page.png)
 
+Profile page: [recordstashd.com/phileas](https://recordstashd.com/phileas)
+![Profile page](images/profile-page.png)
+
 ## Features
 
 - **Search & browse** any album in the Spotify catalogue with real-time search
